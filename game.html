@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 1 Prep Race: Master the Words!</title>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --success: #2ecc71;
+            --warning: #f1c40f;
+            --error: #e74c3c;
+            --bg: #f0f8ff;
+            --card: #ffffff;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+            background-color: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: var(--card);
+            width: 100%;
+            max-width: 600px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 { color: var(--primary); margin-bottom: 10px; }
+        h2 { color: #555; font-size: 1.2rem; }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #ddd;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--success);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            background: var(--primary);
+            color: white;
+            transition: transform 0.1s;
+            font-family: inherit;
+        }
+
+        .btn:hover { transform: scale(1.02); opacity: 0.9; }
+        .btn:active { transform: scale(0.98); }
+        .btn-choice { background: #fff; border: 2px solid var(--primary); color: var(--primary); font-weight: bold; }
+        .btn-choice:hover { background: var(--primary); color: white; }
+
+        .hidden { display: none; }
+
+        /* Zone Specific Styles */
+        .zone-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            background: var(--warning);
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .speaker-btn {
+            font-size: 3rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            animation: pulse 2s infinite;
+        }
+
+        .sentence-text {
+            font-size: 1.5rem;
+            margin: 30px 0;
+            line-height: 1.6;
+        }
+
+        .input-answer {
+            font-size: 1.5rem;
+            padding: 10px;
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            width: 80%;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .feedback {
+            height: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .correct { color: var(--success); }
+        .wrong { color: var(--error); }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .emoji-display { font-size: 4rem; margin: 10px 0; }
+
+    </style>
+</head>
+<body>
+
+<div class="game-container" id="start-screen">
+    <h1>Unit 1 Prep Race 🏆</h1>
+    <h2>Master the Words!</h2>
+    <p>Get ready for your English exam.</p>
+    <p>Zone 1: Listening 👂<br>Zone 2: Sentences 📝<br>Zone 3: Spelling 🔤</p>
+    <button class="btn" onclick="startGame()">START GAME</button>
+</div>
+
+<div class="game-container hidden" id="game-screen">
+    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+    <div class="zone-badge" id="zone-label">Zone 1</div>
+    
+    <div id="question-area">
+        </div>
+    
+    <div class="feedback" id="feedback-msg"></div>
+</div>
+
+<div class="game-container hidden" id="end-screen">
+    <h1>Great Job! 🎉</h1>
+    <h2 id="final-score"></h2>
+    <p>You are ready for the test!</p>
+    <button class="btn" onclick="location.reload()">Play Again</button>
+</div>
+
+<script>
+    // Data based on the uploaded Vocabulary List
+    const gameData = [
+        // ZONE 1: LISTENING (Discrimination)
+        {
+            zone: "Zone 1: Listening",
+            type: "listening",
+            word: "Teacher",
+            options: ["Teacher", "Sister", "Mother"]
+        },
+        {
+            zone: "Zone 1: Listening",
+            type: "listening",
+            word: "Pencil",
+            options: ["Pencil", "Pen", "Paper"]
+        },
+        {
+            zone: "Zone 1: Listening",
+            type: "listening",
+            word: "School",
+            options: ["School", "Pool", "Cool"]
+        },
+        {
+            zone: "Zone 1: Listening",
+            type: "listening",
+            word: "Lunch",
+            options: ["Lunch", "Learn", "Listen"]
+        },
+
+        // ZONE 2: SENTENCE COMPLETION (Context)
+        {
+            zone: "Zone 2: Sentences",
+            type: "sentence",
+            text: "I read a ___ in class.",
+            correct: "book",
+            options: ["book", "music"]
+        },
+        {
+            zone: "Zone 2: Sentences",
+            type: "sentence",
+            text: "My ___ helps me learn.",
+            correct: "teacher",
+            options: ["teacher", "town"]
+        },
+        {
+            zone: "Zone 2: Sentences",
+            type: "sentence",
+            text: "We play sports on ___.",
+            correct: "Monday",
+            options: ["Monday", "Math"]
+        },
+        {
+            zone: "Zone 2: Sentences",
+            type: "sentence",
+            text: "Can I ___ with you?",
+            correct: "talk",
+            options: ["talk", "thanks"]
+        },
+
+        // ZONE 3: SPELLING / VOCAB (Writing Tasks)
+        {
+            zone: "Zone 3: Spelling",
+            type: "spelling",
+            image: "🏠",
+            hint: "H _ _ S _",
+            correct: "house"
+        },
+        {
+            zone: "Zone 3: Spelling",
+            type: "spelling",
+            image: "💻",
+            hint: "C _ M _ U _ E _",
+            correct: "computer"
+        },
+        {
+            zone: "Zone 3: Spelling",
+            type: "spelling",
+            image: "📓",
+            hint: "N _ T _ B _ _ K",
+            correct: "notebook"
+        }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    const container = document.getElementById('question-area');
+    const feedback = document.getElementById('feedback-msg');
+    const progressBar = document.getElementById('progress');
+    const zoneLabel = document.getElementById('zone-label');
+
+    function startGame() {
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('game-screen').classList.remove('hidden');
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const q = gameData[currentIdx];
+        zoneLabel.innerText = q.zone;
+        feedback.innerText = "";
+        progressBar.style.width = `${(currentIdx / gameData.length) * 100}%`;
+
+        container.innerHTML = ''; // Clear previous
+
+        if(q.type === 'listening') {
+            container.innerHTML = `
+                <p>Click the speaker and listen!</p>
+                <button class="speaker-btn" onclick="speak('${q.word}')">🔊</button>
+                <div style="margin-top:20px;">
+                    ${q.options.map(opt => `<button class="btn btn-choice" onclick="checkAnswer('${opt}', '${q.word}')">${opt}</button>`).join('')}
+                </div>
+            `;
+        } 
+        else if(q.type === 'sentence') {
+            // Create sentence with blank
+            const sentenceParts = q.text.split('___');
+            container.innerHTML = `
+                <div class="sentence-text">
+                    ${sentenceParts[0]} <span style="border-bottom: 2px solid black; min-width: 50px; display:inline-block;">?</span> ${sentenceParts[1]}
+                </div>
+                <div style="margin-top:20px;">
+                    ${q.options.map(opt => `<button class="btn btn-choice" onclick="checkAnswer('${opt}', '${q.correct}')">${opt}</button>`).join('')}
+                </div>
+            `;
+        }
+        else if(q.type === 'spelling') {
+            container.innerHTML = `
+                <div class="emoji-display">${q.image}</div>
+                <p>Hint: ${q.hint}</p>
+                <input type="text" id="spellInput" class="input-answer" placeholder="Type here..." autocomplete="off">
+                <button class="btn" onclick="checkSpelling('${q.correct}')">Check</button>
+            `;
+        }
+    }
+
+    function speak(word) {
+        const utterance = new SpeechSynthesisUtterance(word);
+        utterance.lang = 'en-US';
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function checkAnswer(selected, correct) {
+        if(selected === correct) {
+            feedback.className = "feedback correct";
+            feedback.innerText = "Correct! 🎉";
+            score++;
+            setTimeout(nextQuestion, 1000);
+        } else {
+            feedback.className = "feedback wrong";
+            feedback.innerText = "Try Again! ❌";
+        }
+    }
+
+    function checkSpelling(correctWord) {
+        const input = document.getElementById('spellInput');
+        if(input.value.toLowerCase().trim() === correctWord.toLowerCase()) {
+            feedback.className = "feedback correct";
+            feedback.innerText = "Perfect Spelling! ⭐";
+            score++;
+            setTimeout(nextQuestion, 1000);
+        } else {
+            feedback.className = "feedback wrong";
+            feedback.innerText = "Not quite. Check your spelling!";
+        }
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if(currentIdx < gameData.length) {
+            loadQuestion();
+        } else {
+            endGame();
+        }
+    }
+
+    function endGame() {
+        document.getElementById('game-screen').classList.add('hidden');
+        document.getElementById('end-screen').classList.remove('hidden');
+        document.getElementById('final-score').innerText = `Score: ${score} / ${gameData.length}`;
+    }
+</script>
+
+</body>
+</html>
