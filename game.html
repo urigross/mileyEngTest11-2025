@@ -1,344 +1,515 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unit 1 Prep Race: Master the Words!</title>
+    <title>Jet 2 - משחק הכנה למבחן</title>
     <style>
         :root {
             --primary: #4a90e2;
-            --success: #2ecc71;
-            --warning: #f1c40f;
-            --error: #e74c3c;
-            --bg: #f0f8ff;
+            --secondary: #f5a623;
+            --success: #7ed321;
+            --error: #d0021b;
+            --bg: #f0f4f8;
             --card: #ffffff;
         }
 
         body {
-            font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
             margin: 0;
             padding: 20px;
+            text-align: center;
+            direction: rtl;
         }
 
-        .game-container {
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
             background: var(--card);
-            width: 100%;
-            max-width: 600px;
             border-radius: 20px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             padding: 30px;
-            text-align: center;
+            min-height: 500px;
             position: relative;
-            overflow: hidden;
         }
 
         h1 { color: var(--primary); margin-bottom: 10px; }
         h2 { color: #555; font-size: 1.2rem; }
 
-        .progress-bar {
-            width: 100%;
-            height: 10px;
-            background: #ddd;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            overflow: hidden;
+        .score-board {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: var(--secondary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        .progress-fill {
-            height: 100%;
-            background: var(--success);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
+        .game-screen { display: none; }
+        .game-screen.active { display: block; animation: fadeIn 0.5s; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .btn {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.2rem;
-            cursor: pointer;
             background: var(--primary);
             color: white;
-            transition: transform 0.1s;
-            font-family: inherit;
-        }
-
-        .btn:hover { transform: scale(1.02); opacity: 0.9; }
-        .btn:active { transform: scale(0.98); }
-        .btn-choice { background: #fff; border: 2px solid var(--primary); color: var(--primary); font-weight: bold; }
-        .btn-choice:hover { background: var(--primary); color: white; }
-
-        .hidden { display: none; }
-
-        /* Zone Specific Styles */
-        .zone-badge {
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 20px;
-            background: var(--warning);
-            color: #333;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-
-        .speaker-btn {
-            font-size: 3rem;
-            background: none;
             border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 12px;
             cursor: pointer;
-            animation: pulse 2s infinite;
+            margin: 10px;
+            transition: transform 0.2s, background 0.2s;
+            box-shadow: 0 4px 0 #357abd;
         }
 
-        .sentence-text {
-            font-size: 1.5rem;
-            margin: 30px 0;
-            line-height: 1.6;
-        }
+        .btn:active { transform: translateY(4px); box-shadow: none; }
+        .btn:hover { background: #357abd; }
+        .btn-secondary { background: var(--secondary); box-shadow: 0 4px 0 #d48e15; }
 
-        .input-answer {
+        /* Game Elements */
+        .emoji-display { font-size: 5rem; margin: 20px 0; display: block; }
+        .word-options { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 20px; }
+        
+        .listening-btn {
+            font-size: 3rem;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .listening-btn:hover { background: #eef; border-color: var(--primary); transform: scale(1.1); }
+
+        .input-box {
             font-size: 1.5rem;
             padding: 10px;
-            border: 2px solid var(--primary);
+            border: 3px solid #ccc;
             border-radius: 10px;
-            width: 80%;
+            width: 60%;
             text-align: center;
-            margin-bottom: 15px;
+            outline: none;
+            margin-bottom: 20px;
         }
+        .input-box:focus { border-color: var(--primary); }
 
         .feedback {
-            height: 20px;
+            font-size: 1.5rem;
+            margin-top: 20px;
             font-weight: bold;
-            margin-top: 10px;
+            min-height: 40px;
+        }
+        .feedback.correct { color: var(--success); }
+        .feedback.wrong { color: var(--error); }
+
+        /* Reading Section */
+        .reading-text {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid var(--primary);
+            text-align: left;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            direction: ltr;
         }
 
-        .correct { color: var(--success); }
-        .wrong { color: var(--error); }
+        .question-box { text-align: right; direction: rtl; margin-top: 20px; }
+        
+        /* High Score Table */
+        table { width: 100%; margin-top: 20px; border-collapse: collapse; }
+        th, td { padding: 10px; border-bottom: 1px solid #ddd; }
+        th { background: #f0f0f0; }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
+        .category-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 15px;
+            background: #e1e1e1;
+            color: #555;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
         }
 
-        .emoji-display { font-size: 4rem; margin: 10px 0; }
-
+        /* Confetti */
+        .confetti { position: fixed; width: 10px; height: 10px; background-color: #f2d74e; animation: confetti 5s ease-in-out infinite; z-index: 999; }
     </style>
 </head>
 <body>
 
-<div class="game-container" id="start-screen">
-    <h1>Unit 1 Prep Race 🏆</h1>
-    <h2>Master the Words!</h2>
-    <p>Get ready for your English exam.</p>
-    <p>Zone 1: Listening 👂<br>Zone 2: Sentences 📝<br>Zone 3: Spelling 🔤</p>
-    <button class="btn" onclick="startGame()">START GAME</button>
-</div>
-
-<div class="game-container hidden" id="game-screen">
-    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
-    <div class="zone-badge" id="zone-label">Zone 1</div>
+<div class="container">
+    <div class="score-board">ניקוד: <span id="currentScore">0</span></div>
     
-    <div id="question-area">
-        </div>
-    
-    <div class="feedback" id="feedback-msg"></div>
-</div>
+    <div id="screen-menu" class="game-screen active">
+        <h1>🎓 הכנה למבחן באנגלית - כיתה ד'</h1>
+        <h2>At School - Unit 1</h2>
+        <p>בחרי משחק כדי להתחיל:</p>
+        
+        <button class="btn" onclick="startGame('listening')">👂 הבנת הנשמע</button>
+        <button class="btn" onclick="startGame('vocab')">📝 אוצר מילים וכתיבה</button>
+        <button class="btn" onclick="startGame('sentences')">🧩 השלמת משפטים</button>
+        <button class="btn" onclick="startGame('reading')">📖 הבנת הנקרא</button>
+        <br>
+        <button class="btn btn-secondary" onclick="showLeaderboard()">🏆 לוח תוצאות</button>
+    </div>
 
-<div class="game-container hidden" id="end-screen">
-    <h1>Great Job! 🎉</h1>
-    <h2 id="final-score"></h2>
-    <p>You are ready for the test!</p>
-    <button class="btn" onclick="location.reload()">Play Again</button>
+    <div id="screen-game" class="game-screen">
+        <div id="category-title" class="category-badge"></div>
+        <div id="game-content"></div>
+        <div id="feedback" class="feedback"></div>
+        <button class="btn" id="next-btn" style="display:none;" onclick="nextQuestion()">הבא</button>
+        <button class="btn btn-secondary" onclick="showMenu()">יציאה לתפריט</button>
+    </div>
+
+    <div id="screen-leaderboard" class="game-screen">
+        <h1>🏆 אלופי האנגלית</h1>
+        <ul id="scores-list" style="list-style: none; padding: 0;"></ul>
+        <button class="btn" onclick="showMenu()">חזרה</button>
+    </div>
 </div>
 
 <script>
-    // Data based on the uploaded Vocabulary List
-    const gameData = [
-        // ZONE 1: LISTENING (Discrimination)
-        {
-            zone: "Zone 1: Listening",
-            type: "listening",
-            word: "Teacher",
-            options: ["Teacher", "Sister", "Mother"]
-        },
-        {
-            zone: "Zone 1: Listening",
-            type: "listening",
-            word: "Pencil",
-            options: ["Pencil", "Pen", "Paper"]
-        },
-        {
-            zone: "Zone 1: Listening",
-            type: "listening",
-            word: "School",
-            options: ["School", "Pool", "Cool"]
-        },
-        {
-            zone: "Zone 1: Listening",
-            type: "listening",
-            word: "Lunch",
-            options: ["Lunch", "Learn", "Listen"]
-        },
-
-        // ZONE 2: SENTENCE COMPLETION (Context)
-        {
-            zone: "Zone 2: Sentences",
-            type: "sentence",
-            text: "I read a ___ in class.",
-            correct: "book",
-            options: ["book", "music"]
-        },
-        {
-            zone: "Zone 2: Sentences",
-            type: "sentence",
-            text: "My ___ helps me learn.",
-            correct: "teacher",
-            options: ["teacher", "town"]
-        },
-        {
-            zone: "Zone 2: Sentences",
-            type: "sentence",
-            text: "We play sports on ___.",
-            correct: "Monday",
-            options: ["Monday", "Math"]
-        },
-        {
-            zone: "Zone 2: Sentences",
-            type: "sentence",
-            text: "Can I ___ with you?",
-            correct: "talk",
-            options: ["talk", "thanks"]
-        },
-
-        // ZONE 3: SPELLING / VOCAB (Writing Tasks)
-        {
-            zone: "Zone 3: Spelling",
-            type: "spelling",
-            image: "🏠",
-            hint: "H _ _ S _",
-            correct: "house"
-        },
-        {
-            zone: "Zone 3: Spelling",
-            type: "spelling",
-            image: "💻",
-            hint: "C _ M _ U _ E _",
-            correct: "computer"
-        },
-        {
-            zone: "Zone 3: Spelling",
-            type: "spelling",
-            image: "📓",
-            hint: "N _ T _ B _ _ K",
-            correct: "notebook"
-        }
+    // --- Data ---
+    const vocabulary = [
+        { word: "school", icon: "🏫", hebrew: "בית ספר" },
+        { word: "teacher", icon: "👩‍🏫", hebrew: "מורה" },
+        { word: "pupil", icon: "👧", hebrew: "תלמיד/ה" },
+        { word: "friend", icon: "👫", hebrew: "חבר/ה" },
+        { word: "family", icon: "👨‍👩‍👧‍👦", hebrew: "משפחה" },
+        { word: "book", icon: "📖", hebrew: "ספר" },
+        { word: "notebook", icon: "📓", hebrew: "מחברת" },
+        { word: "pencil", icon: "✏️", hebrew: "עיפרון" },
+        { word: "eraser", icon: "🧼", hebrew: "מחק" },
+        { word: "computer", icon: "💻", hebrew: "מחשב" },
+        { word: "lunch", icon: "🥪", hebrew: "ארוחת צהריים" },
+        { word: "bird", icon: "🐦", hebrew: "ציפור" },
+        { word: "house", icon: "🏠", hebrew: "בית" },
+        { word: "math", icon: "➗", hebrew: "חשבון" },
+        { word: "art", icon: "🎨", hebrew: "אומנות" },
+        { word: "music", icon: "🎵", hebrew: "מוזיקה" },
+        { word: "sports", icon: "⚽", hebrew: "ספורט" },
+        { word: "happy", icon: "😊", hebrew: "שמח" },
+        { word: "write", icon: "✍️", hebrew: "לכתוב" },
+        { word: "homework", icon: "🏠📚", hebrew: "שיעורי בית" }
     ];
 
-    let currentIdx = 0;
+    const sentences = [
+        { text: "The _____ is on the table.", options: ["book", "fly"], answer: "book" },
+        { text: "I like my _____. She is nice.", options: ["teacher", "day"], answer: "teacher" },
+        { text: "We learn _____ at school.", options: ["English", "lunch"], answer: "English" },
+        { text: "I have a sandwich for _____.", options: ["lunch", "pencil"], answer: "lunch" },
+        { text: "This is my _____, Dan.", options: ["brother", "board"], answer: "brother" },
+        { text: "Please _____ your name.", options: ["write", "happy"], answer: "write" },
+        { text: "I live in a big _____.", options: ["house", "chair"], answer: "house" },
+        { text: "The _____ is singing.", options: ["bird", "book"], answer: "bird" }
+    ];
+
+    const readingText = `
+        Hi! My name is Gal. I am 9 years old.
+        I am a pupil in grade 4.
+        I learn at a big school in the town.
+        My teacher is Rina. She is very nice.
+        I like Math, English and Sports.
+        I have a new computer at home.
+    `;
+
+    const readingQuestions = [
+        { q: "What is the girl's name?", options: ["Rina", "Gal", "Tal"], answer: "Gal" },
+        { q: "What grade is she in?", options: ["Grade 3", "Grade 5", "Grade 4"], answer: "Grade 4" },
+        { q: "What is the teacher's name?", options: ["Rina", "Gal", "Dana"], answer: "Rina" },
+        { q: "What does she have at home?", options: ["A bird", "A new computer", "A dog"], answer: "A new computer" }
+    ];
+
+    // --- State ---
     let score = 0;
-    const container = document.getElementById('question-area');
-    const feedback = document.getElementById('feedback-msg');
-    const progressBar = document.getElementById('progress');
-    const zoneLabel = document.getElementById('zone-label');
+    let currentMode = '';
+    let currentQuestionIndex = 0;
+    let currentData = [];
 
-    function startGame() {
-        document.getElementById('start-screen').classList.add('hidden');
-        document.getElementById('game-screen').classList.remove('hidden');
-        loadQuestion();
-    }
+    // --- Logic ---
 
-    function loadQuestion() {
-        const q = gameData[currentIdx];
-        zoneLabel.innerText = q.zone;
-        feedback.innerText = "";
-        progressBar.style.width = `${(currentIdx / gameData.length) * 100}%`;
-
-        container.innerHTML = ''; // Clear previous
-
-        if(q.type === 'listening') {
-            container.innerHTML = `
-                <p>Click the speaker and listen!</p>
-                <button class="speaker-btn" onclick="speak('${q.word}')">🔊</button>
-                <div style="margin-top:20px;">
-                    ${q.options.map(opt => `<button class="btn btn-choice" onclick="checkAnswer('${opt}', '${q.word}')">${opt}</button>`).join('')}
-                </div>
-            `;
-        } 
-        else if(q.type === 'sentence') {
-            // Create sentence with blank
-            const sentenceParts = q.text.split('___');
-            container.innerHTML = `
-                <div class="sentence-text">
-                    ${sentenceParts[0]} <span style="border-bottom: 2px solid black; min-width: 50px; display:inline-block;">?</span> ${sentenceParts[1]}
-                </div>
-                <div style="margin-top:20px;">
-                    ${q.options.map(opt => `<button class="btn btn-choice" onclick="checkAnswer('${opt}', '${q.correct}')">${opt}</button>`).join('')}
-                </div>
-            `;
-        }
-        else if(q.type === 'spelling') {
-            container.innerHTML = `
-                <div class="emoji-display">${q.image}</div>
-                <p>Hint: ${q.hint}</p>
-                <input type="text" id="spellInput" class="input-answer" placeholder="Type here..." autocomplete="off">
-                <button class="btn" onclick="checkSpelling('${q.correct}')">Check</button>
-            `;
-        }
-    }
-
-    function speak(word) {
-        const utterance = new SpeechSynthesisUtterance(word);
+    function speak(text) {
+        const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'en-US';
+        utterance.rate = 0.9;
         window.speechSynthesis.speak(utterance);
     }
 
-    function checkAnswer(selected, correct) {
-        if(selected === correct) {
-            feedback.className = "feedback correct";
-            feedback.innerText = "Correct! 🎉";
-            score++;
-            setTimeout(nextQuestion, 1000);
-        } else {
-            feedback.className = "feedback wrong";
-            feedback.innerText = "Try Again! ❌";
+    function switchScreen(id) {
+        document.querySelectorAll('.game-screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function updateScoreDisplay() {
+        document.getElementById('currentScore').innerText = score;
+    }
+
+    function showMenu() {
+        switchScreen('screen-menu');
+    }
+
+    function startGame(mode) {
+        currentMode = mode;
+        score = 0;
+        currentQuestionIndex = 0;
+        updateScoreDisplay();
+        switchScreen('screen-game');
+        
+        let title = "";
+        if (mode === 'listening') title = "הקשיבי ולחצי על התמונה הנכונה";
+        if (mode === 'vocab') title = "כתבי את המילה באנגלית";
+        if (mode === 'sentences') title = "השלימי את המשפט";
+        if (mode === 'reading') title = "קראי את הטקסט ועני על השאלות";
+        
+        document.getElementById('category-title').innerText = title;
+        generateLevelData();
+        renderQuestion();
+    }
+
+    function generateLevelData() {
+        // Randomize questions slightly
+        if (currentMode === 'listening' || currentMode === 'vocab') {
+            currentData = [...vocabulary].sort(() => 0.5 - Math.random()).slice(0, 10);
+        } else if (currentMode === 'sentences') {
+            currentData = [...sentences].sort(() => 0.5 - Math.random()).slice(0, 8);
+        } else if (currentMode === 'reading') {
+            currentData = [...readingQuestions]; // Fixed order for reading
         }
     }
 
-    function checkSpelling(correctWord) {
-        const input = document.getElementById('spellInput');
-        if(input.value.toLowerCase().trim() === correctWord.toLowerCase()) {
-            feedback.className = "feedback correct";
-            feedback.innerText = "Perfect Spelling! ⭐";
-            score++;
-            setTimeout(nextQuestion, 1000);
-        } else {
-            feedback.className = "feedback wrong";
-            feedback.innerText = "Not quite. Check your spelling!";
+    function renderQuestion() {
+        const container = document.getElementById('game-content');
+        const feedback = document.getElementById('feedback');
+        const nextBtn = document.getElementById('next-btn');
+        
+        container.innerHTML = '';
+        feedback.innerText = '';
+        feedback.className = 'feedback';
+        nextBtn.style.display = 'none';
+
+        if (currentQuestionIndex >= currentData.length) {
+            endGame();
+            return;
         }
+
+        const item = currentData[currentQuestionIndex];
+
+        // --- Listening Logic ---
+        if (currentMode === 'listening') {
+            // Pick 2 wrong answers + 1 correct
+            let options = [item];
+            while(options.length < 3) {
+                let r = vocabulary[Math.floor(Math.random() * vocabulary.length)];
+                if (!options.includes(r)) options.push(r);
+            }
+            options.sort(() => 0.5 - Math.random());
+
+            const btnSpeak = document.createElement('button');
+            btnSpeak.className = 'btn btn-secondary';
+            btnSpeak.innerText = '🔊 השמיעי את המילה';
+            btnSpeak.onclick = () => speak(item.word);
+            
+            // Auto speak on load
+            setTimeout(() => speak(item.word), 500);
+
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'word-options';
+            
+            options.forEach(opt => {
+                const b = document.createElement('div');
+                b.className = 'listening-btn';
+                b.innerText = opt.icon;
+                b.onclick = () => checkAnswer(opt.word, item.word);
+                optionsDiv.appendChild(b);
+            });
+
+            container.appendChild(btnSpeak);
+            container.appendChild(optionsDiv);
+        }
+
+        // --- Vocabulary Logic ---
+        if (currentMode === 'vocab') {
+            const icon = document.createElement('div');
+            icon.className = 'emoji-display';
+            icon.innerText = item.icon;
+            
+            const hint = document.createElement('div');
+            hint.innerText = item.hebrew;
+            hint.style.fontSize = "1.2rem";
+            hint.style.marginBottom = "10px";
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'input-box';
+            input.placeholder = 'Type here...';
+            input.onkeypress = (e) => { if(e.key === 'Enter') checkAnswer(input.value, item.word); };
+
+            const checkBtn = document.createElement('button');
+            checkBtn.className = 'btn';
+            checkBtn.innerText = 'בדיקה';
+            checkBtn.onclick = () => checkAnswer(input.value, item.word);
+
+            container.appendChild(icon);
+            container.appendChild(hint);
+            container.appendChild(input);
+            container.appendChild(checkBtn);
+            input.focus();
+        }
+
+        // --- Sentences Logic ---
+        if (currentMode === 'sentences') {
+            const sentenceDiv = document.createElement('div');
+            sentenceDiv.style.fontSize = "1.5rem";
+            sentenceDiv.style.marginBottom = "20px";
+            sentenceDiv.style.direction = "ltr";
+            sentenceDiv.innerText = item.text;
+
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'word-options';
+
+            item.options.forEach(opt => {
+                const b = document.createElement('button');
+                b.className = 'btn';
+                b.innerText = opt;
+                b.onclick = () => checkAnswer(opt, item.answer);
+                optionsDiv.appendChild(b);
+            });
+
+            container.appendChild(sentenceDiv);
+            container.appendChild(optionsDiv);
+        }
+
+        // --- Reading Logic ---
+        if (currentMode === 'reading') {
+            // Show text only on first question or always? Let's show always for help
+            const textDiv = document.createElement('div');
+            textDiv.className = 'reading-text';
+            textDiv.innerText = readingText;
+
+            const qDiv = document.createElement('div');
+            qDiv.className = 'question-box';
+            qDiv.style.direction = "ltr";
+            qDiv.style.textAlign = "center";
+            qDiv.innerHTML = `<h3>${item.q}</h3>`;
+
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'word-options';
+
+            item.options.forEach(opt => {
+                const b = document.createElement('button');
+                b.className = 'btn';
+                b.innerText = opt;
+                b.onclick = () => checkAnswer(opt, item.answer);
+                optionsDiv.appendChild(b);
+            });
+
+            container.appendChild(textDiv);
+            container.appendChild(qDiv);
+            container.appendChild(optionsDiv);
+        }
+    }
+
+    function checkAnswer(userAnswer, correctAnswer) {
+        // Prevent multiple clicks
+        if (document.getElementById('next-btn').style.display === 'inline-block') return;
+
+        const feedback = document.getElementById('feedback');
+        userAnswer = userAnswer.trim().toLowerCase();
+        correctAnswer = correctAnswer.trim().toLowerCase();
+
+        if (userAnswer === correctAnswer) {
+            feedback.innerText = "Excellent! כל הכבוד! 🎉";
+            feedback.className = "feedback correct";
+            score += 10;
+            speak("Good job!");
+            triggerConfetti();
+        } else {
+            feedback.innerText = `לא נורא, התשובה הנכונה היא: ${correctAnswer}`;
+            feedback.className = "feedback wrong";
+            speak("Try again next time");
+        }
+
+        updateScoreDisplay();
+        document.getElementById('next-btn').style.display = 'inline-block';
     }
 
     function nextQuestion() {
-        currentIdx++;
-        if(currentIdx < gameData.length) {
-            loadQuestion();
-        } else {
-            endGame();
-        }
+        currentQuestionIndex++;
+        renderQuestion();
     }
 
     function endGame() {
-        document.getElementById('game-screen').classList.add('hidden');
-        document.getElementById('end-screen').classList.remove('hidden');
-        document.getElementById('final-score').innerText = `Score: ${score} / ${gameData.length}`;
+        const container = document.getElementById('game-content');
+        container.innerHTML = `
+            <h2>סיימת את המשחק!</h2>
+            <div class="emoji-display">🏆</div>
+            <h3>הניקוד שלך: ${score}</h3>
+            <p>שמרי את שמך בלוח התוצאות:</p>
+            <input type="text" id="playerName" class="input-box" placeholder="שמך..." style="width:200px">
+            <br>
+            <button class="btn" onclick="saveToLeaderboard()">שמור</button>
+        `;
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('feedback').innerText = '';
     }
+
+    // --- Leaderboard Logic ---
+    function saveToLeaderboard() {
+        const name = document.getElementById('playerName').value || "Anonymous";
+        const date = new Date().toLocaleDateString('he-IL');
+        
+        let scores = JSON.parse(localStorage.getItem('englishGameScores')) || [];
+        scores.push({ name, score, date, mode: currentMode });
+        scores.sort((a, b) => b.score - a.score);
+        scores = scores.slice(0, 10); // Keep top 10
+        
+        localStorage.setItem('englishGameScores', JSON.stringify(scores));
+        showLeaderboard();
+    }
+
+    function showLeaderboard() {
+        switchScreen('screen-leaderboard');
+        const list = document.getElementById('scores-list');
+        list.innerHTML = '';
+        const scores = JSON.parse(localStorage.getItem('englishGameScores')) || [];
+
+        if (scores.length === 0) {
+            list.innerHTML = '<li>עדיין אין תוצאות... היי הראשונה לשחק!</li>';
+            return;
+        }
+
+        scores.forEach((s, i) => {
+            const li = document.createElement('li');
+            li.style.padding = "10px";
+            li.style.borderBottom = "1px solid #ddd";
+            li.style.fontSize = "1.1rem";
+            // Translate mode to Hebrew for display
+            let modeHeb = s.mode === 'listening' ? 'שמיעה' : (s.mode === 'vocab' ? 'כתיבה' : 'דקדוק');
+            li.innerHTML = `<strong>#${i+1} ${s.name}</strong> - ${s.score} נק' (${modeHeb}) <span style="font-size:0.8rem; color:#888">${s.date}</span>`;
+            list.appendChild(li);
+        });
+    }
+
+    // --- Effects ---
+    function triggerConfetti() {
+        for(let i=0; i<30; i++) {
+            const c = document.createElement('div');
+            c.className = 'confetti';
+            c.style.left = Math.random() * 100 + 'vw';
+            c.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            c.style.backgroundColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+            document.body.appendChild(c);
+            setTimeout(() => c.remove(), 5000);
+        }
+    }
+
 </script>
 
 </body>
