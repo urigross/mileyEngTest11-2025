@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jet 2 - משחק הכנה למבחן (טיוטה 2)</title>
+    <title>Jet 2 - משחק הכנה למבחן (גרסה 5)</title>
     <style>
         :root {
             --primary: #4a90e2;
@@ -85,9 +85,21 @@
 
         .btn:active { transform: translateY(4px); box-shadow: none; }
         .btn:hover { background: #357abd; }
-        .btn-secondary { background: var(--secondary); box-shadow: 0 5px 0 #d48e15; width: auto; display: inline-block; padding: 10px 30px;}
-        .btn-hint { background: #9b59b6; box-shadow: 0 5px 0 #8e44ad; font-size: 0.9rem; padding: 10px 20px; margin-right: 10px; }
+        .btn:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; transform: none; }
         
+        .btn-secondary { background: var(--secondary); box-shadow: 0 5px 0 #d48e15; width: auto; display: inline-block; padding: 10px 30px;}
+        .btn-info { background: #17a2b8; box-shadow: 0 5px 0 #117a8b; }
+        
+        .btn-hint { 
+            background: #9b59b6; 
+            box-shadow: 0 5px 0 #8e44ad; 
+            font-size: 1rem; 
+            padding: 10px 20px; 
+            margin-right: 10px;
+            display: flex;
+            flex-direction: row; 
+        }
+
         /* Game Elements */
         .emoji-display { font-size: 4rem; margin: 10px 0; display: block; }
         .word-options { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
@@ -141,7 +153,7 @@
             overflow-y: auto;
         }
 
-        /* --- SNAKE GAME STYLES --- */
+        /* --- SNAKE GAME STYLES (UPDATED D-PAD) --- */
         #snake-container {
             position: relative;
             width: 400px;
@@ -168,19 +180,38 @@
             z-index: 5;
         }
 
+        /* New Grid Layout for Controls */
         .snake-controls {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(3, 70px);
+            grid-template-rows: repeat(3, 60px);
+            gap: 5px;
             justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
+            margin-top: 15px;
         }
+        
         .d-pad-btn {
-            width: 50px; height: 50px;
-            border-radius: 50%; background: #ddd; border: none;
-            font-size: 1.5rem; font-weight: bold; cursor: pointer;
-            box-shadow: 0 4px #bbb;
+            width: 60px; height: 60px;
+            border-radius: 50%; 
+            background: #ddd; 
+            border: none;
+            font-size: 1.8rem; 
+            font-weight: bold; 
+            cursor: pointer;
+            box-shadow: 0 4px #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #555;
         }
-        .d-pad-btn:active { transform: translateY(4px); box-shadow: none; }
+        .d-pad-btn:active { transform: translateY(4px); box-shadow: none; background: #ccc; }
+
+        /* Grid Positioning */
+        .btn-up { grid-column: 2; grid-row: 1; }
+        .btn-left { grid-column: 1; grid-row: 2; }
+        .btn-right { grid-column: 3; grid-row: 2; }
+        .btn-down { grid-column: 2; grid-row: 3; }
+
 
         #snake-word-target {
             font-size: 1.5rem; letter-spacing: 5px; color: var(--primary);
@@ -223,6 +254,26 @@
         #victory-overlay h1 { font-size: 3rem; color: #f2d74e; text-shadow: 0 0 20px #f2d74e; margin-bottom: 0; }
         #fireworks-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
 
+        /* --- VERSION HISTORY STYLES --- */
+        .version-list {
+            text-align: right;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .version-item {
+            background: #fff;
+            border-left: 5px solid var(--primary);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .version-title { font-weight: bold; font-size: 1.2rem; color: var(--dark); margin-bottom: 5px; display: flex; justify-content: space-between;}
+        .version-date { font-size: 0.9rem; color: #888; }
+        .version-details { margin-top: 10px; padding-right: 20px; list-style-type: disc; }
+        .version-details li { margin-bottom: 5px; color: #555; }
+
     </style>
 </head>
 <body>
@@ -231,7 +282,7 @@
     <div class="score-board">ניקוד: <span id="currentScore">0</span></div>
     
     <div id="screen-menu" class="game-screen active">
-        <h1>🎓 הכנה למבחן באנגלית - טיוטה 2</h1>
+        <h1>🎓 הכנה למבחן באנגלית - כיתה ד'</h1>
         <h2>At School - Unit 1</h2>
         <div class="menu-grid">
             <button class="btn" onclick="startGame('listening')"><i>👂</i>הבנת הנשמע</button>
@@ -241,7 +292,11 @@
             <button class="btn" style="background-color: #9b59b6;" onclick="startSnakeGame()"><i>🐍</i>סנייק מילים</button>
             <button class="btn" style="background-color: #e67e22;" onclick="startMemoryGame()"><i>🃏</i>משחק הזיכרון</button>
         </div>
-        <button class="btn btn-secondary" onclick="showLeaderboard()">🏆 לוח השיאים</button>
+        
+        <div style="margin-top: 20px;">
+            <button class="btn btn-secondary" onclick="showLeaderboard()">🏆 לוח השיאים</button>
+            <button class="btn btn-info" onclick="showVersions()">📋 עדכוני גרסאות</button>
+        </div>
     </div>
 
     <div id="screen-game" class="game-screen">
@@ -266,18 +321,20 @@
 
             <div id="snake-crash-overlay" class="snake-overlay">
                 <h2>💥 אוי לא! נתקעת בקיר!</h2>
-                <button class="btn" onclick="endGame()">סיום ושמירת תוצאה</button>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn" onclick="endGame()">סיום</button>
+                    <button class="btn btn-secondary" onclick="startSnakeGame()">🔄 נסי שוב</button>
+                </div>
             </div>
         </div>
 
         <div class="snake-controls">
-            <button class="d-pad-btn" onmousedown="setSnakeDir('LEFT')">⬅️</button>
-            <div style="display:flex; flex-direction:column; gap:10px">
-                <button class="d-pad-btn" onmousedown="setSnakeDir('UP')">⬆️</button>
-                <button class="d-pad-btn" onmousedown="setSnakeDir('DOWN')">⬇️</button>
-            </div>
-            <button class="d-pad-btn" onmousedown="setSnakeDir('RIGHT')">➡️</button>
+            <button class="d-pad-btn btn-up" onmousedown="setSnakeDir('UP')">⬆️</button>
+            <button class="d-pad-btn btn-left" onmousedown="setSnakeDir('LEFT')">⬅️</button>
+            <button class="d-pad-btn btn-right" onmousedown="setSnakeDir('RIGHT')">➡️</button>
+            <button class="d-pad-btn btn-down" onmousedown="setSnakeDir('DOWN')">⬇️</button>
         </div>
+        
         <button class="btn btn-secondary" style="margin-top:20px" onclick="stopSnakeGame()">יציאה</button>
     </div>
 
@@ -292,6 +349,46 @@
         <ul id="scores-list" style="list-style: none; padding: 0;"></ul>
         <button class="btn btn-secondary" onclick="showMenu()">חזרה</button>
     </div>
+
+    <div id="screen-versions" class="game-screen">
+        <h1>📋 עדכוני גרסאות</h1>
+        <div class="version-list">
+            
+            <div class="version-item">
+                <div class="version-title">גרסה 5 (נוכחית) <span class="version-date">היום</span></div>
+                <ul class="version-details">
+                    <li><strong>סידור חיצים בסנייק:</strong> עיצוב מחדש של הכפתורים בצורת ג'ויסטיק (צלב) לנוחות מקסימלית.</li>
+                    <li><strong>משחק חוזר:</strong> הוספת כפתור "משחק חוזר" בסיום כל משחק או פסילה, למעבר מהיר לסיבוב נוסף.</li>
+                </ul>
+            </div>
+
+            <div class="version-item">
+                <div class="version-title">גרסה 4 <span class="version-date">עדכון ממשק</span></div>
+                <ul class="version-details">
+                    <li>נוסף עמוד "עדכוני גרסאות".</li>
+                </ul>
+            </div>
+
+            <div class="version-item">
+                <div class="version-title">גרסה 3 <span class="version-date">עדכוני משחקיות</span></div>
+                <ul class="version-details">
+                    <li>סנייק: השהייה (ESC), האטה במהירות, פרצוף לנחש, עצירה בהתנגשות.</li>
+                    <li>כתיבה: כפתור רמז חכם עם הורדת ניקוד יחסית.</li>
+                </ul>
+            </div>
+
+            <div class="version-item">
+                <div class="version-title">גרסה 2 <span class="version-date">הרחבה</span></div>
+                <ul class="version-details">
+                    <li>הוספת "סנייק מילים" ו"משחק הזיכרון".</li>
+                    <li>לוח תוצאות וחגיגות ניצחון.</li>
+                </ul>
+            </div>
+
+        </div>
+        <button class="btn btn-secondary" onclick="showMenu()">חזרה לתפריט</button>
+    </div>
+
 </div>
 
 <div id="victory-overlay" onclick="closeVictory()">
@@ -360,6 +457,7 @@
     let currentMode = '';
     let currentQuestionIndex = 0;
     let currentData = [];
+    let currentQuestionHints = 0;
 
     // Audio
     const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -391,6 +489,7 @@
 
     function updateScoreDisplay() { document.getElementById('currentScore').innerText = score; }
     function showMenu() { switchScreen('screen-menu'); }
+    function showVersions() { switchScreen('screen-versions'); }
 
     // --- Standard Games ---
     function startGame(mode) {
@@ -409,6 +508,12 @@
         document.getElementById('category-title').innerText = titles[mode];
         generateLevelData();
         renderQuestion();
+    }
+
+    function restartCurrentGame() {
+        if (currentMode === 'snake') startSnakeGame();
+        else if (currentMode === 'memory') startMemoryGame();
+        else startGame(currentMode);
     }
 
     function generateLevelData() {
@@ -430,11 +535,13 @@
         container.innerHTML = '';
         feedback.innerText = '';
         feedback.className = 'feedback';
+        currentQuestionHints = 0;
 
         if (currentQuestionIndex >= currentData.length) { endGame(); return; }
 
         const item = currentData[currentQuestionIndex];
 
+        // Listening
         if (currentMode === 'listening') {
             let options = [item];
             while(options.length < 3) {
@@ -462,6 +569,7 @@
             container.appendChild(optionsDiv);
         }
 
+        // Vocabulary
         if (currentMode === 'vocab') {
             const icon = document.createElement('div');
             icon.className = 'emoji-display';
@@ -472,6 +580,10 @@
             hint.style.fontSize = "1.2rem"; hint.style.marginBottom = "10px";
 
             const inputWrapper = document.createElement('div');
+            inputWrapper.style.display = 'flex';
+            inputWrapper.style.justifyContent = 'center';
+            inputWrapper.style.alignItems = 'baseline';
+
             const input = document.createElement('input');
             input.type = 'text'; input.className = 'input-box';
             input.autocomplete = "off";
@@ -479,12 +591,21 @@
 
             // HINT BUTTON
             const hintBtn = document.createElement('button');
+            const maxHints = Math.floor(item.word.length / 2);
             hintBtn.className = 'btn btn-hint';
-            hintBtn.innerText = '💡 רמז';
+            hintBtn.innerText = `💡 רמז (0/${maxHints})`;
+            
+            if (maxHints === 0) hintBtn.disabled = true;
+
             hintBtn.onclick = () => {
+                if (currentQuestionHints >= maxHints) return;
+
+                currentQuestionHints++;
+                hintBtn.innerText = `💡 רמז (${currentQuestionHints}/${maxHints})`;
+                if (currentQuestionHints >= maxHints) hintBtn.disabled = true;
+
                 let currentVal = input.value.toLowerCase();
                 let target = item.word.toLowerCase();
-                // Find first missing or wrong letter
                 for(let i=0; i<target.length; i++) {
                     if (currentVal[i] !== target[i]) {
                         input.value = target.substring(0, i+1);
@@ -492,8 +613,6 @@
                     }
                 }
                 input.focus();
-                score = Math.max(0, score - 2); // Penalty
-                updateScoreDisplay();
             };
 
             const checkBtn = document.createElement('button');
@@ -510,6 +629,7 @@
             input.focus();
         }
 
+        // Sentences & Reading
         if (currentMode === 'sentences' || currentMode === 'reading') {
             if (currentMode === 'reading') {
                 const textDiv = document.createElement('div');
@@ -543,10 +663,20 @@
     function checkAnswer(userAnswer, correctAnswer) {
         if (document.getElementById('next-btn').style.display === 'inline-block') return;
         const feedback = document.getElementById('feedback');
+        
         if (userAnswer.trim().toLowerCase() === correctAnswer.trim().toLowerCase()) {
-            feedback.innerText = "Excellent! כל הכבוד!";
+            let points = 10;
+            if (currentMode === 'vocab' && currentQuestionHints > 0) {
+                const wordLength = correctAnswer.length;
+                const deduction = (currentQuestionHints / wordLength) * 10;
+                points = Math.round(10 - deduction);
+                feedback.innerText = `נכון! (קיבלת ${points} נקודות בגלל הרמזים)`;
+            } else {
+                feedback.innerText = "Excellent! כל הכבוד! (10 נק')";
+            }
+
             feedback.className = "feedback correct";
-            score += 10;
+            score += points;
             speak("Good job!");
         } else {
             feedback.innerText = `התשובה הנכונה היא: ${correctAnswer}`;
@@ -569,7 +699,7 @@
         snake: [], items: [],
         dx: 0, dy: 0,
         wordData: null, targetWord: "", currentLetterIndex: 0,
-        loopId: null, speed: 200 // Slower speed (was 150)
+        loopId: null, speed: 200
     };
 
     function startSnakeGame() {
@@ -603,9 +733,8 @@
     
     function freezeSnakeGame() {
         snakeGame.crashed = true;
-        // Keep drawing loop to show the crash state, but stop updates logic
         document.getElementById('snake-crash-overlay').style.display = 'flex';
-        playTone(150, 0.5, 'sawtooth'); // Crash sound
+        playTone(150, 0.5, 'sawtooth');
     }
 
     function nextSnakeLevel() {
@@ -648,25 +777,21 @@
     function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min)) + min; }
 
     function handleSnakeKey(e) {
-        // If crashed, ignore everything
         if (snakeGame.crashed) return;
 
-        // Pause Logic
+        // Pause
         if (e.key === 'Escape') {
             snakeGame.paused = !snakeGame.paused;
             const overlay = document.getElementById('snake-pause-overlay');
             overlay.style.display = snakeGame.paused ? 'flex' : 'none';
             return;
         }
-
-        // Unpause on any other key
         if (snakeGame.paused) {
             snakeGame.paused = false;
             document.getElementById('snake-pause-overlay').style.display = 'none';
             return;
         }
 
-        // Movement
         if([37,38,39,40].includes(e.keyCode)) e.preventDefault();
         const goingUp = snakeGame.dy === -snakeGame.grid;
         const goingDown = snakeGame.dy === snakeGame.grid;
@@ -691,11 +816,9 @@
 
         const head = { x: snakeGame.snake[0].x + snakeGame.dx, y: snakeGame.snake[0].y + snakeGame.dy };
         
-        // Collision Walls
         if (head.x < 0 || head.x >= snakeGame.canvas.width || head.y < 0 || head.y >= snakeGame.canvas.height) {
             freezeSnakeGame(); return;
         }
-        // Collision Self
         for (let i = 0; i < snakeGame.snake.length; i++) {
             if (head.x === snakeGame.snake[i].x && head.y === snakeGame.snake[i].y) {
                 freezeSnakeGame(); return;
@@ -704,7 +827,6 @@
 
         snakeGame.snake.unshift(head);
 
-        // Check Items
         let ate = false;
         for (let i = 0; i < snakeGame.items.length; i++) {
             let item = snakeGame.items[i];
@@ -719,18 +841,16 @@
                     } else { spawnSnakeItems(); updateSnakeUI(); }
                 } else {
                     score = Math.max(0, score - 2); updateScoreDisplay();
-                    snakeGame.items.splice(i, 1); snakeGame.snake.pop(); // Hit wrong item = shrink/don't grow
+                    snakeGame.items.splice(i, 1); snakeGame.snake.pop(); 
                 }
                 break;
             }
         }
         if (!ate) snakeGame.snake.pop();
 
-        // Draw
         const ctx = snakeGame.ctx;
         ctx.fillStyle = '#2c3e50'; ctx.fillRect(0, 0, 400, 300);
 
-        // Draw Items
         ctx.font = "16px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
         snakeGame.items.forEach(item => {
             ctx.fillStyle = item.type === 'correct' ? '#2ecc71' : '#e74c3c';
@@ -738,30 +858,22 @@
             ctx.fillStyle = 'white'; ctx.fillText(item.char, item.x + 10, item.y + 10);
         });
 
-        // Draw Snake
         snakeGame.snake.forEach((part, index) => {
             if (index === 0) {
-                // Head
                 ctx.fillStyle = '#3498db';
                 ctx.fillRect(part.x, part.y, 18, 18);
-                
-                // Eyes & Mouth Logic
                 ctx.fillStyle = 'white';
                 let ex1, ey1, ex2, ey2;
-                // Default Right
                 if (snakeGame.dx > 0) { ex1=12; ey1=4; ex2=12; ey2=14; } 
                 else if (snakeGame.dx < 0) { ex1=4; ey1=4; ex2=4; ey2=14; }
-                else if (snakeGame.dy < 0) { ex1=4; ey1=4; ex2=14; ey2=4; } // Up
-                else { ex1=4; ey1=12; ex2=14; ey2=12; } // Down
-                
+                else if (snakeGame.dy < 0) { ex1=4; ey1=4; ex2=14; ey2=4; }
+                else { ex1=4; ey1=12; ex2=14; ey2=12; }
                 ctx.beginPath(); ctx.arc(part.x+ex1, part.y+ey1, 3, 0, Math.PI*2); ctx.fill();
                 ctx.beginPath(); ctx.arc(part.x+ex2, part.y+ey2, 3, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = 'black'; // Pupils
+                ctx.fillStyle = 'black';
                 ctx.beginPath(); ctx.arc(part.x+ex1, part.y+ey1, 1, 0, Math.PI*2); ctx.fill();
                 ctx.beginPath(); ctx.arc(part.x+ex2, part.y+ey2, 1, 0, Math.PI*2); ctx.fill();
-
             } else {
-                // Body
                 ctx.fillStyle = '#5dade2';
                 ctx.fillRect(part.x, part.y, 18, 18);
             }
@@ -818,12 +930,9 @@
 
     // --- End & Leaderboard ---
     function endGame() {
-        if (currentMode === 'snake') {
-             // Already stopped in crash/stop function
-        }
-        
+        // Snake special handling already done in freeze
         const isNewRecord = checkHighScore(score);
-        switchScreen('screen-game'); // Use generic end screen
+        switchScreen('screen-game');
         
         const gameContent = document.getElementById('game-content');
         gameContent.innerHTML = `
@@ -833,10 +942,12 @@
             <p>שמרי את שמך בלוח התוצאות:</p>
             <input type="text" id="playerName" class="input-box" placeholder="שמך..." style="width:200px">
             <br>
-            <button class="btn" onclick="saveToLeaderboard()">שמור</button>
+            <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
+                <button class="btn btn-secondary" onclick="saveToLeaderboard()">💾 שמור תוצאה</button>
+                <button class="btn" onclick="restartCurrentGame()">🔄 משחק חוזר</button>
+            </div>
         `;
         document.getElementById('next-btn').style.display = 'none';
-
         if (isNewRecord) celebrateNewRecord();
     }
 
@@ -877,7 +988,6 @@
         });
     }
 
-    // Fireworks
     let fwLoop; const fwC = document.getElementById('fireworks-canvas'); const fwCtx = fwC.getContext('2d');
     let parts = [];
     window.addEventListener('resize', () => { fwC.width = window.innerWidth; fwC.height = window.innerHeight; });
