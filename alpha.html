@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jet 2 - משחק הכנה למבחן (מורחב)</title>
+    <title>Jet 2 - משחק הכנה למבחן (טיוטה 2)</title>
     <style>
         :root {
             --primary: #4a90e2;
@@ -23,7 +23,7 @@
             text-align: center;
             direction: rtl;
             overflow-x: hidden;
-            user-select: none; /* Prevent selection on touch */
+            user-select: none;
         }
 
         .container {
@@ -59,7 +59,6 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Buttons Grid */
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -84,13 +83,12 @@
             gap: 10px;
         }
 
-        .btn i { font-size: 2rem; font-style: normal; }
         .btn:active { transform: translateY(4px); box-shadow: none; }
         .btn:hover { background: #357abd; }
         .btn-secondary { background: var(--secondary); box-shadow: 0 5px 0 #d48e15; width: auto; display: inline-block; padding: 10px 30px;}
-        .btn-game-control { padding: 10px 20px; font-size: 1rem; margin: 10px; width: auto; display: inline-block;}
-
-        /* Standard Game Elements */
+        .btn-hint { background: #9b59b6; box-shadow: 0 5px 0 #8e44ad; font-size: 0.9rem; padding: 10px 20px; margin-right: 10px; }
+        
+        /* Game Elements */
         .emoji-display { font-size: 4rem; margin: 10px 0; display: block; }
         .word-options { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
         
@@ -128,7 +126,6 @@
         .feedback.correct { color: var(--success); }
         .feedback.wrong { color: var(--error); }
 
-        /* Reading Section */
         .reading-text {
             background: #fff;
             padding: 15px;
@@ -145,15 +142,32 @@
         }
 
         /* --- SNAKE GAME STYLES --- */
+        #snake-container {
+            position: relative;
+            width: 400px;
+            margin: 10px auto;
+        }
         #snake-canvas {
             background-color: #2c3e50;
             border-radius: 10px;
             box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
             display: block;
-            margin: 10px auto;
-            max-width: 100%;
+            width: 100%;
         }
         
+        .snake-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            z-index: 5;
+        }
+
         .snake-controls {
             display: flex;
             justify-content: center;
@@ -161,90 +175,52 @@
             margin-top: 10px;
         }
         .d-pad-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: #ddd;
-            border: none;
-            font-size: 1.5rem;
-            font-weight: bold;
-            cursor: pointer;
+            width: 50px; height: 50px;
+            border-radius: 50%; background: #ddd; border: none;
+            font-size: 1.5rem; font-weight: bold; cursor: pointer;
             box-shadow: 0 4px #bbb;
         }
         .d-pad-btn:active { transform: translateY(4px); box-shadow: none; }
+
         #snake-word-target {
-            font-size: 1.5rem;
-            letter-spacing: 5px;
-            color: var(--primary);
-            font-weight: bold;
-            direction: ltr;
-            margin-bottom: 10px;
+            font-size: 1.5rem; letter-spacing: 5px; color: var(--primary);
+            font-weight: bold; direction: ltr; margin-bottom: 10px;
         }
         .missing-letter { color: #ccc; border-bottom: 2px solid #ccc; display: inline-block; width: 20px; text-align: center;}
         .found-letter { color: var(--success); border-bottom: 2px solid var(--success); display: inline-block; width: 20px; text-align: center;}
 
         /* --- MEMORY GAME STYLES --- */
         .memory-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            max-width: 600px;
-            margin: 0 auto;
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+            max-width: 600px; margin: 0 auto;
         }
         .memory-card {
-            aspect-ratio: 1;
-            background: var(--primary);
-            border-radius: 10px;
-            cursor: pointer;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.5s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            aspect-ratio: 1; background: var(--primary); border-radius: 10px;
+            cursor: pointer; position: relative; transform-style: preserve-3d;
+            transition: transform 0.5s; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         .memory-card.flipped { transform: rotateY(180deg); background: white; cursor: default; }
         .memory-card-content {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem; /* Adjusted for longer words */
-            font-weight: bold;
-            backface-visibility: hidden;
-            text-align: center;
-            padding: 5px;
-            box-sizing: border-box;
-            transform: rotateY(180deg); /* Content is on the back */
-            color: #333;
-            word-break: break-word;
+            position: absolute; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; font-weight: bold; backface-visibility: hidden;
+            text-align: center; padding: 5px; box-sizing: border-box;
+            transform: rotateY(180deg); color: #333; word-break: break-word;
         }
         .memory-card-front {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            color: rgba(255,255,255,0.5);
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden; display: flex; align-items: center;
+            justify-content: center; font-size: 2rem; color: rgba(255,255,255,0.5);
         }
 
         /* VICTORY OVERLAY */
         #victory-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            z-index: 2000;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 2000;
+            display: none; flex-direction: column; align-items: center;
+            justify-content: center; color: white;
         }
         #victory-overlay h1 { font-size: 3rem; color: #f2d74e; text-shadow: 0 0 20px #f2d74e; margin-bottom: 0; }
-        #victory-overlay p { font-size: 1.5rem; margin-top: 10px; }
         #fireworks-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
 
     </style>
@@ -255,10 +231,8 @@
     <div class="score-board">ניקוד: <span id="currentScore">0</span></div>
     
     <div id="screen-menu" class="game-screen active">
-        <h1>🎓 הכנה למבחן באנגלית - כיתה ד'</h1>
+        <h1>🎓 הכנה למבחן באנגלית - טיוטה 2</h1>
         <h2>At School - Unit 1</h2>
-        <p>בחרי משחק כדי להתחיל:</p>
-        
         <div class="menu-grid">
             <button class="btn" onclick="startGame('listening')"><i>👂</i>הבנת הנשמע</button>
             <button class="btn" onclick="startGame('vocab')"><i>✍️</i>כתיבת מילים</button>
@@ -267,7 +241,6 @@
             <button class="btn" style="background-color: #9b59b6;" onclick="startSnakeGame()"><i>🐍</i>סנייק מילים</button>
             <button class="btn" style="background-color: #e67e22;" onclick="startMemoryGame()"><i>🃏</i>משחק הזיכרון</button>
         </div>
-        
         <button class="btn btn-secondary" onclick="showLeaderboard()">🏆 לוח השיאים</button>
     </div>
 
@@ -275,14 +248,28 @@
         <div id="category-title" style="margin-bottom: 10px; font-weight: bold; color: #777;"></div>
         <div id="game-content"></div>
         <div id="feedback" class="feedback"></div>
-        <button class="btn btn-game-control" id="next-btn" style="display:none;" onclick="nextQuestion()">הבא</button>
         <button class="btn btn-secondary" onclick="showMenu()">יציאה לתפריט</button>
     </div>
 
     <div id="screen-snake" class="game-screen">
-        <h2>🐍 סנייק מילים: אכלי את האותיות לפי הסדר!</h2>
+        <h2>🐍 סנייק מילים</h2>
+        <p style="font-size:0.9rem; color:#666">ESC = השהייה</p>
         <div id="snake-word-target"></div>
-        <canvas id="snake-canvas" width="400" height="300"></canvas>
+        
+        <div id="snake-container">
+            <canvas id="snake-canvas" width="400" height="300"></canvas>
+            
+            <div id="snake-pause-overlay" class="snake-overlay">
+                <h2>⏸️ מושהה</h2>
+                <p>לחצי על כל מקש כדי להמשיך</p>
+            </div>
+
+            <div id="snake-crash-overlay" class="snake-overlay">
+                <h2>💥 אוי לא! נתקעת בקיר!</h2>
+                <button class="btn" onclick="endGame()">סיום ושמירת תוצאה</button>
+            </div>
+        </div>
+
         <div class="snake-controls">
             <button class="d-pad-btn" onmousedown="setSnakeDir('LEFT')">⬅️</button>
             <div style="display:flex; flex-direction:column; gap:10px">
@@ -295,7 +282,7 @@
     </div>
 
     <div id="screen-memory" class="game-screen">
-        <h2>🃏 משחק הזיכרון: התאימי מילה לפירוש</h2>
+        <h2>🃏 משחק הזיכרון</h2>
         <div id="memory-board" class="memory-grid"></div>
         <button class="btn btn-secondary" style="margin-top:20px" onclick="showMenu()">יציאה</button>
     </div>
@@ -311,7 +298,6 @@
     <canvas id="fireworks-canvas"></canvas>
     <h1>🎆 כל הכבוד! 🎆</h1>
     <p>ברכות! שברת שיא חדש!</p>
-    <p style="font-size: 1rem; color: #ddd;">(לחצי כדי להמשיך)</p>
 </div>
 
 <script>
@@ -370,70 +356,43 @@
         { q: "What does she have at home?", options: ["A bird", "A new computer", "A dog"], answer: "A new computer" }
     ];
 
-    // --- State ---
     let score = 0;
     let currentMode = '';
     let currentQuestionIndex = 0;
     let currentData = [];
 
-    // --- Audio Context for Fanfare ---
+    // Audio
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     let audioCtx;
-
-    function initAudio() {
-        if (!audioCtx) audioCtx = new AudioContext();
-    }
-
-    function playTone(freq, duration, type = 'sine') {
+    function initAudio() { if (!audioCtx) audioCtx = new AudioContext(); }
+    function playTone(f, d, t='sine') {
         initAudio();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = type;
-        osc.frequency.value = freq;
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
-        osc.stop(audioCtx.currentTime + duration);
+        const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+        o.type = t; o.frequency.value = f;
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(); g.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + d);
+        o.stop(audioCtx.currentTime + d);
     }
-
-    function playVictoryFanfare() {
-        // Simple fanfare sequence
-        const now = audioCtx ? audioCtx.currentTime : 0;
-        setTimeout(() => playTone(523.25, 0.2, 'square'), 0);   // C5
-        setTimeout(() => playTone(523.25, 0.2, 'square'), 200); // C5
-        setTimeout(() => playTone(523.25, 0.2, 'square'), 400); // C5
-        setTimeout(() => playTone(659.25, 0.6, 'square'), 600); // E5
-        setTimeout(() => playTone(523.25, 0.2, 'square'), 900); // C5
-        setTimeout(() => playTone(783.99, 1.0, 'square'), 1100); // G5
+    function playFanfare() {
+        [523, 523, 523, 659, 523, 783].forEach((f, i) => setTimeout(() => playTone(f, 0.2, 'square'), i*200));
     }
-
-    // --- Core Functions ---
 
     function speak(text) {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'en-US';
-        utterance.rate = 0.9;
-        window.speechSynthesis.speak(utterance);
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'en-US'; u.rate = 0.9;
+        window.speechSynthesis.speak(u);
     }
 
     function switchScreen(id) {
         document.querySelectorAll('.game-screen').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        // Stop snake if leaving snake screen
         if (id !== 'screen-snake') snakeGame.running = false;
     }
 
-    function updateScoreDisplay() {
-        document.getElementById('currentScore').innerText = score;
-    }
+    function updateScoreDisplay() { document.getElementById('currentScore').innerText = score; }
+    function showMenu() { switchScreen('screen-menu'); }
 
-    function showMenu() {
-        switchScreen('screen-menu');
-    }
-
-    // --- Standard Games Logic ---
-
+    // --- Standard Games ---
     function startGame(mode) {
         currentMode = mode;
         score = 0;
@@ -441,45 +400,41 @@
         updateScoreDisplay();
         switchScreen('screen-game');
         
-        let title = "";
-        if (mode === 'listening') title = "הקשיבי ולחצי על התמונה הנכונה";
-        if (mode === 'vocab') title = "כתבי את המילה באנגלית";
-        if (mode === 'sentences') title = "השלימי את המשפט";
-        if (mode === 'reading') title = "קראי את הטקסט ועני על השאלות";
-        
-        document.getElementById('category-title').innerText = title;
+        const titles = {
+            listening: "הקשיבי ולחצי על התמונה הנכונה",
+            vocab: "כתבי את המילה באנגלית",
+            sentences: "השלימי את המשפט",
+            reading: "קראי את הטקסט ועני על השאלות"
+        };
+        document.getElementById('category-title').innerText = titles[mode];
         generateLevelData();
         renderQuestion();
     }
 
     function generateLevelData() {
-        if (currentMode === 'listening' || currentMode === 'vocab') {
-            currentData = [...vocabulary].sort(() => 0.5 - Math.random()).slice(0, 10);
-        } else if (currentMode === 'sentences') {
-            currentData = [...sentences].sort(() => 0.5 - Math.random()).slice(0, 8);
-        } else if (currentMode === 'reading') {
-            currentData = [...readingQuestions]; 
-        }
+        if (currentMode === 'listening' || currentMode === 'vocab') currentData = [...vocabulary].sort(() => 0.5 - Math.random()).slice(0, 10);
+        else if (currentMode === 'sentences') currentData = [...sentences].sort(() => 0.5 - Math.random()).slice(0, 8);
+        else if (currentMode === 'reading') currentData = [...readingQuestions];
     }
 
     function renderQuestion() {
         const container = document.getElementById('game-content');
         const feedback = document.getElementById('feedback');
-        const nextBtn = document.getElementById('next-btn');
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'btn btn-game-control';
+        nextBtn.innerText = 'הבא';
+        nextBtn.id = 'next-btn';
+        nextBtn.style.display = 'none';
+        nextBtn.onclick = nextQuestion;
         
         container.innerHTML = '';
         feedback.innerText = '';
         feedback.className = 'feedback';
-        nextBtn.style.display = 'none';
 
-        if (currentQuestionIndex >= currentData.length) {
-            endGame();
-            return;
-        }
+        if (currentQuestionIndex >= currentData.length) { endGame(); return; }
 
         const item = currentData[currentQuestionIndex];
 
-        // --- Listening ---
         if (currentMode === 'listening') {
             let options = [item];
             while(options.length < 3) {
@@ -487,7 +442,7 @@
                 if (!options.includes(r)) options.push(r);
             }
             options.sort(() => 0.5 - Math.random());
-
+            
             const btnSpeak = document.createElement('button');
             btnSpeak.className = 'btn btn-secondary';
             btnSpeak.innerText = '🔊 השמיעי מילה';
@@ -507,7 +462,6 @@
             container.appendChild(optionsDiv);
         }
 
-        // --- Vocab ---
         if (currentMode === 'vocab') {
             const icon = document.createElement('div');
             icon.className = 'emoji-display';
@@ -515,15 +469,32 @@
             
             const hint = document.createElement('div');
             hint.innerText = item.hebrew;
-            hint.style.fontSize = "1.2rem";
-            hint.style.marginBottom = "10px";
+            hint.style.fontSize = "1.2rem"; hint.style.marginBottom = "10px";
 
+            const inputWrapper = document.createElement('div');
             const input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'input-box';
-            input.placeholder = 'Type here...';
+            input.type = 'text'; input.className = 'input-box';
             input.autocomplete = "off";
             input.onkeypress = (e) => { if(e.key === 'Enter') checkAnswer(input.value, item.word); };
+
+            // HINT BUTTON
+            const hintBtn = document.createElement('button');
+            hintBtn.className = 'btn btn-hint';
+            hintBtn.innerText = '💡 רמז';
+            hintBtn.onclick = () => {
+                let currentVal = input.value.toLowerCase();
+                let target = item.word.toLowerCase();
+                // Find first missing or wrong letter
+                for(let i=0; i<target.length; i++) {
+                    if (currentVal[i] !== target[i]) {
+                        input.value = target.substring(0, i+1);
+                        break;
+                    }
+                }
+                input.focus();
+                score = Math.max(0, score - 2); // Penalty
+                updateScoreDisplay();
+            };
 
             const checkBtn = document.createElement('button');
             checkBtn.className = 'btn';
@@ -532,42 +503,26 @@
 
             container.appendChild(icon);
             container.appendChild(hint);
-            container.appendChild(input);
+            inputWrapper.appendChild(hintBtn);
+            inputWrapper.appendChild(input);
+            container.appendChild(inputWrapper);
             container.appendChild(checkBtn);
             input.focus();
         }
 
-        // --- Sentences ---
-        if (currentMode === 'sentences') {
-            const sentenceDiv = document.createElement('div');
-            sentenceDiv.style.fontSize = "1.5rem";
-            sentenceDiv.style.marginBottom = "20px";
-            sentenceDiv.style.direction = "ltr";
-            sentenceDiv.innerText = item.text;
-
-            const optionsDiv = document.createElement('div');
-            optionsDiv.className = 'word-options';
-            item.options.forEach(opt => {
-                const b = document.createElement('button');
-                b.className = 'btn';
-                b.innerText = opt;
-                b.onclick = () => checkAnswer(opt, item.answer);
-                optionsDiv.appendChild(b);
-            });
-            container.appendChild(sentenceDiv);
-            container.appendChild(optionsDiv);
-        }
-
-        // --- Reading ---
-        if (currentMode === 'reading') {
-            const textDiv = document.createElement('div');
-            textDiv.className = 'reading-text';
-            textDiv.innerText = readingText;
-
+        if (currentMode === 'sentences' || currentMode === 'reading') {
+            if (currentMode === 'reading') {
+                const textDiv = document.createElement('div');
+                textDiv.className = 'reading-text';
+                textDiv.innerText = readingText;
+                container.appendChild(textDiv);
+            }
+            
             const qDiv = document.createElement('div');
-            qDiv.className = 'question-box';
+            qDiv.style.fontSize = "1.3rem";
+            qDiv.style.marginBottom = "20px";
             qDiv.style.direction = "ltr";
-            qDiv.innerHTML = `<h3>${item.q}</h3>`;
+            qDiv.innerHTML = currentMode === 'sentences' ? item.text : `<h3>${item.q}</h3>`;
 
             const optionsDiv = document.createElement('div');
             optionsDiv.className = 'word-options';
@@ -578,20 +533,17 @@
                 b.onclick = () => checkAnswer(opt, item.answer);
                 optionsDiv.appendChild(b);
             });
-            container.appendChild(textDiv);
             container.appendChild(qDiv);
             container.appendChild(optionsDiv);
         }
+        
+        container.appendChild(nextBtn);
     }
 
     function checkAnswer(userAnswer, correctAnswer) {
         if (document.getElementById('next-btn').style.display === 'inline-block') return;
-
         const feedback = document.getElementById('feedback');
-        userAnswer = userAnswer.trim().toLowerCase();
-        correctAnswer = correctAnswer.trim().toLowerCase();
-
-        if (userAnswer === correctAnswer) {
+        if (userAnswer.trim().toLowerCase() === correctAnswer.trim().toLowerCase()) {
             feedback.innerText = "Excellent! כל הכבוד!";
             feedback.className = "feedback correct";
             score += 10;
@@ -610,21 +562,14 @@
         renderQuestion();
     }
 
-    // --- SNAKE GAME LOGIC ---
+    // --- SNAKE GAME ---
     const snakeGame = {
-        canvas: null,
-        ctx: null,
-        grid: 20,
-        running: false,
-        snake: [],
-        items: [],
-        dx: 0,
-        dy: 0,
-        wordData: null,
-        targetWord: "",
-        currentLetterIndex: 0,
-        loopId: null,
-        speed: 150
+        canvas: null, ctx: null, grid: 20,
+        running: false, paused: false, crashed: false,
+        snake: [], items: [],
+        dx: 0, dy: 0,
+        wordData: null, targetWord: "", currentLetterIndex: 0,
+        loopId: null, speed: 200 // Slower speed (was 150)
     };
 
     function startSnakeGame() {
@@ -635,15 +580,14 @@
         
         snakeGame.canvas = document.getElementById('snake-canvas');
         snakeGame.ctx = snakeGame.canvas.getContext('2d');
-        
-        // Setup Grid size relative to canvas
         snakeGame.grid = 20;
-        
-        // Init Game
-        nextSnakeLevel();
         snakeGame.running = true;
-        
-        // Input Handling
+        snakeGame.paused = false;
+        snakeGame.crashed = false;
+        document.getElementById('snake-crash-overlay').style.display = 'none';
+        document.getElementById('snake-pause-overlay').style.display = 'none';
+
+        nextSnakeLevel();
         document.addEventListener('keydown', handleSnakeKey);
         
         if (snakeGame.loopId) clearInterval(snakeGame.loopId);
@@ -656,43 +600,34 @@
         document.removeEventListener('keydown', handleSnakeKey);
         endGame();
     }
+    
+    function freezeSnakeGame() {
+        snakeGame.crashed = true;
+        // Keep drawing loop to show the crash state, but stop updates logic
+        document.getElementById('snake-crash-overlay').style.display = 'flex';
+        playTone(150, 0.5, 'sawtooth'); // Crash sound
+    }
 
     function nextSnakeLevel() {
-        // Pick random word
         snakeGame.wordData = vocabulary[Math.floor(Math.random() * vocabulary.length)];
         snakeGame.targetWord = snakeGame.wordData.word.toUpperCase();
         snakeGame.currentLetterIndex = 0;
         
-        // Reset Snake
         snakeGame.snake = [{x: 160, y: 160}, {x: 140, y: 160}, {x: 120, y: 160}];
-        snakeGame.dx = snakeGame.grid;
-        snakeGame.dy = 0;
-        
+        snakeGame.dx = snakeGame.grid; snakeGame.dy = 0;
         spawnSnakeItems();
         updateSnakeUI();
     }
 
     function updateSnakeUI() {
         const display = document.getElementById('snake-word-target');
-        display.innerHTML = '';
-        
-        // Show Hebrew hint
-        const hint = document.createElement('div');
-        hint.style.fontSize = "1rem";
-        hint.style.color = "#ccc";
-        hint.innerText = snakeGame.wordData.hebrew;
-        display.appendChild(hint);
-
+        display.innerHTML = `<div style="font-size:1rem; color:#ccc;">${snakeGame.wordData.hebrew}</div>`;
         const wordContainer = document.createElement('div');
         for (let i = 0; i < snakeGame.targetWord.length; i++) {
             const span = document.createElement('span');
             span.innerText = snakeGame.targetWord[i];
-            if (i < snakeGame.currentLetterIndex) {
-                span.className = 'found-letter';
-            } else {
-                span.className = 'missing-letter';
-                span.innerText = '_'; // Hide future letters
-            }
+            span.className = i < snakeGame.currentLetterIndex ? 'found-letter' : 'missing-letter';
+            if (i >= snakeGame.currentLetterIndex) span.innerText = '_';
             span.style.margin = "0 5px";
             wordContainer.appendChild(span);
         }
@@ -701,37 +636,38 @@
 
     function spawnSnakeItems() {
         snakeGame.items = [];
-        
-        // 1. Correct Letter
         const correctChar = snakeGame.targetWord[snakeGame.currentLetterIndex];
-        snakeGame.items.push({
-            x: getRandomInt(0, 19) * snakeGame.grid,
-            y: getRandomInt(0, 14) * snakeGame.grid,
-            char: correctChar,
-            type: 'correct'
-        });
-
-        // 2. Distractor Letter
-        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        let wrongChar = alphabet[Math.floor(Math.random() * alphabet.length)];
-        while(wrongChar === correctChar) wrongChar = alphabet[Math.floor(Math.random() * alphabet.length)];
+        snakeGame.items.push({ x: getRandomInt(0, 19)*20, y: getRandomInt(0, 14)*20, char: correctChar, type: 'correct' });
         
-        snakeGame.items.push({
-            x: getRandomInt(0, 19) * snakeGame.grid,
-            y: getRandomInt(0, 14) * snakeGame.grid,
-            char: wrongChar,
-            type: 'wrong'
-        });
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        let wrongChar;
+        do { wrongChar = alphabet[Math.floor(Math.random() * alphabet.length)]; } while(wrongChar === correctChar);
+        snakeGame.items.push({ x: getRandomInt(0, 19)*20, y: getRandomInt(0, 14)*20, char: wrongChar, type: 'wrong' });
     }
 
-    function getRandomInt(min, max) {
-        return Math.floor(Math.random() * (max - min)) + min;
-    }
+    function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min)) + min; }
 
     function handleSnakeKey(e) {
-        // Prevent default scrolling for arrows
+        // If crashed, ignore everything
+        if (snakeGame.crashed) return;
+
+        // Pause Logic
+        if (e.key === 'Escape') {
+            snakeGame.paused = !snakeGame.paused;
+            const overlay = document.getElementById('snake-pause-overlay');
+            overlay.style.display = snakeGame.paused ? 'flex' : 'none';
+            return;
+        }
+
+        // Unpause on any other key
+        if (snakeGame.paused) {
+            snakeGame.paused = false;
+            document.getElementById('snake-pause-overlay').style.display = 'none';
+            return;
+        }
+
+        // Movement
         if([37,38,39,40].includes(e.keyCode)) e.preventDefault();
-        
         const goingUp = snakeGame.dy === -snakeGame.grid;
         const goingDown = snakeGame.dy === snakeGame.grid;
         const goingRight = snakeGame.dx === snakeGame.grid;
@@ -744,215 +680,151 @@
     }
 
     function setSnakeDir(dir) {
-        const goingUp = snakeGame.dy === -snakeGame.grid;
-        const goingDown = snakeGame.dy === snakeGame.grid;
-        const goingRight = snakeGame.dx === snakeGame.grid;
-        const goingLeft = snakeGame.dx === -snakeGame.grid;
-
-        if (dir === 'LEFT' && !goingRight) { snakeGame.dx = -snakeGame.grid; snakeGame.dy = 0; }
-        if (dir === 'UP' && !goingDown) { snakeGame.dx = 0; snakeGame.dy = -snakeGame.grid; }
-        if (dir === 'RIGHT' && !goingLeft) { snakeGame.dx = snakeGame.grid; snakeGame.dy = 0; }
-        if (dir === 'DOWN' && !goingUp) { snakeGame.dx = 0; snakeGame.dy = snakeGame.grid; }
+        if (snakeGame.paused || snakeGame.crashed) return;
+        const e = { keyCode: dir === 'LEFT' ? 37 : dir === 'UP' ? 38 : dir === 'RIGHT' ? 39 : 40 };
+        e.preventDefault = () => {};
+        handleSnakeKey(e);
     }
 
     function gameLoop() {
-        if (!snakeGame.running) return;
+        if (!snakeGame.running || snakeGame.paused || snakeGame.crashed) return;
 
-        // Move Snake
         const head = { x: snakeGame.snake[0].x + snakeGame.dx, y: snakeGame.snake[0].y + snakeGame.dy };
-        snakeGame.snake.unshift(head);
-
-        // Check Wall Collision
+        
+        // Collision Walls
         if (head.x < 0 || head.x >= snakeGame.canvas.width || head.y < 0 || head.y >= snakeGame.canvas.height) {
-            stopSnakeGame();
-            return;
+            freezeSnakeGame(); return;
         }
-
-        // Check Self Collision (skip head)
-        for (let i = 1; i < snakeGame.snake.length; i++) {
+        // Collision Self
+        for (let i = 0; i < snakeGame.snake.length; i++) {
             if (head.x === snakeGame.snake[i].x && head.y === snakeGame.snake[i].y) {
-                stopSnakeGame();
-                return;
+                freezeSnakeGame(); return;
             }
         }
 
-        // Check Item Collision
+        snakeGame.snake.unshift(head);
+
+        // Check Items
         let ate = false;
         for (let i = 0; i < snakeGame.items.length; i++) {
             let item = snakeGame.items[i];
-            // Hitbox check
             if (head.x === item.x && head.y === item.y) {
                 if (item.type === 'correct') {
-                    // Correct letter!
-                    score += 5;
-                    updateScoreDisplay();
+                    score += 5; updateScoreDisplay();
                     snakeGame.currentLetterIndex++;
-                    ate = true; // Grow snake
-                    
+                    ate = true;
                     if (snakeGame.currentLetterIndex >= snakeGame.targetWord.length) {
-                        // Word Complete!
-                        score += 20;
-                        updateScoreDisplay();
-                        speak(snakeGame.wordData.word);
-                        nextSnakeLevel();
-                        return; // Skip rest of loop to render new level
-                    } else {
-                        // Next letter
-                        spawnSnakeItems();
-                        updateSnakeUI();
-                    }
+                        score += 20; updateScoreDisplay(); speak(snakeGame.wordData.word);
+                        nextSnakeLevel(); return;
+                    } else { spawnSnakeItems(); updateSnakeUI(); }
                 } else {
-                    // Wrong letter!
-                    score = Math.max(0, score - 2);
-                    updateScoreDisplay();
-                    snakeGame.items.splice(i, 1); // Remove wrong item
-                    snakeGame.snake.pop(); // Don't grow (actually simulate hitting makes you not grow if we pop below)
-                    // Visual feedback could go here
+                    score = Math.max(0, score - 2); updateScoreDisplay();
+                    snakeGame.items.splice(i, 1); snakeGame.snake.pop(); // Hit wrong item = shrink/don't grow
                 }
                 break;
             }
         }
-
-        if (!ate) {
-            snakeGame.snake.pop(); // Remove tail if didn't eat
-        }
+        if (!ate) snakeGame.snake.pop();
 
         // Draw
-        snakeGame.ctx.fillStyle = '#2c3e50';
-        snakeGame.ctx.fillRect(0, 0, snakeGame.canvas.width, snakeGame.canvas.height);
+        const ctx = snakeGame.ctx;
+        ctx.fillStyle = '#2c3e50'; ctx.fillRect(0, 0, 400, 300);
 
         // Draw Items
-        snakeGame.ctx.font = "16px Arial";
-        snakeGame.ctx.textAlign = "center";
-        snakeGame.ctx.textBaseline = "middle";
-        
+        ctx.font = "16px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
         snakeGame.items.forEach(item => {
-            snakeGame.ctx.fillStyle = item.type === 'correct' ? '#2ecc71' : '#e74c3c';
-            snakeGame.ctx.beginPath();
-            snakeGame.ctx.arc(item.x + 10, item.y + 10, 9, 0, 2 * Math.PI);
-            snakeGame.ctx.fill();
-            snakeGame.ctx.fillStyle = 'white';
-            snakeGame.ctx.fillText(item.char, item.x + 10, item.y + 10);
+            ctx.fillStyle = item.type === 'correct' ? '#2ecc71' : '#e74c3c';
+            ctx.beginPath(); ctx.arc(item.x + 10, item.y + 10, 9, 0, 2 * Math.PI); ctx.fill();
+            ctx.fillStyle = 'white'; ctx.fillText(item.char, item.x + 10, item.y + 10);
         });
 
         // Draw Snake
-        snakeGame.ctx.fillStyle = '#3498db';
         snakeGame.snake.forEach((part, index) => {
-            snakeGame.ctx.fillRect(part.x, part.y, snakeGame.grid - 2, snakeGame.grid - 2);
+            if (index === 0) {
+                // Head
+                ctx.fillStyle = '#3498db';
+                ctx.fillRect(part.x, part.y, 18, 18);
+                
+                // Eyes & Mouth Logic
+                ctx.fillStyle = 'white';
+                let ex1, ey1, ex2, ey2;
+                // Default Right
+                if (snakeGame.dx > 0) { ex1=12; ey1=4; ex2=12; ey2=14; } 
+                else if (snakeGame.dx < 0) { ex1=4; ey1=4; ex2=4; ey2=14; }
+                else if (snakeGame.dy < 0) { ex1=4; ey1=4; ex2=14; ey2=4; } // Up
+                else { ex1=4; ey1=12; ex2=14; ey2=12; } // Down
+                
+                ctx.beginPath(); ctx.arc(part.x+ex1, part.y+ey1, 3, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(part.x+ex2, part.y+ey2, 3, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = 'black'; // Pupils
+                ctx.beginPath(); ctx.arc(part.x+ex1, part.y+ey1, 1, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(part.x+ex2, part.y+ey2, 1, 0, Math.PI*2); ctx.fill();
+
+            } else {
+                // Body
+                ctx.fillStyle = '#5dade2';
+                ctx.fillRect(part.x, part.y, 18, 18);
+            }
         });
     }
 
-    // --- MEMORY GAME LOGIC ---
-    let memoryState = {
-        cards: [],
-        flipped: [],
-        matches: 0
-    };
-
+    // --- MEMORY GAME ---
+    let memoryState = { cards: [], flipped: [], matches: 0 };
     function startMemoryGame() {
-        currentMode = 'memory';
-        score = 0;
-        updateScoreDisplay();
-        switchScreen('screen-memory');
-        
-        // Select 6 random pairs
+        currentMode = 'memory'; score = 0; updateScoreDisplay(); switchScreen('screen-memory');
         let selected = [...vocabulary].sort(() => 0.5 - Math.random()).slice(0, 6);
         let deck = [];
-        
         selected.forEach(item => {
-            // Card 1: Hebrew/Icon
-            deck.push({ id: item.word, content: item.hebrew + " " + item.icon, type: 'he' });
-            // Card 2: English
-            deck.push({ id: item.word, content: item.word, type: 'en' });
+            deck.push({ id: item.word, content: item.hebrew + " " + item.icon });
+            deck.push({ id: item.word, content: item.word });
         });
-        
         deck.sort(() => 0.5 - Math.random());
         
         const board = document.getElementById('memory-board');
         board.innerHTML = '';
-        memoryState.cards = deck;
-        memoryState.flipped = [];
-        memoryState.matches = 0;
+        memoryState = { cards: deck, flipped: [], matches: 0 };
         
         deck.forEach((card, index) => {
             const cardEl = document.createElement('div');
             cardEl.className = 'memory-card';
-            cardEl.dataset.index = index;
-            cardEl.onclick = () => flipCard(index);
-            
-            const front = document.createElement('div');
-            front.className = 'memory-card-front';
-            front.innerText = '?';
-            
-            const back = document.createElement('div');
-            back.className = 'memory-card-content';
-            back.innerText = card.content;
-            
-            cardEl.appendChild(front);
-            cardEl.appendChild(back);
+            cardEl.onclick = () => flipCard(index, cardEl, card);
+            cardEl.innerHTML = `<div class="memory-card-front">?</div><div class="memory-card-content">${card.content}</div>`;
             board.appendChild(cardEl);
         });
     }
 
-    function flipCard(index) {
-        const cardEl = document.getElementById('memory-board').children[index];
-        if (cardEl.classList.contains('flipped') || memoryState.flipped.length >= 2) return;
-        
-        cardEl.classList.add('flipped');
-        memoryState.flipped.push({ index, ...memoryState.cards[index] });
-        
-        if (memoryState.flipped.length === 2) {
-            checkMemoryMatch();
-        }
+    function flipCard(index, el, card) {
+        if (el.classList.contains('flipped') || memoryState.flipped.length >= 2) return;
+        el.classList.add('flipped');
+        memoryState.flipped.push({ index, id: card.id });
+        if (memoryState.flipped.length === 2) checkMemoryMatch();
     }
 
     function checkMemoryMatch() {
         const [c1, c2] = memoryState.flipped;
-        const board = document.getElementById('memory-board').children;
-        
+        const els = document.getElementById('memory-board').children;
         if (c1.id === c2.id) {
-            // Match
-            score += 15;
-            updateScoreDisplay();
-            speak("Good!");
-            memoryState.flipped = [];
-            memoryState.matches++;
-            
-            if (memoryState.matches === 6) {
-                setTimeout(endGame, 1000);
-            }
+            score += 15; updateScoreDisplay(); speak("Good!");
+            memoryState.flipped = []; memoryState.matches++;
+            if (memoryState.matches === 6) setTimeout(endGame, 1000);
         } else {
-            // No Match
             setTimeout(() => {
-                board[c1.index].classList.remove('flipped');
-                board[c2.index].classList.remove('flipped');
+                els[c1.index].classList.remove('flipped');
+                els[c2.index].classList.remove('flipped');
                 memoryState.flipped = [];
             }, 1000);
         }
     }
 
-
-    // --- High Score System & Celebration ---
-
+    // --- End & Leaderboard ---
     function endGame() {
-        // Stop any game loops
-        if (currentMode === 'snake') stopSnakeGame(); // Just in case called externally
-
-        const isNewRecord = checkHighScore(score);
-        
-        const container = document.getElementById(
-            currentMode === 'snake' ? 'screen-snake' : 
-            (currentMode === 'memory' ? 'screen-memory' : 'game-content')
-        );
-
-        // If simple games, replace content. If Snake/Memory, overlay or alert.
-        // For consistency, let's use the generic end screen content for simple games
-        // and switch screen for canvas games.
-        
-        if (currentMode === 'snake' || currentMode === 'memory') {
-           switchScreen('screen-game'); // Switch to generic screen to show results
+        if (currentMode === 'snake') {
+             // Already stopped in crash/stop function
         }
-
+        
+        const isNewRecord = checkHighScore(score);
+        switchScreen('screen-game'); // Use generic end screen
+        
         const gameContent = document.getElementById('game-content');
         gameContent.innerHTML = `
             <h2>סיימת את המשחק!</h2>
@@ -964,44 +836,29 @@
             <button class="btn" onclick="saveToLeaderboard()">שמור</button>
         `;
         document.getElementById('next-btn').style.display = 'none';
-        document.getElementById('feedback').innerText = '';
 
-        if (isNewRecord) {
-            celebrateNewRecord();
-        }
+        if (isNewRecord) celebrateNewRecord();
     }
 
-    function checkHighScore(currentScore) {
-        if (currentScore === 0) return false;
+    function checkHighScore(s) {
+        if (s === 0) return false;
         const saved = JSON.parse(localStorage.getItem('englishGameScores')) || [];
-        // Filter by current mode
-        const modeScores = saved.filter(s => s.mode === currentMode);
-        if (modeScores.length === 0) return true; // First time playing this mode
-        const maxScore = Math.max(...modeScores.map(s => s.score));
-        return currentScore > maxScore;
+        const modeScores = saved.filter(x => x.mode === currentMode);
+        if (modeScores.length === 0) return true;
+        return s > Math.max(...modeScores.map(x => x.score));
     }
 
     function celebrateNewRecord() {
-        const overlay = document.getElementById('victory-overlay');
-        overlay.style.display = 'flex';
-        initAudio();
-        playVictoryFanfare();
-        startFireworks();
+        document.getElementById('victory-overlay').style.display = 'flex';
+        initAudio(); playFanfare(); startFireworks();
     }
-
-    function closeVictory() {
-        document.getElementById('victory-overlay').style.display = 'none';
-        stopFireworks();
-    }
+    function closeVictory() { document.getElementById('victory-overlay').style.display = 'none'; stopFireworks(); }
 
     function saveToLeaderboard() {
         const name = document.getElementById('playerName').value || "Anonymous";
-        const date = new Date().toLocaleDateString('he-IL');
-        
         let scores = JSON.parse(localStorage.getItem('englishGameScores')) || [];
-        scores.push({ name, score, date, mode: currentMode });
-        scores.sort((a, b) => b.score - a.score); // sort all scores high to low
-        
+        scores.push({ name, score, date: new Date().toLocaleDateString('he-IL'), mode: currentMode });
+        scores.sort((a, b) => b.score - a.score);
         localStorage.setItem('englishGameScores', JSON.stringify(scores));
         showLeaderboard();
     }
@@ -1011,96 +868,45 @@
         const list = document.getElementById('scores-list');
         list.innerHTML = '';
         let scores = JSON.parse(localStorage.getItem('englishGameScores')) || [];
-
-        if (scores.length === 0) {
-            list.innerHTML = '<li>עדיין אין תוצאות... היי הראשונה לשחק!</li>';
-            return;
-        }
-
-        // Show top 10 global (or filter by mode if desired, currently global list)
-        scores = scores.slice(0, 10);
-
-        scores.forEach((s, i) => {
-            const li = document.createElement('li');
-            li.style.padding = "10px";
-            li.style.borderBottom = "1px solid #ddd";
-            li.style.fontSize = "1.1rem";
-            
-            let modeIcon = '';
-            if (s.mode === 'listening') modeIcon = '👂';
-            else if (s.mode === 'vocab') modeIcon = '✍️';
-            else if (s.mode === 'snake') modeIcon = '🐍';
-            else if (s.mode === 'memory') modeIcon = '🃏';
-            else modeIcon = '🧩';
-
-            li.innerHTML = `<strong>#${i+1} ${s.name}</strong> - ${s.score} נק' <span title="${s.mode}">${modeIcon}</span>`;
-            list.appendChild(li);
+        if (!scores.length) { list.innerHTML = '<li>אין תוצאות עדיין...</li>'; return; }
+        scores.slice(0, 10).forEach((s, i) => {
+            const icons = { listening: '👂', vocab: '✍️', snake: '🐍', memory: '🃏', sentences: '🧩', reading: '📖' };
+            list.innerHTML += `<li style="padding:10px; border-bottom:1px solid #ddd">
+                <strong>#${i+1} ${s.name}</strong> - ${s.score} <span title="${s.mode}">${icons[s.mode] || ''}</span>
+            </li>`;
         });
     }
 
-    // --- Canvas Fireworks Logic ---
-    let fireworksLoop;
-    const fwCanvas = document.getElementById('fireworks-canvas');
-    const fwCtx = fwCanvas.getContext('2d');
-    let particles = [];
-
-    function resizeCanvas() {
-        fwCanvas.width = window.innerWidth;
-        fwCanvas.height = window.innerHeight;
+    // Fireworks
+    let fwLoop; const fwC = document.getElementById('fireworks-canvas'); const fwCtx = fwC.getContext('2d');
+    let parts = [];
+    window.addEventListener('resize', () => { fwC.width = window.innerWidth; fwC.height = window.innerHeight; });
+    
+    function startFireworks() {
+        fwC.width = window.innerWidth; fwC.height = window.innerHeight;
+        parts = []; loopFW();
     }
-    window.addEventListener('resize', resizeCanvas);
-
-    function createFirework(x, y) {
-        const count = 30;
-        for (let i = 0; i < count; i++) {
-            particles.push({
-                x: x, y: y,
-                vx: (Math.random() - 0.5) * 10,
-                vy: (Math.random() - 0.5) * 10,
-                alpha: 1,
-                color: `hsl(${Math.random() * 360}, 100%, 50%)`
+    function loopFW() {
+        fwCtx.globalCompositeOperation = 'destination-out';
+        fwCtx.fillStyle = 'rgba(0,0,0,0.1)'; fwCtx.fillRect(0,0,fwC.width, fwC.height);
+        fwCtx.globalCompositeOperation = 'lighter';
+        parts.forEach((p, i) => {
+            p.x += p.vx; p.y += p.vy; p.vy += 0.1; p.a -= 0.02;
+            fwCtx.fillStyle = p.c; fwCtx.globalAlpha = p.a;
+            fwCtx.beginPath(); fwCtx.arc(p.x, p.y, 3, 0, 6.28); fwCtx.fill();
+            if (p.a <= 0) parts.splice(i, 1);
+        });
+        if (Math.random() < 0.05) {
+            for(let i=0; i<30; i++) parts.push({
+                x: Math.random()*fwC.width, y: Math.random()*fwC.height/2,
+                vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10,
+                a: 1, c: `hsl(${Math.random()*360}, 100%, 50%)`
             });
         }
+        fwLoop = requestAnimationFrame(loopFW);
     }
-
-    function updateFireworks() {
-        fwCtx.globalCompositeOperation = 'destination-out';
-        fwCtx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-        fwCtx.fillRect(0, 0, fwCanvas.width, fwCanvas.height);
-        fwCtx.globalCompositeOperation = 'lighter';
-
-        particles.forEach((p, i) => {
-            p.x += p.vx;
-            p.y += p.vy;
-            p.vy += 0.1; // gravity
-            p.alpha -= 0.02;
-            fwCtx.fillStyle = p.color;
-            fwCtx.globalAlpha = p.alpha;
-            fwCtx.beginPath();
-            fwCtx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-            fwCtx.fill();
-            if (p.alpha <= 0) particles.splice(i, 1);
-        });
-
-        if (Math.random() < 0.05) {
-            createFirework(Math.random() * fwCanvas.width, Math.random() * fwCanvas.height / 2);
-        }
-
-        fireworksLoop = requestAnimationFrame(updateFireworks);
-    }
-
-    function startFireworks() {
-        resizeCanvas();
-        particles = [];
-        updateFireworks();
-    }
-
-    function stopFireworks() {
-        cancelAnimationFrame(fireworksLoop);
-        fwCtx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
-    }
+    function stopFireworks() { cancelAnimationFrame(fwLoop); fwCtx.clearRect(0,0,fwC.width, fwC.height); }
 
 </script>
-
 </body>
 </html>
