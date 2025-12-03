@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jet 2 - משחק הכנה למבחן (גרסה 7)</title>
+    <title>Jet 2 - משחק הכנה למבחן (גרסה 8 - מותאם מובייל)</title>
     <style>
         :root {
             --primary: #4a90e2;
@@ -19,11 +19,12 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg);
             margin: 0;
-            padding: 10px;
+            padding: 5px; /* פחות שוליים למובייל */
             text-align: center;
             direction: rtl;
             overflow-x: hidden;
             user-select: none;
+            -webkit-tap-highlight-color: transparent; /* ביטול הבהוב בלחיצה */
         }
 
         .container {
@@ -32,144 +33,90 @@
             background: var(--card);
             border-radius: 20px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            padding: 15px;
-            min-height: 600px;
+            padding: 10px;
+            min-height: 85vh; /* ניצול גובה מסך */
             position: relative;
         }
 
-        h1 { color: var(--primary); margin: 10px 0; font-size: 1.5rem; }
-        h2 { color: #555; font-size: 1.1rem; margin-top: 0; }
+        h1 { color: var(--primary); margin: 10px 0; font-size: 1.4rem; }
+        h2 { color: #555; font-size: 1rem; margin-top: 0; }
 
         .score-board {
             position: absolute;
-            top: 15px;
-            left: 15px;
+            top: 10px;
+            left: 10px;
             background: var(--secondary);
             color: white;
-            padding: 5px 12px;
+            padding: 4px 10px;
             border-radius: 50px;
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 0.9rem;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             z-index: 10;
         }
 
-        .game-screen { display: none; }
+        .game-screen { display: none; width: 100%; }
         .game-screen.active { display: block; animation: fadeIn 0.5s; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .menu-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            grid-template-columns: repeat(2, 1fr); /* 2 עמודות במובייל */
             gap: 10px;
-            padding: 10px;
+            padding: 5px;
         }
 
         .btn {
             background: var(--primary);
             color: white;
             border: none;
-            padding: 15px 10px;
+            padding: 12px;
             font-size: 1rem;
-            border-radius: 15px;
+            border-radius: 12px;
             cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
-            box-shadow: 0 4px 0 #357abd;
+            transition: transform 0.1s, background 0.2s;
+            box-shadow: 0 3px 0 #357abd;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 5px;
             width: 100%;
-            box-sizing: border-box;
         }
 
-        .btn:active { transform: translateY(4px); box-shadow: none; }
-        .btn:hover { background: #357abd; }
-        .btn:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; transform: none; }
-        
-        .btn-secondary { background: var(--secondary); box-shadow: 0 4px 0 #d48e15; width: auto; display: inline-block; padding: 10px 20px;}
-        .btn-info { background: #17a2b8; box-shadow: 0 4px 0 #117a8b; }
+        .btn:active { transform: translateY(3px); box-shadow: none; }
+        .btn-secondary { background: var(--secondary); box-shadow: 0 3px 0 #d48e15; width: auto; display: inline-block; padding: 8px 16px;}
+        .btn-info { background: #17a2b8; box-shadow: 0 3px 0 #117a8b; }
         
         .btn-hint { 
             background: #9b59b6; 
-            box-shadow: 0 4px 0 #8e44ad; 
-            font-size: 0.9rem; 
-            padding: 8px 15px; 
+            box-shadow: 0 3px 0 #8e44ad; 
+            font-size: 0.8rem; 
+            padding: 8px 12px; 
             margin-right: 5px;
             display: flex;
             flex-direction: row; 
-        }
-
-        /* Game Elements */
-        .emoji-display { font-size: 3.5rem; margin: 10px 0; display: block; }
-        .word-options { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
-        
-        .listening-btn {
-            font-size: 2rem;
-            background: white;
-            border: 2px solid #ddd;
-            border-radius: 15px;
-            padding: 10px;
-            cursor: pointer;
-            transition: 0.3s;
-            min-width: 70px;
-        }
-        .listening-btn:hover { background: #eef; border-color: var(--primary); transform: scale(1.1); }
-
-        .input-box {
-            font-size: 1.3rem;
-            padding: 8px;
-            border: 3px solid #ccc;
-            border-radius: 10px;
-            width: 70%;
-            max-width: 250px;
-            text-align: center;
-            outline: none;
-            margin-bottom: 20px;
-        }
-        .input-box:focus { border-color: var(--primary); }
-
-        .feedback {
-            font-size: 1.2rem;
-            margin-top: 15px;
-            font-weight: bold;
-            min-height: 30px;
-        }
-        .feedback.correct { color: var(--success); }
-        .feedback.wrong { color: var(--error); }
-
-        .reading-text {
-            background: #fff;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #ddd;
-            border-left: 5px solid var(--primary);
-            text-align: left;
-            font-size: 1rem;
-            line-height: 1.4;
-            margin-bottom: 20px;
-            direction: ltr;
-            max-height: 150px;
-            overflow-y: auto;
         }
 
         /* --- SNAKE GAME STYLES --- */
         #snake-container {
             position: relative;
             width: 100%;
-            max-width: 400px;
-            margin: 10px auto;
+            /* המיכל מתאים את עצמו */
+            display: flex;
+            justify-content: center;
         }
+        
         #snake-canvas {
             background-color: #2c3e50;
             border-radius: 10px;
             box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
             display: block;
-            width: 100%;
-            max-width: 100%;
+            /* שינוי קריטי: הקנבס יתפוס את המקסימום האפשרי אך ישמור על פרופורציה */
+            max-width: 100%; 
             height: auto;
+            touch-action: none; /* מניעת גלילה בזמן משחק */
         }
         
         .snake-overlay {
@@ -185,113 +132,91 @@
             z-index: 5;
         }
 
-        /* UPDATED D-PAD STYLES (BIGGER & CLOSER) */
+        /* --- TIGHTER CONTROLS --- */
         .snake-controls {
             display: grid;
-            grid-template-columns: repeat(3, 90px); /* Increased from 70px */
-            grid-template-rows: repeat(3, 90px);    /* Increased from 60px */
-            gap: 2px; /* Very tight gap */
+            /* הקטנו את גודל התא כדי שהכפתורים ייגעו זה בזה */
+            grid-template-columns: repeat(3, 80px); 
+            grid-template-rows: repeat(3, 75px);    
+            gap: 0px; /* ביטול רווחים לחלוטין */
             justify-content: center;
-            margin-top: 15px;
+            margin-top: 10px;
             direction: ltr;
+            touch-action: manipulation;
         }
         
         .d-pad-btn {
-            width: 85px; height: 85px; /* Increased from 60px */
-            border-radius: 50%; 
-            background: #ddd; 
-            border: none;
-            font-size: 2.5rem; /* Bigger Arrows */
-            font-weight: bold; 
+            width: 76px; height: 70px; /* כפתורים גדולים */
+            border-radius: 15px; /* פחות עגול כדי שייראה כמו פאד */
+            background: #e0e0e0; 
+            border: 1px solid #ccc;
+            font-size: 2rem;
             cursor: pointer;
-            box-shadow: 0 4px #999;
+            box-shadow: 0 3px #999;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #555;
-            margin: auto; /* Center in grid cell */
+            color: #444;
+            margin: 2px;
+            -webkit-user-select: none;
         }
-        .d-pad-btn:active { transform: translateY(4px); box-shadow: none; background: #ccc; }
+        
+        .d-pad-btn:active { 
+            transform: scale(0.95); 
+            background: #ccc; 
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2); 
+        }
 
-        .btn-up { grid-column: 2; grid-row: 1; }
-        .btn-left { grid-column: 1; grid-row: 2; }
-        .btn-right { grid-column: 3; grid-row: 2; }
-        .btn-down { grid-column: 2; grid-row: 3; }
+        .btn-up { grid-column: 2; grid-row: 1; border-radius: 15px 15px 5px 5px; }
+        .btn-left { grid-column: 1; grid-row: 2; border-radius: 15px 5px 5px 15px; }
+        .btn-right { grid-column: 3; grid-row: 2; border-radius: 5px 15px 15px 5px; }
+        .btn-down { grid-column: 2; grid-row: 3; border-radius: 5px 5px 15px 15px; }
+
+        /* אלמנט מרכזי ריק ליופי */
+        .d-pad-center { 
+            grid-column: 2; grid-row: 2; 
+            background: #d0d0d0; 
+            border-radius: 5px;
+        }
 
         #snake-word-target {
-            font-size: 1.2rem; letter-spacing: 3px; color: var(--primary);
-            font-weight: bold; direction: ltr; margin-bottom: 10px;
-            word-wrap: break-word;
+            font-size: 1.4rem; letter-spacing: 2px; color: var(--primary);
+            font-weight: bold; direction: ltr; margin-bottom: 5px;
+            word-wrap: break-word; min-height: 30px;
         }
-        .missing-letter { color: #ccc; border-bottom: 2px solid #ccc; display: inline-block; width: 20px; text-align: center;}
-        .found-letter { color: var(--success); border-bottom: 2px solid var(--success); display: inline-block; width: 20px; text-align: center;}
 
-        /* --- MEMORY GAME STYLES --- */
+        /* --- MEMORY GAME --- */
         .memory-grid {
             display: grid; 
-            grid-template-columns: repeat(4, 1fr); 
-            gap: 8px;
-            max-width: 600px; margin: 0 auto;
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 6px;
+            max-width: 100%; margin: 0 auto;
         }
-
-        /* Mobile Adjustment for Memory Game */
-        @media (max-width: 600px) {
-            .memory-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
         .memory-card {
-            aspect-ratio: 1; background: var(--primary); border-radius: 10px;
+            aspect-ratio: 1; background: var(--primary); border-radius: 8px;
             cursor: pointer; position: relative; transform-style: preserve-3d;
-            transition: transform 0.5s; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.4s;
         }
-        .memory-card.flipped { transform: rotateY(180deg); background: white; cursor: default; }
-        .memory-card-content {
+        .memory-card.flipped { transform: rotateY(180deg); background: white; }
+        .memory-card-content, .memory-card-front {
             position: absolute; width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem;
-            font-weight: bold; backface-visibility: hidden;
-            text-align: center; padding: 2px; box-sizing: border-box;
-            transform: rotateY(180deg); color: #333; word-break: break-word; line-height: 1.1;
+            backface-visibility: hidden; font-weight: bold;
         }
-        .memory-card-front {
-            position: absolute; width: 100%; height: 100%;
-            backface-visibility: hidden; display: flex; align-items: center;
-            justify-content: center; font-size: 2rem; color: rgba(255,255,255,0.5);
-        }
+        .memory-card-content { transform: rotateY(180deg); font-size: 0.9rem; color: #333; padding: 2px; line-height: 1.1; }
+        .memory-card-front { font-size: 1.5rem; color: rgba(255,255,255,0.5); }
 
-        /* VICTORY OVERLAY */
+        /* Other elements */
+        .input-box { font-size: 1.2rem; padding: 8px; border-radius: 8px; border: 2px solid #ccc; width: 60%; text-align: center; }
+        .feedback { font-size: 1.1rem; margin-top: 10px; font-weight: bold; min-height: 25px; }
+        .feedback.correct { color: var(--success); } .feedback.wrong { color: var(--error); }
+        
         #victory-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 2000;
+            background: rgba(0,0,0,0.9); z-index: 2000;
             display: none; flex-direction: column; align-items: center;
-            justify-content: center; color: white;
-            text-align: center;
+            justify-content: center; color: white; text-align: center;
         }
-        #victory-overlay h1 { font-size: 2.5rem; color: #f2d74e; text-shadow: 0 0 20px #f2d74e; margin-bottom: 10px; }
-        #fireworks-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
-
-        /* --- VERSION HISTORY STYLES --- */
-        .version-list {
-            text-align: right;
-            padding: 10px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        .version-item {
-            background: #fff;
-            border-left: 5px solid var(--primary);
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .version-title { font-weight: bold; font-size: 1.1rem; color: var(--dark); margin-bottom: 5px; display: flex; justify-content: space-between;}
-        .version-date { font-size: 0.8rem; color: #888; }
-        .version-details { margin-top: 5px; padding-right: 20px; list-style-type: disc; }
-        .version-details li { margin-bottom: 3px; color: #555; font-size: 0.95rem; }
-
     </style>
 </head>
 <body>
@@ -301,19 +226,19 @@
     
     <div id="screen-menu" class="game-screen active">
         <h1>🎓 הכנה למבחן באנגלית - ד'</h1>
-        <h2>At School - Unit 1</h2>
+        <h2>Unit 1 - At School</h2>
         <div class="menu-grid">
             <button class="btn" onclick="startGame('listening')"><i>👂</i>הבנת הנשמע</button>
             <button class="btn" onclick="startGame('vocab')"><i>✍️</i>כתיבת מילים</button>
-            <button class="btn" onclick="startGame('sentences')"><i>🧩</i>השלמת משפטים</button>
-            <button class="btn" onclick="startGame('reading')"><i>📖</i>הבנת הנקרא</button>
-            <button class="btn" style="background-color: #9b59b6;" onclick="startSnakeGame()"><i>🐍</i>סנייק מילים</button>
-            <button class="btn" style="background-color: #e67e22;" onclick="startMemoryGame()"><i>🃏</i>משחק הזיכרון</button>
+            <button class="btn" onclick="startGame('sentences')"><i>🧩</i>משפטים</button>
+            <button class="btn" onclick="startGame('reading')"><i>📖</i>קריאה</button>
+            <button class="btn" style="background-color: #9b59b6; grid-column: span 2;" onclick="startSnakeGame()"><i>🐍</i> סנייק מילים (גדול)</button>
+            <button class="btn" style="background-color: #e67e22; grid-column: span 2;" onclick="startMemoryGame()"><i>🃏</i> משחק הזיכרון</button>
         </div>
         
-        <div style="margin-top: 20px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
-            <button class="btn btn-secondary" onclick="showLeaderboard()">🏆 לוח השיאים</button>
-            <button class="btn btn-info" onclick="showVersions()">📋 עדכוני גרסאות</button>
+        <div style="margin-top: 15px; display: flex; justify-content: center; gap: 10px;">
+            <button class="btn btn-secondary" onclick="showLeaderboard()">🏆 שיאים</button>
+            <button class="btn btn-info" onclick="showVersions()">📋 גרסה 8</button>
         </div>
     </div>
 
@@ -321,39 +246,39 @@
         <div id="category-title" style="margin-bottom: 10px; font-weight: bold; color: #777;"></div>
         <div id="game-content"></div>
         <div id="feedback" class="feedback"></div>
-        <button class="btn btn-secondary" onclick="showMenu()">יציאה לתפריט</button>
+        <button class="btn btn-secondary" style="margin-top:10px" onclick="showMenu()">יציאה</button>
     </div>
 
     <div id="screen-snake" class="game-screen">
-        <h2>🐍 סנייק מילים</h2>
-        <p style="font-size:0.9rem; color:#666">ESC = השהייה</p>
+        <h2 style="margin:5px 0;">🐍 סנייק</h2>
         <div id="snake-word-target"></div>
         
         <div id="snake-container">
-            <canvas id="snake-canvas" width="400" height="300"></canvas>
+            <canvas id="snake-canvas" width="390" height="390"></canvas>
             
             <div id="snake-pause-overlay" class="snake-overlay">
                 <h2>⏸️ מושהה</h2>
-                <p>לחצי על כל מקש כדי להמשיך</p>
+                <p>לחצי כדי להמשיך</p>
             </div>
 
             <div id="snake-crash-overlay" class="snake-overlay">
-                <h2>💥 אוי לא! נתקעת בקיר!</h2>
+                <h2>💥 נפסלת!</h2>
                 <div style="display:flex; gap:10px;">
                     <button class="btn" onclick="endGame()">סיום</button>
-                    <button class="btn btn-secondary" onclick="startSnakeGame()">🔄 נסי שוב</button>
+                    <button class="btn btn-secondary" onclick="startSnakeGame()">🔄 שוב</button>
                 </div>
             </div>
         </div>
 
         <div class="snake-controls">
-            <button class="d-pad-btn btn-up" onmousedown="setSnakeDir('UP')">⬆️</button>
-            <button class="d-pad-btn btn-left" onmousedown="setSnakeDir('LEFT')">⬅️</button>
-            <button class="d-pad-btn btn-right" onmousedown="setSnakeDir('RIGHT')">➡️</button>
-            <button class="d-pad-btn btn-down" onmousedown="setSnakeDir('DOWN')">⬇️</button>
+            <button class="d-pad-btn btn-up" ontouchstart="setSnakeDir('UP', event)" onmousedown="setSnakeDir('UP', event)">⬆️</button>
+            <button class="d-pad-btn btn-left" ontouchstart="setSnakeDir('LEFT', event)" onmousedown="setSnakeDir('LEFT', event)">⬅️</button>
+            <div class="d-pad-center"></div>
+            <button class="d-pad-btn btn-right" ontouchstart="setSnakeDir('RIGHT', event)" onmousedown="setSnakeDir('RIGHT', event)">➡️</button>
+            <button class="d-pad-btn btn-down" ontouchstart="setSnakeDir('DOWN', event)" onmousedown="setSnakeDir('DOWN', event)">⬇️</button>
         </div>
         
-        <button class="btn btn-secondary" style="margin-top:20px" onclick="stopSnakeGame()">יציאה</button>
+        <button class="btn btn-secondary" style="margin-top:10px; padding: 5px 15px; font-size:0.9rem;" onclick="stopSnakeGame()">יציאה</button>
     </div>
 
     <div id="screen-memory" class="game-screen">
@@ -363,42 +288,24 @@
     </div>
 
     <div id="screen-leaderboard" class="game-screen">
-        <h1>🏆 אלופי האנגלית</h1>
-        <ul id="scores-list" style="list-style: none; padding: 0;"></ul>
+        <h1>🏆 אלופים</h1>
+        <ul id="scores-list" style="list-style: none; padding: 0; font-size:0.9rem;"></ul>
         <button class="btn btn-secondary" onclick="showMenu()">חזרה</button>
     </div>
 
     <div id="screen-versions" class="game-screen">
-        <h1>📋 עדכוני גרסאות</h1>
-        <div class="version-list">
-            
-            <div class="version-item">
-                <div class="version-title">גרסה 7 (נוכחית) <span class="version-date">היום</span></div>
-                <ul class="version-details">
-                    <li><strong>כפתורי שליטה (סנייק):</strong> הוגדלו ב-50% והוצמדו לנוחות מקסימלית.</li>
-                    <li><strong>סאונד:</strong> הוחלף צליל הפסילה לצליל רך ונעים יותר.</li>
-                    <li><strong>תצוגה:</strong> שיפורי גודל פונט במשחק הזיכרון למובייל.</li>
+        <h1>📋 עדכונים</h1>
+        <div class="version-list" style="text-align:right;">
+             <div class="version-item" style="background:#fff; padding:10px; border-radius:5px;">
+                <strong>גרסה 8 (מובייל)</strong>
+                <ul style="padding-right:20px; margin:5px 0;">
+                    <li>הגדלת הנחש והאותיות ב-50% (ענק!)</li>
+                    <li>מסך משחק גבוה ומרובע יותר.</li>
+                    <li>כפתורי שליטה צמודים ונוחים לאצבעות.</li>
                 </ul>
             </div>
-
-            <div class="version-item">
-                <div class="version-title">גרסה 6 <span class="version-date">תיקוני מובייל</span></div>
-                <ul class="version-details">
-                    <li>תיקון כיווני חיצים בסנייק.</li>
-                    <li>התאמה למסכים קטנים.</li>
-                </ul>
-            </div>
-
-            <div class="version-item">
-                <div class="version-title">גרסה 5 <span class="version-date">משחקיות</span></div>
-                <ul class="version-details">
-                    <li>ג'ויסטיק וירטואלי לסנייק.</li>
-                    <li>כפתור משחק חוזר מהיר.</li>
-                </ul>
-            </div>
-
         </div>
-        <button class="btn btn-secondary" onclick="showMenu()">חזרה לתפריט</button>
+        <button class="btn btn-secondary" onclick="showMenu()">חזרה</button>
     </div>
 
 </div>
@@ -406,7 +313,7 @@
 <div id="victory-overlay" onclick="closeVictory()">
     <canvas id="fireworks-canvas"></canvas>
     <h1>🎆 כל הכבוד! 🎆</h1>
-    <p>ברכות! שברת שיא חדש!</p>
+    <p>שיא חדש!</p>
 </div>
 
 <script>
@@ -476,28 +383,15 @@
     let audioCtx;
     function initAudio() { if (!audioCtx) audioCtx = new AudioContext(); }
     
-    // Original Tone Function
-    function playTone(f, d, t='sine') {
-        initAudio();
-        const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
-        o.type = t; o.frequency.value = f;
-        o.connect(g); g.connect(audioCtx.destination);
-        o.start(); g.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + d);
-        o.stop(audioCtx.currentTime + d);
-    }
-
-    // NEW SOFT FAIL SOUND
     function playFailSound() {
         initAudio();
         const o = audioCtx.createOscillator();
         const g = audioCtx.createGain();
-        o.type = 'sine'; // Soft wave
+        o.type = 'sine'; 
         o.frequency.setValueAtTime(200, audioCtx.currentTime);
-        o.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.5); // Slide down
-        
+        o.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.5); 
         g.gain.setValueAtTime(0.3, audioCtx.currentTime);
         g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-
         o.connect(g);
         g.connect(audioCtx.destination);
         o.start();
@@ -505,13 +399,25 @@
     }
 
     function playFanfare() {
-        [523, 523, 523, 659, 523, 783].forEach((f, i) => setTimeout(() => playTone(f, 0.2, 'square'), i*200));
+        initAudio();
+        [523, 523, 523, 659, 523, 783].forEach((f, i) => {
+            const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+            o.type = 'square'; o.frequency.value = f;
+            o.connect(g); g.connect(audioCtx.destination);
+            o.start(audioCtx.currentTime + i*0.2); 
+            g.gain.setValueAtTime(0.1, audioCtx.currentTime + i*0.2);
+            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + i*0.2 + 0.2);
+            o.stop(audioCtx.currentTime + i*0.2 + 0.2);
+        });
     }
 
     function speak(text) {
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = 'en-US'; u.rate = 0.9;
-        window.speechSynthesis.speak(u);
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = 'en-US'; u.rate = 0.9;
+            window.speechSynthesis.speak(u);
+        }
     }
 
     function switchScreen(id) {
@@ -559,10 +465,11 @@
         const container = document.getElementById('game-content');
         const feedback = document.getElementById('feedback');
         const nextBtn = document.createElement('button');
-        nextBtn.className = 'btn btn-game-control';
+        nextBtn.className = 'btn';
         nextBtn.innerText = 'הבא';
         nextBtn.id = 'next-btn';
         nextBtn.style.display = 'none';
+        nextBtn.style.marginTop = '10px';
         nextBtn.onclick = nextQuestion;
         
         container.innerHTML = '';
@@ -591,9 +498,11 @@
 
             const optionsDiv = document.createElement('div');
             optionsDiv.className = 'word-options';
+            optionsDiv.style.display = 'flex'; optionsDiv.style.justifyContent = 'center'; optionsDiv.style.gap = '15px'; optionsDiv.style.marginTop = '20px';
+            
             options.forEach(opt => {
                 const b = document.createElement('div');
-                b.className = 'listening-btn';
+                b.style.fontSize = '3rem'; b.style.cursor = 'pointer'; b.style.padding = '10px'; b.style.border = '2px solid #eee'; b.style.borderRadius = '10px';
                 b.innerText = opt.icon;
                 b.onclick = () => checkAnswer(opt.word, item.word);
                 optionsDiv.appendChild(b);
@@ -605,7 +514,7 @@
         // Vocabulary
         if (currentMode === 'vocab') {
             const icon = document.createElement('div');
-            icon.className = 'emoji-display';
+            icon.style.fontSize = '4rem';
             icon.innerText = item.icon;
             
             const hint = document.createElement('div');
@@ -615,28 +524,26 @@
             const inputWrapper = document.createElement('div');
             inputWrapper.style.display = 'flex';
             inputWrapper.style.justifyContent = 'center';
-            inputWrapper.style.alignItems = 'baseline';
+            inputWrapper.style.alignItems = 'center';
+            inputWrapper.style.flexDirection = 'column';
+            inputWrapper.style.gap = '10px';
 
             const input = document.createElement('input');
             input.type = 'text'; input.className = 'input-box';
             input.autocomplete = "off";
             input.onkeypress = (e) => { if(e.key === 'Enter') checkAnswer(input.value, item.word); };
 
-            // HINT BUTTON
             const hintBtn = document.createElement('button');
             const maxHints = Math.floor(item.word.length / 2);
             hintBtn.className = 'btn btn-hint';
             hintBtn.innerText = `💡 רמז (0/${maxHints})`;
-            
             if (maxHints === 0) hintBtn.disabled = true;
 
             hintBtn.onclick = () => {
                 if (currentQuestionHints >= maxHints) return;
-
                 currentQuestionHints++;
                 hintBtn.innerText = `💡 רמז (${currentQuestionHints}/${maxHints})`;
                 if (currentQuestionHints >= maxHints) hintBtn.disabled = true;
-
                 let currentVal = input.value.toLowerCase();
                 let target = item.word.toLowerCase();
                 for(let i=0; i<target.length; i++) {
@@ -650,16 +557,17 @@
 
             const checkBtn = document.createElement('button');
             checkBtn.className = 'btn';
+            checkBtn.style.marginTop = '10px';
             checkBtn.innerText = 'בדיקה';
             checkBtn.onclick = () => checkAnswer(input.value, item.word);
 
             container.appendChild(icon);
             container.appendChild(hint);
-            inputWrapper.appendChild(hintBtn);
             inputWrapper.appendChild(input);
+            inputWrapper.appendChild(hintBtn);
             container.appendChild(inputWrapper);
             container.appendChild(checkBtn);
-            input.focus();
+            setTimeout(() => input.focus(), 100);
         }
 
         // Sentences & Reading
@@ -667,21 +575,22 @@
             if (currentMode === 'reading') {
                 const textDiv = document.createElement('div');
                 textDiv.className = 'reading-text';
+                textDiv.style.textAlign = 'left'; textDiv.style.background = 'white'; textDiv.style.padding = '10px'; textDiv.style.borderLeft = '4px solid var(--primary)';
                 textDiv.innerText = readingText;
                 container.appendChild(textDiv);
             }
             
             const qDiv = document.createElement('div');
-            qDiv.style.fontSize = "1.3rem";
+            qDiv.style.fontSize = "1.2rem";
             qDiv.style.marginBottom = "20px";
             qDiv.style.direction = "ltr";
             qDiv.innerHTML = currentMode === 'sentences' ? item.text : `<h3>${item.q}</h3>`;
 
             const optionsDiv = document.createElement('div');
-            optionsDiv.className = 'word-options';
+            optionsDiv.style.display = 'flex'; optionsDiv.style.gap = '10px'; optionsDiv.style.justifyContent = 'center';
             item.options.forEach(opt => {
                 const b = document.createElement('button');
-                b.className = 'btn';
+                b.className = 'btn btn-secondary';
                 b.innerText = opt;
                 b.onclick = () => checkAnswer(opt, item.answer);
                 optionsDiv.appendChild(b);
@@ -703,7 +612,7 @@
                 const wordLength = correctAnswer.length;
                 const deduction = (currentQuestionHints / wordLength) * 10;
                 points = Math.round(10 - deduction);
-                feedback.innerText = `נכון! (קיבלת ${points} נקודות בגלל הרמזים)`;
+                feedback.innerText = `נכון! (${points} נק')`;
             } else {
                 feedback.innerText = "Excellent! כל הכבוד! (10 נק')";
             }
@@ -712,7 +621,7 @@
             score += points;
             speak("Good job!");
         } else {
-            feedback.innerText = `התשובה הנכונה היא: ${correctAnswer}`;
+            feedback.innerText = `התשובה: ${correctAnswer}`;
             feedback.className = "feedback wrong";
             speak("Try again");
         }
@@ -725,14 +634,15 @@
         renderQuestion();
     }
 
-    // --- SNAKE GAME ---
+    // --- SNAKE GAME (UPDATED SIZE) ---
     const snakeGame = {
-        canvas: null, ctx: null, grid: 20,
+        canvas: null, ctx: null, 
+        grid: 30, // גודל משבצת הוגדל מ-20 ל-30 (50% יותר)
         running: false, paused: false, crashed: false,
         snake: [], items: [],
         dx: 0, dy: 0,
         wordData: null, targetWord: "", currentLetterIndex: 0,
-        loopId: null, speed: 200
+        loopId: null, speed: 220 
     };
 
     function startSnakeGame() {
@@ -743,7 +653,8 @@
         
         snakeGame.canvas = document.getElementById('snake-canvas');
         snakeGame.ctx = snakeGame.canvas.getContext('2d');
-        snakeGame.grid = 20;
+        // הגדרה מחדש של הגריד ליתר ביטחון
+        snakeGame.grid = 30; 
         snakeGame.running = true;
         snakeGame.paused = false;
         snakeGame.crashed = false;
@@ -767,7 +678,7 @@
     function freezeSnakeGame() {
         snakeGame.crashed = true;
         document.getElementById('snake-crash-overlay').style.display = 'flex';
-        playFailSound(); // Use new soft sound
+        playFailSound();
     }
 
     function nextSnakeLevel() {
@@ -775,7 +686,8 @@
         snakeGame.targetWord = snakeGame.wordData.word.toUpperCase();
         snakeGame.currentLetterIndex = 0;
         
-        snakeGame.snake = [{x: 160, y: 160}, {x: 140, y: 160}, {x: 120, y: 160}];
+        // מיקום התחלתי מותאם לגריד החדש
+        snakeGame.snake = [{x: 150, y: 150}, {x: 120, y: 150}, {x: 90, y: 150}];
         snakeGame.dx = snakeGame.grid; snakeGame.dy = 0;
         spawnSnakeItems();
         updateSnakeUI();
@@ -783,12 +695,14 @@
 
     function updateSnakeUI() {
         const display = document.getElementById('snake-word-target');
-        display.innerHTML = `<div style="font-size:1rem; color:#ccc;">${snakeGame.wordData.hebrew}</div>`;
+        display.innerHTML = `<div style="font-size:1rem; color:#888;">${snakeGame.wordData.hebrew}</div>`;
         const wordContainer = document.createElement('div');
         for (let i = 0; i < snakeGame.targetWord.length; i++) {
             const span = document.createElement('span');
             span.innerText = snakeGame.targetWord[i];
             span.className = i < snakeGame.currentLetterIndex ? 'found-letter' : 'missing-letter';
+            span.style.color = i < snakeGame.currentLetterIndex ? '#7ed321' : '#ccc';
+            span.style.borderBottom = i < snakeGame.currentLetterIndex ? '2px solid #7ed321' : '2px solid #ccc';
             if (i >= snakeGame.currentLetterIndex) span.innerText = '_';
             span.style.margin = "0 5px";
             wordContainer.appendChild(span);
@@ -799,24 +713,33 @@
     function spawnSnakeItems() {
         snakeGame.items = [];
         const correctChar = snakeGame.targetWord[snakeGame.currentLetterIndex];
-        snakeGame.items.push({ x: getRandomInt(0, 19)*20, y: getRandomInt(0, 14)*20, char: correctChar, type: 'correct' });
+        // חישוב גבולות לפי גודל הקנבס החדש (390 / 30 = 13 תאים)
+        const maxCells = snakeGame.canvas.width / snakeGame.grid; // 13
+        
+        snakeGame.items.push({ 
+            x: getRandomInt(0, maxCells)*snakeGame.grid, 
+            y: getRandomInt(0, maxCells)*snakeGame.grid, 
+            char: correctChar, type: 'correct' 
+        });
         
         const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         let wrongChar;
         do { wrongChar = alphabet[Math.floor(Math.random() * alphabet.length)]; } while(wrongChar === correctChar);
-        snakeGame.items.push({ x: getRandomInt(0, 19)*20, y: getRandomInt(0, 14)*20, char: wrongChar, type: 'wrong' });
+        
+        snakeGame.items.push({ 
+            x: getRandomInt(0, maxCells)*snakeGame.grid, 
+            y: getRandomInt(0, maxCells)*snakeGame.grid, 
+            char: wrongChar, type: 'wrong' 
+        });
     }
 
     function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min)) + min; }
 
     function handleSnakeKey(e) {
         if (snakeGame.crashed) return;
-
-        // Pause
         if (e.key === 'Escape') {
             snakeGame.paused = !snakeGame.paused;
-            const overlay = document.getElementById('snake-pause-overlay');
-            overlay.style.display = snakeGame.paused ? 'flex' : 'none';
+            document.getElementById('snake-pause-overlay').style.display = snakeGame.paused ? 'flex' : 'none';
             return;
         }
         if (snakeGame.paused) {
@@ -825,7 +748,6 @@
             return;
         }
 
-        if([37,38,39,40].includes(e.keyCode)) e.preventDefault();
         const goingUp = snakeGame.dy === -snakeGame.grid;
         const goingDown = snakeGame.dy === snakeGame.grid;
         const goingRight = snakeGame.dx === snakeGame.grid;
@@ -837,11 +759,12 @@
         if (e.keyCode === 40 && !goingUp) { snakeGame.dx = 0; snakeGame.dy = snakeGame.grid; }
     }
 
-    function setSnakeDir(dir) {
+    function setSnakeDir(dir, e) {
+        if(e) e.preventDefault(); // מניעת זום כפול במובייל
         if (snakeGame.paused || snakeGame.crashed) return;
-        const e = { keyCode: dir === 'LEFT' ? 37 : dir === 'UP' ? 38 : dir === 'RIGHT' ? 39 : 40 };
-        e.preventDefault = () => {};
-        handleSnakeKey(e);
+        const keyMap = { 'LEFT': 37, 'UP': 38, 'RIGHT': 39, 'DOWN': 40 };
+        const eventSim = { keyCode: keyMap[dir], preventDefault: ()=>{} };
+        handleSnakeKey(eventSim);
     }
 
     function gameLoop() {
@@ -881,34 +804,50 @@
         }
         if (!ate) snakeGame.snake.pop();
 
+        // ציור
         const ctx = snakeGame.ctx;
-        ctx.fillStyle = '#2c3e50'; ctx.fillRect(0, 0, 400, 300);
+        const g = snakeGame.grid; // 30
+        
+        ctx.fillStyle = '#2c3e50'; ctx.fillRect(0, 0, snakeGame.canvas.width, snakeGame.canvas.height);
 
-        ctx.font = "16px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        // ציור פריטים מותאם לגודל החדש (24px פונט, ממורכז ב-30px)
+        ctx.font = "bold 22px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
         snakeGame.items.forEach(item => {
             ctx.fillStyle = item.type === 'correct' ? '#2ecc71' : '#e74c3c';
-            ctx.beginPath(); ctx.arc(item.x + 10, item.y + 10, 9, 0, 2 * Math.PI); ctx.fill();
-            ctx.fillStyle = 'white'; ctx.fillText(item.char, item.x + 10, item.y + 10);
+            ctx.beginPath(); 
+            // מרכז העיגול הוא X + חצי גריד (15)
+            ctx.arc(item.x + g/2, item.y + g/2, g/2 - 2, 0, 2 * Math.PI); 
+            ctx.fill();
+            ctx.fillStyle = 'white'; 
+            ctx.fillText(item.char, item.x + g/2, item.y + g/2 + 1);
         });
 
+        // ציור הנחש
         snakeGame.snake.forEach((part, index) => {
             if (index === 0) {
                 ctx.fillStyle = '#3498db';
-                ctx.fillRect(part.x, part.y, 18, 18);
+                // ראש הנחש קצת קטן מהגריד כדי שיהיה רווח
+                ctx.fillRect(part.x + 1, part.y + 1, g - 2, g - 2);
+                
+                // עיניים מותאמות לגודל 30
                 ctx.fillStyle = 'white';
                 let ex1, ey1, ex2, ey2;
-                if (snakeGame.dx > 0) { ex1=12; ey1=4; ex2=12; ey2=14; } 
-                else if (snakeGame.dx < 0) { ex1=4; ey1=4; ex2=4; ey2=14; }
-                else if (snakeGame.dy < 0) { ex1=4; ey1=4; ex2=14; ey2=4; }
-                else { ex1=4; ey1=12; ex2=14; ey2=12; }
-                ctx.beginPath(); ctx.arc(part.x+ex1, part.y+ey1, 3, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(part.x+ex2, part.y+ey2, 3, 0, Math.PI*2); ctx.fill();
+                // חישוב יחסי: ב-20 זה היה 4 ו-12. ב-30 זה יהיה 6 ו-18 (בערך)
+                const s = 6; const l = 20; 
+                
+                if (snakeGame.dx > 0) { ex1=l; ey1=s; ex2=l; ey2=30-s; } 
+                else if (snakeGame.dx < 0) { ex1=s; ey1=s; ex2=s; ey2=30-s; }
+                else if (snakeGame.dy < 0) { ex1=s; ey1=s; ex2=30-s; ey2=s; }
+                else { ex1=s; ey1=l; ex2=30-s; ey2=l; }
+                
+                ctx.beginPath(); ctx.arc(part.x+ex1, part.y+ey1, 4, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(part.x+ex2, part.y+ey2, 4, 0, Math.PI*2); ctx.fill();
                 ctx.fillStyle = 'black';
-                ctx.beginPath(); ctx.arc(part.x+ex1, part.y+ey1, 1, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(part.x+ex2, part.y+ey2, 1, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(part.x+ex1, part.y+ey1, 1.5, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(part.x+ex2, part.y+ey2, 1.5, 0, Math.PI*2); ctx.fill();
             } else {
                 ctx.fillStyle = '#5dade2';
-                ctx.fillRect(part.x, part.y, 18, 18);
+                ctx.fillRect(part.x + 1, part.y + 1, g - 2, g - 2);
             }
         });
     }
@@ -920,7 +859,7 @@
         let selected = [...vocabulary].sort(() => 0.5 - Math.random()).slice(0, 6);
         let deck = [];
         selected.forEach(item => {
-            deck.push({ id: item.word, content: item.hebrew + " " + item.icon });
+            deck.push({ id: item.word, content: item.hebrew + "<br><span style='font-size:1.5rem'>" + item.icon + "</span>" });
             deck.push({ id: item.word, content: item.word });
         });
         deck.sort(() => 0.5 - Math.random());
@@ -968,15 +907,14 @@
         
         const gameContent = document.getElementById('game-content');
         gameContent.innerHTML = `
-            <h2>סיימת את המשחק!</h2>
-            <div class="emoji-display">🏆</div>
-            <h3>הניקוד שלך: ${score}</h3>
-            <p>שמרי את שמך בלוח התוצאות:</p>
-            <input type="text" id="playerName" class="input-box" placeholder="שמך..." style="width:200px">
+            <h2>סיימת!</h2>
+            <div style="font-size:3rem">🏆</div>
+            <h3>ניקוד: ${score}</h3>
+            <input type="text" id="playerName" class="input-box" placeholder="שמך..." style="width:180px">
             <br>
-            <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
-                <button class="btn btn-secondary" onclick="saveToLeaderboard()">💾 שמור תוצאה</button>
-                <button class="btn" onclick="restartCurrentGame()">🔄 משחק חוזר</button>
+            <div style="display: flex; justify-content: center; gap: 10px; margin-top: 15px;">
+                <button class="btn btn-secondary" onclick="saveToLeaderboard()">💾 שמירה</button>
+                <button class="btn" onclick="restartCurrentGame()">🔄 שוב</button>
             </div>
         `;
         document.getElementById('next-btn').style.display = 'none';
@@ -1011,11 +949,12 @@
         const list = document.getElementById('scores-list');
         list.innerHTML = '';
         let scores = JSON.parse(localStorage.getItem('englishGameScores')) || [];
-        if (!scores.length) { list.innerHTML = '<li>אין תוצאות עדיין...</li>'; return; }
+        if (!scores.length) { list.innerHTML = '<li>אין תוצאות...</li>'; return; }
         scores.slice(0, 10).forEach((s, i) => {
             const icons = { listening: '👂', vocab: '✍️', snake: '🐍', memory: '🃏', sentences: '🧩', reading: '📖' };
-            list.innerHTML += `<li style="padding:10px; border-bottom:1px solid #ddd">
-                <strong>#${i+1} ${s.name}</strong> - ${s.score} <span title="${s.mode}">${icons[s.mode] || ''}</span>
+            list.innerHTML += `<li style="padding:8px; border-bottom:1px solid #ddd; display:flex; justify-content:space-between;">
+                <span>#${i+1} <strong>${s.name}</strong></span>
+                <span>${s.score} ${icons[s.mode] || ''}</span>
             </li>`;
         });
     }
