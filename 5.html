@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jet 2 - משחק הכנה למבחן (גרסה 5)</title>
+    <title>Jet 2 - משחק הכנה למבחן (גרסה 6)</title>
     <style>
         :root {
             --primary: #4a90e2;
@@ -32,24 +32,24 @@
             background: var(--card);
             border-radius: 20px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            padding: 20px;
+            padding: 15px; /* Reduced padding for mobile */
             min-height: 600px;
             position: relative;
         }
 
-        h1 { color: var(--primary); margin: 10px 0; font-size: 1.8rem; }
-        h2 { color: #555; font-size: 1.2rem; margin-top: 0; }
+        h1 { color: var(--primary); margin: 10px 0; font-size: 1.5rem; }
+        h2 { color: #555; font-size: 1.1rem; margin-top: 0; }
 
         .score-board {
             position: absolute;
-            top: 20px;
-            left: 20px;
+            top: 15px;
+            left: 15px;
             background: var(--secondary);
             color: white;
-            padding: 8px 15px;
+            padding: 5px 12px;
             border-radius: 50px;
             font-weight: bold;
-            font-size: 1.1rem;
+            font-size: 1rem;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             z-index: 10;
         }
@@ -61,68 +61,70 @@
 
         .menu-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            padding: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* Smaller min-width for mobile */
+            gap: 10px;
+            padding: 10px;
         }
 
         .btn {
             background: var(--primary);
             color: white;
             border: none;
-            padding: 20px 10px;
-            font-size: 1.1rem;
+            padding: 15px 10px;
+            font-size: 1rem;
             border-radius: 15px;
             cursor: pointer;
             transition: transform 0.2s, background 0.2s;
-            box-shadow: 0 5px 0 #357abd;
+            box-shadow: 0 4px 0 #357abd;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 5px;
+            width: 100%; /* Ensure full width in grid */
+            box-sizing: border-box;
         }
 
         .btn:active { transform: translateY(4px); box-shadow: none; }
         .btn:hover { background: #357abd; }
         .btn:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; transform: none; }
         
-        .btn-secondary { background: var(--secondary); box-shadow: 0 5px 0 #d48e15; width: auto; display: inline-block; padding: 10px 30px;}
-        .btn-info { background: #17a2b8; box-shadow: 0 5px 0 #117a8b; }
+        .btn-secondary { background: var(--secondary); box-shadow: 0 4px 0 #d48e15; width: auto; display: inline-block; padding: 10px 20px;}
+        .btn-info { background: #17a2b8; box-shadow: 0 4px 0 #117a8b; }
         
         .btn-hint { 
             background: #9b59b6; 
-            box-shadow: 0 5px 0 #8e44ad; 
-            font-size: 1rem; 
-            padding: 10px 20px; 
-            margin-right: 10px;
+            box-shadow: 0 4px 0 #8e44ad; 
+            font-size: 0.9rem; 
+            padding: 8px 15px; 
+            margin-right: 5px;
             display: flex;
             flex-direction: row; 
         }
 
         /* Game Elements */
-        .emoji-display { font-size: 4rem; margin: 10px 0; display: block; }
+        .emoji-display { font-size: 3.5rem; margin: 10px 0; display: block; }
         .word-options { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
         
         .listening-btn {
-            font-size: 2.5rem;
+            font-size: 2rem;
             background: white;
             border: 2px solid #ddd;
             border-radius: 15px;
-            padding: 15px;
+            padding: 10px;
             cursor: pointer;
             transition: 0.3s;
-            min-width: 80px;
+            min-width: 70px;
         }
         .listening-btn:hover { background: #eef; border-color: var(--primary); transform: scale(1.1); }
 
         .input-box {
-            font-size: 1.5rem;
-            padding: 10px;
+            font-size: 1.3rem;
+            padding: 8px;
             border: 3px solid #ccc;
             border-radius: 10px;
-            width: 80%;
-            max-width: 300px;
+            width: 70%;
+            max-width: 250px;
             text-align: center;
             outline: none;
             margin-bottom: 20px;
@@ -130,7 +132,7 @@
         .input-box:focus { border-color: var(--primary); }
 
         .feedback {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             margin-top: 15px;
             font-weight: bold;
             min-height: 30px;
@@ -145,18 +147,19 @@
             border: 1px solid #ddd;
             border-left: 5px solid var(--primary);
             text-align: left;
-            font-size: 1.1rem;
-            line-height: 1.5;
+            font-size: 1rem;
+            line-height: 1.4;
             margin-bottom: 20px;
             direction: ltr;
-            max-height: 200px;
+            max-height: 150px;
             overflow-y: auto;
         }
 
-        /* --- SNAKE GAME STYLES (UPDATED D-PAD) --- */
+        /* --- SNAKE GAME STYLES --- */
         #snake-container {
             position: relative;
-            width: 400px;
+            width: 100%;
+            max-width: 400px; /* Limit width on desktop */
             margin: 10px auto;
         }
         #snake-canvas {
@@ -164,7 +167,9 @@
             border-radius: 10px;
             box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
             display: block;
-            width: 100%;
+            width: 100%; /* Responsive Width */
+            max-width: 100%;
+            height: auto; /* Maintain Aspect Ratio */
         }
         
         .snake-overlay {
@@ -180,7 +185,7 @@
             z-index: 5;
         }
 
-        /* New Grid Layout for Controls */
+        /* D-PAD - FIXED DIRECTION */
         .snake-controls {
             display: grid;
             grid-template-columns: repeat(3, 70px);
@@ -188,6 +193,7 @@
             gap: 5px;
             justify-content: center;
             margin-top: 15px;
+            direction: ltr; /* FORCE LTR FOR CONTROLS TO FIX ARROW POSITION */
         }
         
         .d-pad-btn {
@@ -206,25 +212,34 @@
         }
         .d-pad-btn:active { transform: translateY(4px); box-shadow: none; background: #ccc; }
 
-        /* Grid Positioning */
         .btn-up { grid-column: 2; grid-row: 1; }
         .btn-left { grid-column: 1; grid-row: 2; }
         .btn-right { grid-column: 3; grid-row: 2; }
         .btn-down { grid-column: 2; grid-row: 3; }
 
-
         #snake-word-target {
-            font-size: 1.5rem; letter-spacing: 5px; color: var(--primary);
+            font-size: 1.2rem; letter-spacing: 3px; color: var(--primary);
             font-weight: bold; direction: ltr; margin-bottom: 10px;
+            word-wrap: break-word;
         }
         .missing-letter { color: #ccc; border-bottom: 2px solid #ccc; display: inline-block; width: 20px; text-align: center;}
         .found-letter { color: var(--success); border-bottom: 2px solid var(--success); display: inline-block; width: 20px; text-align: center;}
 
         /* --- MEMORY GAME STYLES --- */
         .memory-grid {
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 8px;
             max-width: 600px; margin: 0 auto;
         }
+
+        /* Mobile Adjustment for Memory Game */
+        @media (max-width: 600px) {
+            .memory-grid {
+                grid-template-columns: repeat(3, 1fr); /* 3 Columns on mobile */
+            }
+        }
+
         .memory-card {
             aspect-ratio: 1; background: var(--primary); border-radius: 10px;
             cursor: pointer; position: relative; transform-style: preserve-3d;
@@ -234,9 +249,10 @@
         .memory-card-content {
             position: absolute; width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem; font-weight: bold; backface-visibility: hidden;
-            text-align: center; padding: 5px; box-sizing: border-box;
-            transform: rotateY(180deg); color: #333; word-break: break-word;
+            font-size: 1.1rem; /* Slightly smaller font */
+            font-weight: bold; backface-visibility: hidden;
+            text-align: center; padding: 2px; box-sizing: border-box;
+            transform: rotateY(180deg); color: #333; word-break: break-word; line-height: 1.1;
         }
         .memory-card-front {
             position: absolute; width: 100%; height: 100%;
@@ -250,29 +266,30 @@
             background: rgba(0,0,0,0.85); z-index: 2000;
             display: none; flex-direction: column; align-items: center;
             justify-content: center; color: white;
+            text-align: center;
         }
-        #victory-overlay h1 { font-size: 3rem; color: #f2d74e; text-shadow: 0 0 20px #f2d74e; margin-bottom: 0; }
+        #victory-overlay h1 { font-size: 2.5rem; color: #f2d74e; text-shadow: 0 0 20px #f2d74e; margin-bottom: 10px; }
         #fireworks-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
 
         /* --- VERSION HISTORY STYLES --- */
         .version-list {
             text-align: right;
-            padding: 20px;
+            padding: 10px;
             max-width: 600px;
             margin: 0 auto;
         }
         .version-item {
             background: #fff;
             border-left: 5px solid var(--primary);
-            padding: 15px;
-            margin-bottom: 15px;
+            padding: 10px;
+            margin-bottom: 10px;
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
-        .version-title { font-weight: bold; font-size: 1.2rem; color: var(--dark); margin-bottom: 5px; display: flex; justify-content: space-between;}
-        .version-date { font-size: 0.9rem; color: #888; }
-        .version-details { margin-top: 10px; padding-right: 20px; list-style-type: disc; }
-        .version-details li { margin-bottom: 5px; color: #555; }
+        .version-title { font-weight: bold; font-size: 1.1rem; color: var(--dark); margin-bottom: 5px; display: flex; justify-content: space-between;}
+        .version-date { font-size: 0.8rem; color: #888; }
+        .version-details { margin-top: 5px; padding-right: 20px; list-style-type: disc; }
+        .version-details li { margin-bottom: 3px; color: #555; font-size: 0.95rem; }
 
     </style>
 </head>
@@ -282,7 +299,7 @@
     <div class="score-board">ניקוד: <span id="currentScore">0</span></div>
     
     <div id="screen-menu" class="game-screen active">
-        <h1>🎓 הכנה למבחן באנגלית - כיתה ד'</h1>
+        <h1>🎓 הכנה למבחן באנגלית - ד'</h1>
         <h2>At School - Unit 1</h2>
         <div class="menu-grid">
             <button class="btn" onclick="startGame('listening')"><i>👂</i>הבנת הנשמע</button>
@@ -293,7 +310,7 @@
             <button class="btn" style="background-color: #e67e22;" onclick="startMemoryGame()"><i>🃏</i>משחק הזיכרון</button>
         </div>
         
-        <div style="margin-top: 20px;">
+        <div style="margin-top: 20px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
             <button class="btn btn-secondary" onclick="showLeaderboard()">🏆 לוח השיאים</button>
             <button class="btn btn-info" onclick="showVersions()">📋 עדכוני גרסאות</button>
         </div>
@@ -355,33 +372,27 @@
         <div class="version-list">
             
             <div class="version-item">
-                <div class="version-title">גרסה 5 (נוכחית) <span class="version-date">היום</span></div>
+                <div class="version-title">גרסה 6 (נוכחית) <span class="version-date">היום</span></div>
                 <ul class="version-details">
-                    <li><strong>סידור חיצים בסנייק:</strong> עיצוב מחדש של הכפתורים בצורת ג'ויסטיק (צלב) לנוחות מקסימלית.</li>
-                    <li><strong>משחק חוזר:</strong> הוספת כפתור "משחק חוזר" בסיום כל משחק או פסילה, למעבר מהיר לסיבוב נוסף.</li>
+                    <li><strong>סנייק במובייל:</strong> תיקון גודל המסך כך שלא יחתך (רספונסיבי).</li>
+                    <li><strong>כיוונים בסנייק:</strong> תיקון מיקום החיצים ימינה ושמאלה (היו הפוכים בגלל עברית).</li>
+                    <li><strong>משחק הזיכרון:</strong> הגדלת הקלפים במובייל (3 בשורה במקום 4) כדי שהמילים יכנסו.</li>
                 </ul>
             </div>
 
             <div class="version-item">
-                <div class="version-title">גרסה 4 <span class="version-date">עדכון ממשק</span></div>
+                <div class="version-title">גרסה 5 <span class="version-date">ממשק שליטה</span></div>
                 <ul class="version-details">
-                    <li>נוסף עמוד "עדכוני גרסאות".</li>
+                    <li>סידור ג'ויסטיק בסנייק.</li>
+                    <li>כפתור משחק חוזר מהיר.</li>
                 </ul>
             </div>
 
             <div class="version-item">
-                <div class="version-title">גרסה 3 <span class="version-date">עדכוני משחקיות</span></div>
+                <div class="version-title">גרסה 3-4 <span class="version-date">פיצ'רים</span></div>
                 <ul class="version-details">
-                    <li>סנייק: השהייה (ESC), האטה במהירות, פרצוף לנחש, עצירה בהתנגשות.</li>
-                    <li>כתיבה: כפתור רמז חכם עם הורדת ניקוד יחסית.</li>
-                </ul>
-            </div>
-
-            <div class="version-item">
-                <div class="version-title">גרסה 2 <span class="version-date">הרחבה</span></div>
-                <ul class="version-details">
-                    <li>הוספת "סנייק מילים" ו"משחק הזיכרון".</li>
-                    <li>לוח תוצאות וחגיגות ניצחון.</li>
+                    <li>סנייק: השהייה, רמזים, האטה.</li>
+                    <li>הוספת עמוד עדכונים.</li>
                 </ul>
             </div>
 
@@ -930,7 +941,6 @@
 
     // --- End & Leaderboard ---
     function endGame() {
-        // Snake special handling already done in freeze
         const isNewRecord = checkHighScore(score);
         switchScreen('screen-game');
         
