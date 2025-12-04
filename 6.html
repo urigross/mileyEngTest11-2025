@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Jet 2 - הכנה למבחן (גרסה 13 - פיצוץ חכם)</title>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --secondary: #f5a623;
+            --success: #7ed321;
+            --error: #d0021b;
+            --bg: #f0f4f8;
+            --card: #ffffff;
+            --dark: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 5px;
+            text-align: center;
+            direction: rtl;
+            overflow-x: hidden;
+            overflow-y: auto; 
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card);
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 10px;
+            min-height: 90vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 { color: var(--primary); margin: 5px 0; font-size: 1.3rem; }
+        h2 { color: #555; font-size: 1rem; margin-top: 0; margin-bottom: 5px;}
+
+        .score-board {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: var(--secondary);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .game-screen { display: none; width: 100%; }
+        .game-screen.active { display: block; animation: fadeIn 0.5s; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            padding: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px;
+            font-size: 0.95rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.2s;
+            box-shadow: 0 3px 0 #357abd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            width: 100%;
+            min-height: 55px;
+        }
+
+        .btn:active { transform: translateY(3px); box-shadow: none; }
+        .btn-secondary { background: var(--secondary); box-shadow: 0 3px 0 #d48e15; width: auto; display: inline-block; padding: 8px 16px;}
+        .btn-info { background: #17a2b8; box-shadow: 0 3px 0 #117a8b; }
+        .btn-purple { background: #9b59b6; box-shadow: 0 3px 0 #8e44ad; }
+        .btn-orange { background: #e67e22; box-shadow: 0 3px 0 #d35400; }
+        .btn-green { background: #27ae60; box-shadow: 0 3px 0 #219150; }
+        .btn-red { background: #e74c3c; box-shadow: 0 3px 0 #c0392b; }
+        .btn-blue-dark { background: #34495e; box-shadow: 0 3px 0 #2c3e50; }
+        
+        .btn-hint { 
+            background: #9b59b6; 
+            box-shadow: 0 3px 0 #8e44ad; 
+            font-size: 0.8rem; 
+            padding: 8px 12px; 
+            margin-right: 5px;
+            display: flex;
+            flex-direction: row; 
+        }
+
+        /* --- LOG STYLES --- */
+        .version-list { text-align: right; max-height: 60vh; overflow-y: auto; }
+        .version-item { background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #eee; margin-bottom: 10px; }
+        .version-item strong { color: var(--primary); display: block; margin-bottom: 5px; border-bottom: 1px solid #eee; padding-bottom: 3px;}
+        .version-item ul { padding-right: 20px; margin: 0; font-size: 0.9rem; color: #555; }
+
+        /* --- NEW GAME STYLES --- */
+        
+        /* Bubble Pop */
+        .bubble-container {
+            display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; min-height: 150px;
+        }
+        .bubble {
+            width: 50px; height: 50px; border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #a2d9ff, #4a90e2);
+            color: white; font-weight: bold; font-size: 1.5rem;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            animation: float 3s infinite ease-in-out;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        .bubble:active { transform: scale(0.9); }
+        .bubble.popped { animation: pop 0.4s forwards; pointer-events: none; }
+        @keyframes pop { 
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.5; }
+            100% { transform: scale(0); opacity: 0; } 
+        }
+        
+        .spelling-slots { 
+            display: flex; 
+            justify-content: center; 
+            gap: 5px; 
+            margin: 15px 0; 
+            min-height: 40px; 
+            direction: ltr; /* Force Left-to-Right */
+        }
+        .slot { width: 30px; height: 40px; border-bottom: 3px solid #ccc; font-size: 1.5rem; font-weight: bold; color: #333; }
+        .slot.filled { border-color: var(--success); color: var(--success); }
+
+        /* True/False */
+        .tf-container { display: flex; gap: 15px; justify-content: center; margin-top: 20px; width: 100%; }
+        .tf-btn { width: 45%; height: 100px; font-size: 2rem; border-radius: 15px; border: none; color: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 5px 0 rgba(0,0,0,0.2); transition: transform 0.1s; }
+        .tf-btn:active { transform: translateY(5px); box-shadow: none; }
+        .tf-true { background: var(--success); box-shadow: 0 5px 0 #65a91a; }
+        .tf-false { background: var(--error); box-shadow: 0 5px 0 #a50216; }
+        .tf-text { font-size: 1.8rem; font-weight: bold; direction: ltr; margin-top: 10px; color: #333; }
+
+        /* --- EXISTING GAME STYLES --- */
+        #snake-container { position: relative; width: 100%; display: flex; justify-content: center; max-height: 40vh; }
+        #snake-canvas { background-color: #2c3e50; border-radius: 10px; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); display: block; max-width: 100%; height: auto; max-height: 100%; aspect-ratio: 1 / 1; touch-action: none; }
+        .snake-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); color: white; display: none; flex-direction: column; justify-content: center; align-items: center; border-radius: 10px; z-index: 5; }
+        .snake-controls { display: grid; grid-template-columns: repeat(3, 65px); grid-template-rows: repeat(3, 60px); gap: 2px; justify-content: center; margin-top: 5px; direction: ltr; touch-action: manipulation; }
+        .d-pad-btn { width: 60px; height: 55px; border-radius: 12px; background: #e0e0e0; border: 1px solid #ccc; font-size: 1.5rem; cursor: pointer; box-shadow: 0 3px #999; display: flex; align-items: center; justify-content: center; color: #444; margin: 0; -webkit-user-select: none; }
+        .d-pad-btn:active { transform: scale(0.95); background: #ccc; box-shadow: inset 0 2px 5px rgba(0,0,0,0.2); }
+        .btn-up { grid-column: 2; grid-row: 1; border-radius: 12px 12px 4px 4px; }
+        .btn-left { grid-column: 1; grid-row: 2; border-radius: 12px 4px 4px 12px; }
+        .btn-right { grid-column: 3; grid-row: 2; border-radius: 4px 12px 12px 4px; }
+        .btn-down { grid-column: 2; grid-row: 3; border-radius: 4px 4px 12px 12px; }
+        .d-pad-center { grid-column: 2; grid-row: 2; background: #d0d0d0; border-radius: 4px; }
+        #snake-word-target { font-size: 1.2rem; letter-spacing: 2px; color: var(--primary); font-weight: bold; direction: ltr; margin-bottom: 2px; word-wrap: break-word; min-height: 25px; }
+
+        .sentence-area { background: #eef; min-height: 60px; border-radius: 10px; margin: 15px 0; padding: 10px; display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; border: 2px dashed #aac; }
+        .word-bank { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 10px; }
+        .word-pill { background: white; border: 2px solid var(--primary); color: var(--primary); padding: 8px 15px; border-radius: 20px; font-size: 1.1rem; cursor: pointer; transition: all 0.2s; font-weight: bold; }
+        .word-pill.used { opacity: 0.3; transform: scale(0.9); pointer-events: none; background: #ccc; border-color: #999; }
+        .word-pill-answer { background: var(--primary); color: white; padding: 8px 15px; border-radius: 20px; font-size: 1.1rem; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+
+        .timer-bar-container { width: 80%; margin: 10px auto; height: 10px; background: #ddd; border-radius: 5px; overflow: hidden; }
+        .timer-bar { height: 100%; background: var(--error); width: 100%; transition: width 0.1s linear; }
+        .speed-word { font-size: 2.5rem; font-weight: bold; margin: 20px 0; color: var(--dark); }
+        .speed-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+
+        /* --- Memory Game Styles (Modified for Desktop) --- */
+        .memory-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); /* Mobile default: 3 columns */
+            gap: 6px; 
+            max-width: 100%; 
+            margin: 0 auto; 
+        }
+
+        /* Desktop Specific Override */
+        @media (min-width: 768px) {
+            .memory-grid {
+                grid-template-columns: repeat(4, 1fr); /* Desktop: 4 columns */
+                max-width: 60%; /* Desktop: Reduce overall size by limiting width */
+                gap: 10px;
+            }
+        }
+
+        .memory-card { aspect-ratio: 1; background: var(--primary); border-radius: 8px; cursor: pointer; position: relative; transform-style: preserve-3d; transition: transform 0.4s; }
+        .memory-card.flipped { transform: rotateY(180deg); background: white; }
+        .memory-card-content, .memory-card-front { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; backface-visibility: hidden; font-weight: bold; }
+        .memory-card-content { transform: rotateY(180deg); font-size: 0.9rem; color: #333; padding: 2px; line-height: 1.1; }
+        .memory-card-front { font-size: 1.5rem; color: rgba(255,255,255,0.5); }
+
+        .input-box { font-size: 1.2rem; padding: 8px; border-radius: 8px; border: 2px solid #ccc; width: 60%; text-align: center; }
+        .feedback { font-size: 1.1rem; margin-top: 10px; font-weight: bold; min-height: 25px; }
+        .feedback.correct { color: var(--success); } .feedback.wrong { color: var(--error); }
+        
+        #victory-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="score-board">ניקוד: <span id="currentScore">0</span></div>
+    
+    <div id="screen-menu" class="game-screen active">
+        <h1>🎓 הכנה למבחן באנגלית - ד'</h1>
+        <h2>כל המילים + משפטים</h2>
+        <div class="menu-grid">
+            <button class="btn" onclick="startGame('listening')"><i>👂</i>הבנת הנשמע</button>
+            <button class="btn" onclick="startGame('vocab')"><i>✍️</i>כתיבת מילים</button>
+            <button class="btn" onclick="startGame('sentences')"><i>🧩</i>השלמת משפטים</button>
+            <button class="btn" onclick="startGame('reading')"><i>📖</i>קריאה</button>
+            
+            <button class="btn btn-green" onclick="startSentenceBuilder()"><i>🏗️</i> מפעל המשפטים</button>
+            <button class="btn btn-red" onclick="startSpeedGame()"><i>⚡</i> קליק מהיר</button>
+
+            <button class="btn btn-blue-dark" onclick="startBubbleGame()"><i>🫧</i> פיצוץ בועות</button>
+            <button class="btn btn-orange" onclick="startTrueFalseGame()"><i>✅</i> אמת או שקר</button>
+
+            <button class="btn btn-purple" style="grid-column: span 2;" onclick="startSnakeGame()"><i>🐍</i> סנייק מילים</button>
+            <button class="btn btn-orange" style="grid-column: span 2;" onclick="startMemoryGame()"><i>🃏</i> משחק הזיכרון</button>
+        </div>
+        
+        <div style="margin-top: 15px; display: flex; justify-content: center; gap: 10px;">
+            <button class="btn btn-secondary" onclick="showLeaderboard()">🏆 שיאים</button>
+            <button class="btn btn-info" onclick="showVersions()">📜 עדכונים</button>
+        </div>
+    </div>
+
+    <div id="screen-game" class="game-screen">
+        <div id="category-title" style="margin-bottom: 10px; font-weight: bold; color: #777;"></div>
+        <div id="game-content"></div>
+        <div id="feedback" class="feedback"></div>
+        <button class="btn btn-secondary" style="margin-top:10px" onclick="showMenu()">יציאה</button>
+    </div>
+
+    <div id="screen-bubble" class="game-screen">
+        <h2>🫧 פוצצי את הבועות לפי הסדר</h2>
+        <div id="bubble-target-icon" style="font-size: 4rem;"></div>
+        <div id="bubble-slots" class="spelling-slots"></div>
+        <div id="bubble-area" class="bubble-container"></div>
+        <div id="bubble-feedback" class="feedback"></div>
+        <button class="btn btn-secondary" style="margin-top:20px" onclick="showMenu()">יציאה</button>
+    </div>
+
+    <div id="screen-tf" class="game-screen">
+        <h2>✅ אמת או שקר? ❌</h2>
+        <div id="tf-display" style="margin: 20px 0; background: #fff; padding: 20px; border-radius: 10px; border: 2px solid #eee;"></div>
+        <div class="tf-container">
+            <button class="tf-btn tf-true" onclick="checkTF(true)">✅<br>True</button>
+            <button class="tf-btn tf-false" onclick="checkTF(false)">❌<br>False</button>
+        </div>
+        <div id="tf-feedback" class="feedback"></div>
+        <button class="btn btn-secondary" style="margin-top:20px" onclick="showMenu()">יציאה</button>
+    </div>
+
+    <div id="screen-builder" class="game-screen">
+        <h2>🏗️ סדרי את המשפט</h2>
+        <div id="builder-image" style="font-size: 4rem; margin: 10px;"></div>
+        <p style="margin:0; color:#666; font-size:0.9rem;">לחצי על המילים לפי הסדר:</p>
+        <div id="builder-answer-zone" class="sentence-area"></div>
+        <div id="builder-word-bank" class="word-bank"></div>
+        <div id="builder-feedback" class="feedback"></div>
+        <button id="builder-check-btn" class="btn" style="margin-top:15px; display:none;" onclick="checkBuilderAnswer()">בדיקה</button>
+        <button class="btn btn-secondary" style="margin-top:20px" onclick="showMenu()">יציאה</button>
+    </div>
+
+    <div id="screen-speed" class="game-screen">
+        <h2>⚡ קליק מהיר</h2>
+        <div class="timer-bar-container"><div id="speed-timer" class="timer-bar"></div></div>
+        <div id="speed-word-display" class="speed-word"></div>
+        <div id="speed-options" class="speed-grid"></div>
+        <div id="speed-feedback" class="feedback"></div>
+        <button class="btn btn-secondary" style="margin-top:20px" onclick="stopSpeedGame()">יציאה</button>
+    </div>
+
+    <div id="screen-snake" class="game-screen">
+        <h2 style="margin:2px 0;">🐍 סנייק</h2>
+        <div id="snake-word-target"></div>
+        <div id="snake-container">
+            <canvas id="snake-canvas" width="390" height="390"></canvas>
+            <div id="snake-pause-overlay" class="snake-overlay"><h2>⏸️ מושהה</h2><p>לחצי כדי להמשיך</p></div>
+            <div id="snake-crash-overlay" class="snake-overlay">
+                <h2>💥 נפסלת!</h2>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn" onclick="endGame()">סיום</button>
+                    <button class="btn btn-secondary" onclick="startSnakeGame()">🔄 שוב</button>
+                </div>
+            </div>
+        </div>
+        <div class="snake-controls">
+            <button class="d-pad-btn btn-up" ontouchstart="setSnakeDir('UP', event)" onmousedown="setSnakeDir('UP', event)">⬆️</button>
+            <button class="d-pad-btn btn-left" ontouchstart="setSnakeDir('LEFT', event)" onmousedown="setSnakeDir('LEFT', event)">⬅️</button>
+            <div class="d-pad-center"></div>
+            <button class="d-pad-btn btn-right" ontouchstart="setSnakeDir('RIGHT', event)" onmousedown="setSnakeDir('RIGHT', event)">➡️</button>
+            <button class="d-pad-btn btn-down" ontouchstart="setSnakeDir('DOWN', event)" onmousedown="setSnakeDir('DOWN', event)">⬇️</button>
+        </div>
+        <button class="btn btn-secondary" style="margin-top:8px; padding: 5px 15px; font-size:0.9rem;" onclick="stopSnakeGame()">יציאה</button>
+    </div>
+
+    <div id="screen-memory" class="game-screen">
+        <h2>🃏 משחק הזיכרון</h2>
+        <div id="memory-board" class="memory-grid"></div>
+        <button class="btn btn-secondary" style="margin-top:20px" onclick="showMenu()">יציאה</button>
+    </div>
+
+    <div id="screen-leaderboard" class="game-screen">
+        <h1>🏆 אלופים</h1>
+        <ul id="scores-list" style="list-style: none; padding: 0; font-size:0.9rem;"></ul>
+        <button class="btn btn-secondary" onclick="showMenu()">חזרה</button>
+    </div>
+
+    <div id="screen-versions" class="game-screen">
+        <h1>📜 לוג גרסאות</h1>
+        <div class="version-list">
+             <div class="version-item">
+                <strong>גרסה 13 (פיצוץ בועות)</strong>
+                <ul>
+                    <li>לחיצה על אות לא נכונה = האות מתפוצצת!</li>
+                    <li>מוריד נקודה אחת מהניקוד.</li>
+                    <li>אם פוצצתם בטעות אות שצריך למילה, היא תחזור תוך שנייה (כדי לא להיתקע).</li>
+                </ul>
+            </div>
+             <div class="version-item">
+                <strong>גרסה 12</strong>
+                <ul>
+                    <li>סידור כיוון המילוי בבועות (אנגלית משמאל לימין).</li>
+                    <li>אמת או שקר: אנגלית בלבד.</li>
+                </ul>
+            </div>
+        </div>
+        <button class="btn btn-secondary" onclick="showMenu()">חזרה</button>
+    </div>
+
+</div>
+
+<div id="victory-overlay" onclick="closeVictory()">
+    <canvas id="fireworks-canvas"></canvas>
+    <h1>🎆 כל הכבוד! 🎆</h1>
+    <p>שיא חדש!</p>
+</div>
+
+<script>
+    // --- Data ---
+    const vocabulary = [
+        { word: "school", icon: "🏫", hebrew: "בית ספר" },
+        { word: "teacher", icon: "👩‍🏫", hebrew: "מורה" },
+        { word: "pupil", icon: "👧", hebrew: "תלמיד/ה" },
+        { word: "friend", icon: "👫", hebrew: "חבר/ה" },
+        { word: "family", icon: "👨‍👩‍👧‍👦", hebrew: "משפחה" },
+        { word: "book", icon: "📖", hebrew: "ספר" },
+        { word: "notebook", icon: "📓", hebrew: "מחברת" },
+        { word: "pencil", icon: "✏️", hebrew: "עיפרון" },
+        { word: "eraser", icon: "🧼", hebrew: "מחק" },
+        { word: "computer", icon: "💻", hebrew: "מחשב" },
+        { word: "lunch", icon: "🥪", hebrew: "ארוחת צהריים" },
+        { word: "bird", icon: "🐦", hebrew: "ציפור" },
+        { word: "house", icon: "🏠", hebrew: "בית" },
+        { word: "math", icon: "➗", hebrew: "חשבון" },
+        { word: "art", icon: "🎨", hebrew: "אומנות" },
+        { word: "music", icon: "🎵", hebrew: "מוזיקה" },
+        { word: "sports", icon: "⚽", hebrew: "ספורט" },
+        { word: "happy", icon: "😊", hebrew: "שמח" },
+        { word: "write", icon: "✍️", hebrew: "לכתוב" },
+        { word: "homework", icon: "🏠📚", hebrew: "שיעורי בית" },
+        { word: "brother", icon: "👦", hebrew: "אח" },
+        { word: "sister", icon: "👧", hebrew: "אחות" },
+        { word: "english", icon: "🔤", hebrew: "אנגלית" },
+        { word: "new", icon: "✨", hebrew: "חדש" },
+        { word: "grade", icon: "💯", hebrew: "כיתה/ציון" },
+        { word: "town", icon: "🏙️", hebrew: "עיר" },
+        { word: "fly", icon: "🦋", hebrew: "לעוף" },
+        { word: "lesson", icon: "👨‍🏫", hebrew: "שיעור" },
+        { word: "nice", icon: "👍", hebrew: "נחמד" },
+        { word: "talk", icon: "🗣️", hebrew: "לדבר" },
+        { word: "want", icon: "🙏", hebrew: "לרצות" },
+        { word: "board", icon: "📋", hebrew: "לוח" },
+        { word: "chair", icon: "🪑", hebrew: "כיסא" },
+        { word: "need", icon: "🤲", hebrew: "צריך" },
+        { word: "paper", icon: "📄", hebrew: "נייר" },
+        { word: "thanks", icon: "💝", hebrew: "תודה" },
+        { word: "address", icon: "🏠📍", hebrew: "כתובת" },
+        { word: "food", icon: "🍔", hebrew: "אוכל" },
+        { word: "me", icon: "🙋‍♂️", hebrew: "אותי/אני" },
+        { word: "meet", icon: "🤝", hebrew: "לפגוש" },
+        { word: "phone number", icon: "📱", hebrew: "מספר טלפון" },
+        { word: "please", icon: "🥺", hebrew: "בבקשה" },
+        { word: "see", icon: "👀", hebrew: "לראות" },
+        { word: "class", icon: "👩‍🏫", hebrew: "כיתה" },
+        { word: "day", icon: "☀️", hebrew: "יום" },
+        { word: "learn", icon: "🧠", hebrew: "ללמוד" },
+        { word: "week", icon: "📅", hebrew: "שבוע" }
+    ];
+
+    const sentences = [
+        { text: "The _____ is on the table.", options: ["book", "fly"], answer: "book" },
+        { text: "I like my _____. She is nice.", options: ["teacher", "day"], answer: "teacher" },
+        { text: "We learn _____ at school.", options: ["English", "lunch"], answer: "English" },
+        { text: "I have a sandwich for _____.", options: ["lunch", "pencil"], answer: "lunch" },
+        { text: "This is my _____, Dan.", options: ["brother", "board"], answer: "brother" },
+        { text: "Please _____ your name.", options: ["write", "happy"], answer: "write" },
+        { text: "I live in a big _____.", options: ["house", "chair"], answer: "house" },
+        { text: "The _____ is singing.", options: ["bird", "book"], answer: "bird" },
+        { text: "We _____ math on Sunday.", options: ["learn", "fly"], answer: "learn" },
+        { text: "Nice to _____ you.", options: ["meet", "eat"], answer: "meet" }
+    ];
+
+    const readingText = `
+        Hi! My name is Gal. I am 9 years old.
+        I am a pupil in grade 4.
+        I learn at a big school in the town.
+        My teacher is Rina. She is very nice.
+        I like Math, English and Sports.
+        I have a new computer at home.
+    `;
+
+    const readingQuestions = [
+        { q: "What is the girl's name?", options: ["Rina", "Gal", "Tal"], answer: "Gal" },
+        { q: "What grade is she in?", options: ["Grade 3", "Grade 5", "Grade 4"], answer: "Grade 4" },
+        { q: "What is the teacher's name?", options: ["Rina", "Gal", "Dana"], answer: "Rina" },
+        { q: "What does she have at home?", options: ["A bird", "A new computer", "A dog"], answer: "A new computer" }
+    ];
+
+    const builderSentences = [
+        { correct: "The bird is flying", parts: ["flying", "The", "is", "bird"], icon: "🐦" },
+        { correct: "I have a new computer", parts: ["computer", "have", "I", "a", "new"], icon: "💻" },
+        { correct: "My teacher is nice", parts: ["nice", "is", "teacher", "My"], icon: "👩‍🏫" },
+        { correct: "We learn English at school", parts: ["school", "We", "at", "English", "learn"], icon: "🏫" },
+        { correct: "The book is on the table", parts: ["table", "book", "on", "The", "is", "the"], icon: "📖" },
+        { correct: "I want to eat lunch", parts: ["lunch", "want", "eat", "to", "I"], icon: "🥪" }
+    ];
+
+    let score = 0;
+    let currentMode = '';
+    let currentQuestionIndex = 0;
+    let currentData = [];
+    let currentQuestionHints = 0;
+
+    // Audio Setup
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx;
+    function initAudio() { if (!audioCtx) audioCtx = new AudioContext(); }
+    
+    function playFailSound() {
+        initAudio();
+        const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+        o.type = 'sine'; o.frequency.setValueAtTime(200, audioCtx.currentTime);
+        o.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.5); 
+        g.gain.setValueAtTime(0.3, audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+        o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + 0.5);
+    }
+    function playCorrectSound() {
+        initAudio();
+        const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+        o.type = 'sine'; o.frequency.setValueAtTime(600, audioCtx.currentTime);
+        g.gain.setValueAtTime(0.1, audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+        o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + 0.3);
+    }
+    function playFanfare() {
+        initAudio();
+        [523, 523, 523, 659, 523, 783].forEach((f, i) => {
+            const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+            o.type = 'square'; o.frequency.value = f;
+            o.connect(g); g.connect(audioCtx.destination);
+            o.start(audioCtx.currentTime + i*0.2); 
+            g.gain.setValueAtTime(0.1, audioCtx.currentTime + i*0.2);
+            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + i*0.2 + 0.2);
+            o.stop(audioCtx.currentTime + i*0.2 + 0.2);
+        });
+    }
+
+    function speak(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = 'en-US'; u.rate = 0.9;
+            window.speechSynthesis.speak(u);
+        }
+    }
+
+    function switchScreen(id) {
+        document.querySelectorAll('.game-screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if (id !== 'screen-snake') snakeGame.running = false;
+        if (id !== 'screen-speed') clearInterval(speedGameTimer);
+    }
+
+    function updateScoreDisplay() { document.getElementById('currentScore').innerText = score; }
+    function showMenu() { switchScreen('screen-menu'); }
+    function showVersions() { switchScreen('screen-versions'); }
+
+    // --- Standard Games ---
+    function startGame(mode) {
+        currentMode = mode; score = 0; currentQuestionIndex = 0;
+        updateScoreDisplay(); switchScreen('screen-game');
+        
+        const titles = {
+            listening: "הקשיבי ולחצי על התמונה הנכונה",
+            vocab: "כתבי את המילה באנגלית",
+            sentences: "השלימי את המשפט",
+            reading: "קראי את הטקסט ועני על השאלות"
+        };
+        document.getElementById('category-title').innerText = titles[mode];
+        generateLevelData();
+        renderQuestion();
+    }
+
+    function restartCurrentGame() {
+        if (currentMode === 'snake') startSnakeGame();
+        else if (currentMode === 'memory') startMemoryGame();
+        else if (currentMode === 'builder') startSentenceBuilder();
+        else if (currentMode === 'speed') startSpeedGame();
+        else if (currentMode === 'bubble') startBubbleGame();
+        else if (currentMode === 'tf') startTrueFalseGame();
+        else startGame(currentMode);
+    }
+
+    function generateLevelData() {
+        if (currentMode === 'listening' || currentMode === 'vocab') currentData = [...vocabulary].sort(() => 0.5 - Math.random()).slice(0, 10);
+        else if (currentMode === 'sentences') currentData = [...sentences].sort(() => 0.5 - Math.random()).slice(0, 8);
+        else if (currentMode === 'reading') currentData = [...readingQuestions];
+    }
+
+    function renderQuestion() {
+        const container = document.getElementById('game-content');
+        const feedback = document.getElementById('feedback');
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'btn'; nextBtn.innerText = 'הבא'; nextBtn.id = 'next-btn';
+        nextBtn.style.display = 'none'; nextBtn.style.marginTop = '10px';
+        nextBtn.onclick = nextQuestion;
+        
+        container.innerHTML = ''; feedback.innerText = ''; feedback.className = 'feedback';
+        currentQuestionHints = 0;
+
+        if (currentQuestionIndex >= currentData.length) { endGame(); return; }
+
+        const item = currentData[currentQuestionIndex];
+
+        if (currentMode === 'listening') {
+            let options = [item];
+            while(options.length < 3) {
+                let r = vocabulary[Math.floor(Math.random() * vocabulary.length)];
+                if (!options.includes(r)) options.push(r);
+            }
+            options.sort(() => 0.5 - Math.random());
+            
+            const btnSpeak = document.createElement('button');
+            btnSpeak.className = 'btn btn-secondary'; btnSpeak.innerText = '🔊 השמיעי מילה';
+            btnSpeak.onclick = () => speak(item.word);
+            setTimeout(() => speak(item.word), 500);
+
+            const optionsDiv = document.createElement('div');
+            optionsDiv.style.display = 'flex'; optionsDiv.style.justifyContent = 'center'; optionsDiv.style.gap = '15px'; optionsDiv.style.marginTop = '20px';
+            options.forEach(opt => {
+                const b = document.createElement('div');
+                b.style.fontSize = '3rem'; b.style.cursor = 'pointer'; b.style.padding = '10px'; b.style.border = '2px solid #eee'; b.style.borderRadius = '10px';
+                b.innerText = opt.icon;
+                b.onclick = () => checkAnswer(opt.word, item.word);
+                optionsDiv.appendChild(b);
+            });
+            container.appendChild(btnSpeak); container.appendChild(optionsDiv);
+        }
+
+        if (currentMode === 'vocab') {
+            const icon = document.createElement('div'); icon.style.fontSize = '4rem'; icon.innerText = item.icon;
+            const hint = document.createElement('div'); hint.innerText = item.hebrew;
+            hint.style.fontSize = "1.2rem"; hint.style.marginBottom = "10px";
+
+            const inputWrapper = document.createElement('div');
+            inputWrapper.style.display = 'flex'; inputWrapper.style.justifyContent = 'center'; inputWrapper.style.flexDirection = 'column'; inputWrapper.style.gap = '10px'; inputWrapper.style.alignItems = 'center';
+
+            const input = document.createElement('input');
+            input.type = 'text'; input.className = 'input-box'; input.autocomplete = "off";
+            input.onkeypress = (e) => { if(e.key === 'Enter') checkAnswer(input.value, item.word); };
+
+            const hintBtn = document.createElement('button');
+            const maxHints = Math.floor(item.word.length / 2);
+            hintBtn.className = 'btn btn-hint'; hintBtn.innerText = `💡 רמז (0/${maxHints})`;
+            if (maxHints === 0) hintBtn.disabled = true;
+
+            hintBtn.onclick = () => {
+                if (currentQuestionHints >= maxHints) return;
+                currentQuestionHints++;
+                hintBtn.innerText = `💡 רמז (${currentQuestionHints}/${maxHints})`;
+                if (currentQuestionHints >= maxHints) hintBtn.disabled = true;
+                let target = item.word.toLowerCase();
+                input.value = target.substring(0, currentQuestionHints * 2); 
+                input.focus();
+            };
+
+            const checkBtn = document.createElement('button');
+            checkBtn.className = 'btn'; checkBtn.style.marginTop = '10px'; checkBtn.innerText = 'בדיקה';
+            checkBtn.onclick = () => checkAnswer(input.value, item.word);
+
+            container.appendChild(icon); container.appendChild(hint); inputWrapper.appendChild(input); inputWrapper.appendChild(hintBtn); container.appendChild(inputWrapper); container.appendChild(checkBtn);
+            setTimeout(() => input.focus(), 100);
+        }
+
+        if (currentMode === 'sentences' || currentMode === 'reading') {
+            if (currentMode === 'reading') {
+                const textDiv = document.createElement('div');
+                textDiv.style.textAlign = 'left'; textDiv.style.background = 'white'; textDiv.style.padding = '10px'; textDiv.style.borderLeft = '4px solid var(--primary)';
+                textDiv.innerText = readingText;
+                container.appendChild(textDiv);
+            }
+            const qDiv = document.createElement('div');
+            qDiv.style.fontSize = "1.2rem"; qDiv.style.marginBottom = "20px"; qDiv.style.direction = "ltr";
+            qDiv.innerHTML = currentMode === 'sentences' ? item.text : `<h3>${item.q}</h3>`;
+
+            const optionsDiv = document.createElement('div');
+            optionsDiv.style.display = 'flex'; optionsDiv.style.gap = '10px'; optionsDiv.style.justifyContent = 'center';
+            item.options.forEach(opt => {
+                const b = document.createElement('button'); b.className = 'btn btn-secondary'; b.innerText = opt;
+                b.onclick = () => checkAnswer(opt, item.answer);
+                optionsDiv.appendChild(b);
+            });
+            container.appendChild(qDiv); container.appendChild(optionsDiv);
+        }
+        container.appendChild(nextBtn);
+    }
+
+    function checkAnswer(userAnswer, correctAnswer) {
+        if (document.getElementById('next-btn').style.display === 'inline-block') return;
+        const feedback = document.getElementById('feedback');
+        
+        if (userAnswer.trim().toLowerCase() === correctAnswer.trim().toLowerCase()) {
+            let points = 10;
+            if (currentMode === 'vocab' && currentQuestionHints > 0) points = 5;
+            feedback.innerText = `נכון! (${points} נק')`; feedback.className = "feedback correct";
+            score += points; speak("Good job!");
+        } else {
+            feedback.innerText = `התשובה: ${correctAnswer}`; feedback.className = "feedback wrong";
+            speak("Try again");
+        }
+        updateScoreDisplay();
+        document.getElementById('next-btn').style.display = 'inline-block';
+    }
+
+    function nextQuestion() { currentQuestionIndex++; renderQuestion(); }
+
+    // --- NEW: BUBBLE POP GAME ---
+    let bubbleState = { target: "", currentIdx: 0 };
+    function startBubbleGame() {
+        currentMode = 'bubble'; score = 0; currentQuestionIndex = 0;
+        updateScoreDisplay(); switchScreen('screen-bubble');
+        nextBubbleRound();
+    }
+    
+    function nextBubbleRound() {
+        if (currentQuestionIndex >= 10) { endGame(); return; }
+        const item = vocabulary[Math.floor(Math.random() * vocabulary.length)];
+        bubbleState = { target: item.word.toUpperCase(), currentIdx: 0 };
+        document.getElementById('bubble-target-icon').innerText = item.icon;
+        document.getElementById('bubble-feedback').innerText = "";
+        
+        // Setup Slots
+        const slots = document.getElementById('bubble-slots');
+        slots.innerHTML = '';
+        for(let i=0; i<bubbleState.target.length; i++) {
+            const s = document.createElement('div'); s.className = 'slot'; slots.appendChild(s);
+        }
+        
+        // Setup Bubbles (Target letters + Random junk)
+        const area = document.getElementById('bubble-area');
+        area.innerHTML = '';
+        let letters = bubbleState.target.split('');
+        // Add random distractor letters
+        const alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        for(let i=0; i<3; i++) letters.push(alpha[Math.floor(Math.random() * alpha.length)]);
+        letters.sort(() => 0.5 - Math.random());
+        
+        letters.forEach(char => {
+            const b = document.createElement('div');
+            b.className = 'bubble'; b.innerText = char;
+            b.onclick = () => popBubble(char, b);
+            // Random float delay
+            b.style.animationDelay = Math.random() + 's';
+            area.appendChild(b);
+        });
+    }
+
+    function popBubble(char, el) {
+        if (el.classList.contains('popped')) return;
+        const expected = bubbleState.target[bubbleState.currentIdx];
+
+        if (char === expected) {
+            // Correct letter
+            el.classList.add('popped');
+            const slots = document.getElementById('bubble-slots').children;
+            slots[bubbleState.currentIdx].innerText = char;
+            slots[bubbleState.currentIdx].classList.add('filled');
+            bubbleState.currentIdx++;
+            playCorrectSound();
+            
+            if (bubbleState.currentIdx === bubbleState.target.length) {
+                score += 10; updateScoreDisplay();
+                speak(bubbleState.target);
+                document.getElementById('bubble-feedback').innerText = "Good Job!";
+                setTimeout(() => { currentQuestionIndex++; nextBubbleRound(); }, 1500);
+            }
+        } else {
+            // Wrong letter
+            playFailSound();
+            score = Math.max(0, score - 1); // Penalty
+            updateScoreDisplay();
+            
+            el.classList.add('popped'); // Disappear visually
+
+            // IMPORTANT: Check if this letter is needed later in the word
+            // If it is, bring it back so the user isn't stuck.
+            const neededLater = bubbleState.target.substring(bubbleState.currentIdx).includes(char);
+            
+            if (neededLater) {
+                // Respawn after 1 second
+                setTimeout(() => {
+                    el.classList.remove('popped');
+                }, 1000);
+            }
+        }
+    }
+
+    // --- NEW: TRUE / FALSE GAME ---
+    let tfState = { answer: false };
+    function startTrueFalseGame() {
+        currentMode = 'tf'; score = 0; currentQuestionIndex = 0;
+        updateScoreDisplay(); switchScreen('screen-tf');
+        nextTFRound();
+    }
+    
+    function nextTFRound() {
+        if (currentQuestionIndex >= 10) { endGame(); return; }
+        document.getElementById('tf-feedback').innerText = "";
+        const item = vocabulary[Math.floor(Math.random() * vocabulary.length)];
+        const isTrue = Math.random() > 0.5;
+        tfState.answer = isTrue;
+        
+        const display = document.getElementById('tf-display');
+        display.innerHTML = `<div style="font-size:4rem">${item.icon}</div>`;
+        
+        let displayedWord;
+        if (isTrue) {
+            displayedWord = item.word;
+        } else {
+            let other;
+            do { other = vocabulary[Math.floor(Math.random() * vocabulary.length)]; } while(other.word === item.word);
+            displayedWord = other.word;
+        }
+        
+        display.innerHTML += `<div class="tf-text">${displayedWord}</div>`;
+    }
+    
+    function checkTF(userBool) {
+        const feedback = document.getElementById('tf-feedback');
+        if (userBool === tfState.answer) {
+            score += 5; updateScoreDisplay();
+            feedback.className = 'feedback correct'; feedback.innerText = "Correct!";
+            playCorrectSound();
+            setTimeout(() => { currentQuestionIndex++; nextTFRound(); }, 800);
+        } else {
+            feedback.className = 'feedback wrong'; feedback.innerText = "Wrong!";
+            playFailSound();
+            score = Math.max(0, score - 2); updateScoreDisplay();
+            setTimeout(() => { currentQuestionIndex++; nextTFRound(); }, 1000);
+        }
+    }
+
+    // --- SENTENCE BUILDER GAME ---
+    let builderState = { current: null, userWords: [] };
+    function startSentenceBuilder() {
+        currentMode = 'builder'; score = 0; currentQuestionIndex = 0;
+        updateScoreDisplay(); switchScreen('screen-builder');
+        currentData = [...builderSentences].sort(() => 0.5 - Math.random());
+        loadBuilderLevel();
+    }
+
+    function loadBuilderLevel() {
+        if (currentQuestionIndex >= currentData.length) { endGame(); return; }
+        const item = currentData[currentQuestionIndex];
+        builderState = { current: item, userWords: [] };
+        document.getElementById('builder-image').innerText = item.icon;
+        document.getElementById('builder-feedback').innerText = '';
+        document.getElementById('builder-check-btn').style.display = 'none';
+        const zone = document.getElementById('builder-answer-zone');
+        zone.innerHTML = '<span style="color:#aaa; align-self:center;">לחצי על המילים...</span>';
+        const bank = document.getElementById('builder-word-bank');
+        bank.innerHTML = '';
+        let words = [...item.parts].sort(() => 0.5 - Math.random());
+        words.forEach((w, i) => {
+            const btn = document.createElement('div');
+            btn.className = 'word-pill'; btn.innerText = w; btn.id = `word-btn-${i}`;
+            btn.onclick = () => addWordToZone(w, btn);
+            bank.appendChild(btn);
+        });
+    }
+
+    function addWordToZone(word, btnEl) {
+        if (btnEl.classList.contains('used')) return;
+        const zone = document.getElementById('builder-answer-zone');
+        if (builderState.userWords.length === 0) zone.innerHTML = ''; 
+        builderState.userWords.push({ text: word, sourceBtn: btnEl });
+        btnEl.classList.add('used'); playCorrectSound(); 
+        const pill = document.createElement('div'); pill.className = 'word-pill-answer'; pill.innerText = word;
+        pill.onclick = () => removeWordFromZone(pill, btnEl);
+        zone.appendChild(pill);
+        if (builderState.userWords.length === builderState.current.parts.length) { document.getElementById('builder-check-btn').style.display = 'inline-block'; }
+    }
+
+    function removeWordFromZone(pillEl, sourceBtn) {
+        pillEl.remove(); sourceBtn.classList.remove('used');
+        builderState.userWords = builderState.userWords.filter(w => w.sourceBtn !== sourceBtn);
+        document.getElementById('builder-check-btn').style.display = 'none';
+    }
+
+    function checkBuilderAnswer() {
+        const sentence = builderState.userWords.map(w => w.text).join(' ');
+        const feedback = document.getElementById('builder-feedback');
+        if (sentence === builderState.current.correct) {
+            score += 15; updateScoreDisplay(); feedback.className = 'feedback correct'; feedback.innerText = "Excellent!"; speak(sentence);
+            setTimeout(() => { currentQuestionIndex++; loadBuilderLevel(); }, 2000);
+        } else {
+            feedback.className = 'feedback wrong'; feedback.innerText = "נסה שוב..."; playFailSound();
+            setTimeout(() => {
+                document.getElementById('builder-answer-zone').innerHTML = '';
+                document.getElementById('builder-word-bank').childNodes.forEach(n => n.classList.remove('used'));
+                builderState.userWords = []; document.getElementById('builder-check-btn').style.display = 'none';
+            }, 1000);
+        }
+    }
+
+    // --- SPEED CLICK GAME ---
+    let speedGameTimer; let speedTimeLeft;
+    function startSpeedGame() {
+        currentMode = 'speed'; score = 0; updateScoreDisplay(); switchScreen('screen-speed'); nextSpeedRound();
+    }
+    function stopSpeedGame() { clearInterval(speedGameTimer); showMenu(); }
+    function nextSpeedRound() {
+        const item = vocabulary[Math.floor(Math.random() * vocabulary.length)];
+        document.getElementById('speed-word-display').innerText = item.hebrew;
+        document.getElementById('speed-feedback').innerText = "";
+        let opts = [item];
+        while(opts.length < 4) { let r = vocabulary[Math.floor(Math.random() * vocabulary.length)]; if (!opts.includes(r)) opts.push(r); }
+        opts.sort(() => 0.5 - Math.random());
+        const grid = document.getElementById('speed-options'); grid.innerHTML = '';
+        opts.forEach(opt => {
+            const btn = document.createElement('button'); btn.className = 'btn'; btn.style.fontSize = '1.2rem'; btn.innerText = opt.word;
+            btn.onclick = () => checkSpeedAnswer(opt.word, item.word); grid.appendChild(btn);
+        });
+        speedTimeLeft = 100; document.getElementById('speed-timer').style.width = '100%';
+        if (speedGameTimer) clearInterval(speedGameTimer);
+        speedGameTimer = setInterval(() => {
+            speedTimeLeft -= 1; document.getElementById('speed-timer').style.width = speedTimeLeft + '%';
+            if (speedTimeLeft <= 0) { checkSpeedAnswer("TIMEOUT", item.word); }
+        }, 50); 
+    }
+    function checkSpeedAnswer(ans, correct) {
+        clearInterval(speedGameTimer);
+        const fb = document.getElementById('speed-feedback');
+        if (ans === correct) {
+            score += 5; updateScoreDisplay(); fb.className = 'feedback correct'; fb.innerText = "Good!"; playCorrectSound(); setTimeout(nextSpeedRound, 800);
+        } else {
+            fb.className = 'feedback wrong'; fb.innerText = correct; playFailSound(); score = Math.max(0, score - 2); updateScoreDisplay(); setTimeout(nextSpeedRound, 1500);
+        }
+    }
+
+    // --- SNAKE GAME ---
+    const snakeGame = {
+        canvas: null, ctx: null, grid: 30, running: false, paused: false, crashed: false,
+        snake: [], items: [], dx: 0, dy: 0, wordData: null, targetWord: "", currentLetterIndex: 0, loopId: null, speed: 220 
+    };
+    function startSnakeGame() {
+        currentMode = 'snake'; score = 0; updateScoreDisplay(); switchScreen('screen-snake');
+        snakeGame.canvas = document.getElementById('snake-canvas'); snakeGame.ctx = snakeGame.canvas.getContext('2d');
+        snakeGame.running = true; snakeGame.paused = false; snakeGame.crashed = false;
+        document.getElementById('snake-crash-overlay').style.display = 'none'; document.getElementById('snake-pause-overlay').style.display = 'none';
+        nextSnakeLevel(); document.addEventListener('keydown', handleSnakeKey);
+        if (snakeGame.loopId) clearInterval(snakeGame.loopId); snakeGame.loopId = setInterval(gameLoop, snakeGame.speed);
+    }
+    function stopSnakeGame() { snakeGame.running = false; clearInterval(snakeGame.loopId); document.removeEventListener('keydown', handleSnakeKey); endGame(); }
+    function freezeSnakeGame() { snakeGame.crashed = true; document.getElementById('snake-crash-overlay').style.display = 'flex'; playFailSound(); }
+    function nextSnakeLevel() {
+        snakeGame.wordData = vocabulary[Math.floor(Math.random() * vocabulary.length)]; snakeGame.targetWord = snakeGame.wordData.word.toUpperCase(); snakeGame.currentLetterIndex = 0;
+        snakeGame.snake = [{x: 150, y: 150}, {x: 120, y: 150}, {x: 90, y: 150}]; snakeGame.dx = snakeGame.grid; snakeGame.dy = 0; spawnSnakeItems(); updateSnakeUI();
+    }
+    function updateSnakeUI() {
+        const display = document.getElementById('snake-word-target'); display.innerHTML = `<div style="font-size:1rem; color:#888;">${snakeGame.wordData.hebrew}</div>`;
+        const wordContainer = document.createElement('div');
+        for (let i = 0; i < snakeGame.targetWord.length; i++) {
+            const span = document.createElement('span'); span.innerText = snakeGame.targetWord[i];
+            span.className = i < snakeGame.currentLetterIndex ? 'found-letter' : 'missing-letter';
+            span.style.color = i < snakeGame.currentLetterIndex ? '#7ed321' : '#ccc';
+            span.style.borderBottom = i < snakeGame.currentLetterIndex ? '2px solid #7ed321' : '2px solid #ccc';
+            if (i >= snakeGame.currentLetterIndex) span.innerText = '_'; span.style.margin = "0 5px"; wordContainer.appendChild(span);
+        }
+        display.appendChild(wordContainer);
+    }
+    function spawnSnakeItems() {
+        snakeGame.items = []; const correctChar = snakeGame.targetWord[snakeGame.currentLetterIndex]; const maxCells = snakeGame.canvas.width / snakeGame.grid; 
+        snakeGame.items.push({ x: getRandomInt(0, maxCells)*snakeGame.grid, y: getRandomInt(0, maxCells)*snakeGame.grid, char: correctChar, type: 'correct' });
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; let wrongChar; do { wrongChar = alphabet[Math.floor(Math.random() * alphabet.length)]; } while(wrongChar === correctChar);
+        snakeGame.items.push({ x: getRandomInt(0, maxCells)*snakeGame.grid, y: getRandomInt(0, maxCells)*snakeGame.grid, char: wrongChar, type: 'wrong' });
+    }
+    function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min)) + min; }
+    function handleSnakeKey(e) {
+        if (snakeGame.crashed) return;
+        if (e.key === 'Escape') { snakeGame.paused = !snakeGame.paused; document.getElementById('snake-pause-overlay').style.display = snakeGame.paused ? 'flex' : 'none'; return; }
+        if (snakeGame.paused) { snakeGame.paused = false; document.getElementById('snake-pause-overlay').style.display = 'none'; return; }
+        const goingUp = snakeGame.dy === -snakeGame.grid; const goingDown = snakeGame.dy === snakeGame.grid; const goingRight = snakeGame.dx === snakeGame.grid; const goingLeft = snakeGame.dx === -snakeGame.grid;
+        if (e.keyCode === 37 && !goingRight) { snakeGame.dx = -snakeGame.grid; snakeGame.dy = 0; }
+        if (e.keyCode === 38 && !goingDown) { snakeGame.dx = 0; snakeGame.dy = -snakeGame.grid; }
+        if (e.keyCode === 39 && !goingLeft) { snakeGame.dx = snakeGame.grid; snakeGame.dy = 0; }
+        if (e.keyCode === 40 && !goingUp) { snakeGame.dx = 0; snakeGame.dy = snakeGame.grid; }
+    }
+    function setSnakeDir(dir, e) {
+        if(e) e.preventDefault(); if (snakeGame.paused || snakeGame.crashed) return;
+        const keyMap = { 'LEFT': 37, 'UP': 38, 'RIGHT': 39, 'DOWN': 40 }; handleSnakeKey({ keyCode: keyMap[dir], preventDefault: ()=>{} });
+    }
+    function gameLoop() {
+        if (!snakeGame.running || snakeGame.paused || snakeGame.crashed) return;
+        const head = { x: snakeGame.snake[0].x + snakeGame.dx, y: snakeGame.snake[0].y + snakeGame.dy };
+        if (head.x < 0 || head.x >= snakeGame.canvas.width || head.y < 0 || head.y >= snakeGame.canvas.height) { freezeSnakeGame(); return; }
+        for (let i = 0; i < snakeGame.snake.length; i++) { if (head.x === snakeGame.snake[i].x && head.y === snakeGame.snake[i].y) { freezeSnakeGame(); return; } }
+        snakeGame.snake.unshift(head);
+        let ate = false;
+        for (let i = 0; i < snakeGame.items.length; i++) {
+            let item = snakeGame.items[i];
+            if (head.x === item.x && head.y === item.y) {
+                if (item.type === 'correct') {
+                    score += 5; updateScoreDisplay(); snakeGame.currentLetterIndex++; ate = true;
+                    if (snakeGame.currentLetterIndex >= snakeGame.targetWord.length) { score += 20; updateScoreDisplay(); speak(snakeGame.wordData.word); nextSnakeLevel(); return; } 
+                    else { spawnSnakeItems(); updateSnakeUI(); }
+                } else { score = Math.max(0, score - 2); updateScoreDisplay(); snakeGame.items.splice(i, 1); snakeGame.snake.pop(); } break;
+            }
+        }
+        if (!ate) snakeGame.snake.pop();
+        const ctx = snakeGame.ctx; const g = snakeGame.grid; 
+        ctx.fillStyle = '#2c3e50'; ctx.fillRect(0, 0, snakeGame.canvas.width, snakeGame.canvas.height);
+        ctx.font = "bold 22px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        snakeGame.items.forEach(item => {
+            ctx.fillStyle = item.type === 'correct' ? '#2ecc71' : '#e74c3c';
+            ctx.beginPath(); ctx.arc(item.x + g/2, item.y + g/2, g/2 - 2, 0, 2 * Math.PI); ctx.fill();
+            ctx.fillStyle = 'white'; ctx.fillText(item.char, item.x + g/2, item.y + g/2 + 1);
+        });
+        snakeGame.snake.forEach((part, index) => {
+            if (index === 0) {
+                ctx.fillStyle = '#3498db'; ctx.fillRect(part.x + 1, part.y + 1, g - 2, g - 2); ctx.fillStyle = 'white';
+                let ex1, ey1, ex2, ey2; const s = 6; const l = 20; 
+                if (snakeGame.dx > 0) { ex1=l; ey1=s; ex2=l; ey2=30-s; } else if (snakeGame.dx < 0) { ex1=s; ey1=s; ex2=s; ey2=30-s; } else if (snakeGame.dy < 0) { ex1=s; ey1=s; ex2=30-s; ey2=s; } else { ex1=s; ey1=l; ex2=30-s; ey2=l; }
+                ctx.beginPath(); ctx.arc(part.x+ex1, part.y+ey1, 4, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(part.x+ex2, part.y+ey2, 4, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(part.x+ex1, part.y+ey1, 1.5, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(part.x+ex2, part.y+ey2, 1.5, 0, Math.PI*2); ctx.fill();
+            } else { ctx.fillStyle = '#5dade2'; ctx.fillRect(part.x + 1, part.y + 1, g - 2, g - 2); }
+        });
+    }
+
+    // --- MEMORY GAME ---
+    let memoryState = { cards: [], flipped: [], matches: 0 };
+    function startMemoryGame() {
+        currentMode = 'memory'; score = 0; updateScoreDisplay(); switchScreen('screen-memory');
+        let selected = [...vocabulary].sort(() => 0.5 - Math.random()).slice(0, 6);
+        let deck = []; selected.forEach(item => { deck.push({ id: item.word, content: item.hebrew + "<br><span style='font-size:1.5rem'>" + item.icon + "</span>" }); deck.push({ id: item.word, content: item.word }); });
+        deck.sort(() => 0.5 - Math.random());
+        const board = document.getElementById('memory-board'); board.innerHTML = ''; memoryState = { cards: deck, flipped: [], matches: 0 };
+        deck.forEach((card, index) => {
+            const cardEl = document.createElement('div'); cardEl.className = 'memory-card'; cardEl.onclick = () => flipCard(index, cardEl, card);
+            cardEl.innerHTML = `<div class="memory-card-front">?</div><div class="memory-card-content">${card.content}</div>`; board.appendChild(cardEl);
+        });
+    }
+    function flipCard(index, el, card) {
+        if (el.classList.contains('flipped') || memoryState.flipped.length >= 2) return;
+        el.classList.add('flipped'); memoryState.flipped.push({ index, id: card.id });
+        if (memoryState.flipped.length === 2) checkMemoryMatch();
+    }
+    function checkMemoryMatch() {
+        const [c1, c2] = memoryState.flipped; const els = document.getElementById('memory-board').children;
+        if (c1.id === c2.id) {
+            score += 15; updateScoreDisplay(); speak("Good!"); memoryState.flipped = []; memoryState.matches++; if (memoryState.matches === 6) setTimeout(endGame, 1000);
+        } else { setTimeout(() => { els[c1.index].classList.remove('flipped'); els[c2.index].classList.remove('flipped'); memoryState.flipped = []; }, 1000); }
+    }
+
+    // --- End & Leaderboard ---
+    function endGame() {
+        const isNewRecord = checkHighScore(score); switchScreen('screen-game');
+        document.getElementById('game-content').innerHTML = `<h2>סיימת!</h2><div style="font-size:3rem">🏆</div><h3>ניקוד: ${score}</h3><input type="text" id="playerName" class="input-box" placeholder="שמך..." style="width:180px"><div style="display: flex; justify-content: center; gap: 10px; margin-top: 15px;"><button class="btn btn-secondary" onclick="saveToLeaderboard()">💾 שמירה</button><button class="btn" onclick="restartCurrentGame()">🔄 שוב</button></div>`;
+        document.getElementById('next-btn').style.display = 'none'; if (isNewRecord) celebrateNewRecord();
+    }
+    function checkHighScore(s) {
+        if (s === 0) return false; const saved = JSON.parse(localStorage.getItem('englishGameScores')) || []; const modeScores = saved.filter(x => x.mode === currentMode);
+        if (modeScores.length === 0) return true; return s > Math.max(...modeScores.map(x => x.score));
+    }
+    function celebrateNewRecord() { document.getElementById('victory-overlay').style.display = 'flex'; initAudio(); playFanfare(); startFireworks(); }
+    function closeVictory() { document.getElementById('victory-overlay').style.display = 'none'; stopFireworks(); }
+    function saveToLeaderboard() {
+        const name = document.getElementById('playerName').value || "Anonymous"; let scores = JSON.parse(localStorage.getItem('englishGameScores')) || [];
+        scores.push({ name, score, date: new Date().toLocaleDateString('he-IL'), mode: currentMode }); scores.sort((a, b) => b.score - a.score); localStorage.setItem('englishGameScores', JSON.stringify(scores)); showLeaderboard();
+    }
+    function showLeaderboard() {
+        switchScreen('screen-leaderboard'); const list = document.getElementById('scores-list'); list.innerHTML = ''; let scores = JSON.parse(localStorage.getItem('englishGameScores')) || [];
+        if (!scores.length) { list.innerHTML = '<li>אין תוצאות...</li>'; return; }
+        scores.slice(0, 10).forEach((s, i) => {
+            const icons = { listening: '👂', vocab: '✍️', snake: '🐍', memory: '🃏', sentences: '🧩', reading: '📖', builder: '🏗️', speed: '⚡', bubble: '🫧', tf: '✅' };
+            list.innerHTML += `<li style="padding:8px; border-bottom:1px solid #ddd; display:flex; justify-content:space-between;"><span>#${i+1} <strong>${s.name}</strong></span><span>${s.score} ${icons[s.mode] || ''}</span></li>`;
+        });
+    }
+
+    let fwLoop; const fwC = document.getElementById('fireworks-canvas'); const fwCtx = fwC.getContext('2d');
+    let parts = []; window.addEventListener('resize', () => { fwC.width = window.innerWidth; fwC.height = window.innerHeight; });
+    function startFireworks() { fwC.width = window.innerWidth; fwC.height = window.innerHeight; parts = []; loopFW(); }
+    function loopFW() {
+        fwCtx.globalCompositeOperation = 'destination-out'; fwCtx.fillStyle = 'rgba(0,0,0,0.1)'; fwCtx.fillRect(0,0,fwC.width, fwC.height); fwCtx.globalCompositeOperation = 'lighter';
+        parts.forEach((p, i) => { p.x += p.vx; p.y += p.vy; p.vy += 0.1; p.a -= 0.02; fwCtx.fillStyle = p.c; fwCtx.globalAlpha = p.a; fwCtx.beginPath(); fwCtx.arc(p.x, p.y, 3, 0, 6.28); fwCtx.fill(); if (p.a <= 0) parts.splice(i, 1); });
+        if (Math.random() < 0.05) { for(let i=0; i<30; i++) parts.push({ x: Math.random()*fwC.width, y: Math.random()*fwC.height/2, vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10, a: 1, c: `hsl(${Math.random()*360}, 100%, 50%)` }); }
+        fwLoop = requestAnimationFrame(loopFW);
+    }
+    function stopFireworks() { cancelAnimationFrame(fwLoop); fwCtx.clearRect(0,0,fwC.width, fwC.height); }
+
+</script>
+</body>
+</html>
