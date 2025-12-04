@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jet 2 - משחק הכנה למבחן (גרסה 9 - מותאם S22+)</title>
+    <title>Jet 2 - הכנה למבחן (גרסה 10 - משחקים חדשים)</title>
     <style>
         :root {
             --primary: #4a90e2;
@@ -23,7 +23,6 @@
             text-align: center;
             direction: rtl;
             overflow-x: hidden;
-            /* Prevent scrolling/bouncing on mobile */
             overflow-y: auto; 
             user-select: none;
             -webkit-tap-highlight-color: transparent;
@@ -68,7 +67,7 @@
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            gap: 8px;
             padding: 5px;
             width: 100%;
             box-sizing: border-box;
@@ -78,8 +77,8 @@
             background: var(--primary);
             color: white;
             border: none;
-            padding: 12px;
-            font-size: 1rem;
+            padding: 10px;
+            font-size: 0.95rem;
             border-radius: 12px;
             cursor: pointer;
             transition: transform 0.1s, background 0.2s;
@@ -88,13 +87,18 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 5px;
+            gap: 3px;
             width: 100%;
+            min-height: 60px;
         }
 
         .btn:active { transform: translateY(3px); box-shadow: none; }
         .btn-secondary { background: var(--secondary); box-shadow: 0 3px 0 #d48e15; width: auto; display: inline-block; padding: 8px 16px;}
         .btn-info { background: #17a2b8; box-shadow: 0 3px 0 #117a8b; }
+        .btn-purple { background: #9b59b6; box-shadow: 0 3px 0 #8e44ad; }
+        .btn-orange { background: #e67e22; box-shadow: 0 3px 0 #d35400; }
+        .btn-green { background: #27ae60; box-shadow: 0 3px 0 #219150; }
+        .btn-red { background: #e74c3c; box-shadow: 0 3px 0 #c0392b; }
         
         .btn-hint { 
             background: #9b59b6; 
@@ -112,8 +116,7 @@
             width: 100%;
             display: flex;
             justify-content: center;
-            /* Critical update: Restrict canvas height on mobile so buttons fit */
-            max-height: 45vh; 
+            max-height: 40vh; /* Slightly smaller for S22 */
         }
         
         #snake-canvas {
@@ -122,7 +125,6 @@
             box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
             display: block;
             max-width: 100%; 
-            /* Let the canvas shrink vertically if needed */
             height: auto;
             max-height: 100%; 
             aspect-ratio: 1 / 1;
@@ -142,25 +144,23 @@
             z-index: 5;
         }
 
-        /* --- UPDATED CONTROLS (SMALLER) --- */
         .snake-controls {
             display: grid;
-            /* Smaller grid cells: 60px instead of 80px */
             grid-template-columns: repeat(3, 65px); 
             grid-template-rows: repeat(3, 60px);    
             gap: 2px;
             justify-content: center;
-            margin-top: 5px; /* Less margin */
+            margin-top: 5px;
             direction: ltr;
             touch-action: manipulation;
         }
         
         .d-pad-btn {
-            width: 60px; height: 55px; /* Smaller buttons */
+            width: 60px; height: 55px;
             border-radius: 12px;
             background: #e0e0e0; 
             border: 1px solid #ccc;
-            font-size: 1.5rem; /* Smaller icons */
+            font-size: 1.5rem;
             cursor: pointer;
             box-shadow: 0 3px #999;
             display: flex;
@@ -171,22 +171,12 @@
             -webkit-user-select: none;
         }
         
-        .d-pad-btn:active { 
-            transform: scale(0.95); 
-            background: #ccc; 
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2); 
-        }
-
+        .d-pad-btn:active { transform: scale(0.95); background: #ccc; box-shadow: inset 0 2px 5px rgba(0,0,0,0.2); }
         .btn-up { grid-column: 2; grid-row: 1; border-radius: 12px 12px 4px 4px; }
         .btn-left { grid-column: 1; grid-row: 2; border-radius: 12px 4px 4px 12px; }
         .btn-right { grid-column: 3; grid-row: 2; border-radius: 4px 12px 12px 4px; }
         .btn-down { grid-column: 2; grid-row: 3; border-radius: 4px 4px 12px 12px; }
-
-        .d-pad-center { 
-            grid-column: 2; grid-row: 2; 
-            background: #d0d0d0; 
-            border-radius: 4px;
-        }
+        .d-pad-center { grid-column: 2; grid-row: 2; background: #d0d0d0; border-radius: 4px; }
 
         #snake-word-target {
             font-size: 1.2rem; letter-spacing: 2px; color: var(--primary);
@@ -194,24 +184,69 @@
             word-wrap: break-word; min-height: 25px;
         }
 
+        /* --- SENTENCE BUILDER STYLES --- */
+        .sentence-area {
+            background: #eef;
+            min-height: 60px;
+            border-radius: 10px;
+            margin: 15px 0;
+            padding: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+            border: 2px dashed #aac;
+        }
+        .word-bank {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .word-pill {
+            background: white;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: bold;
+        }
+        .word-pill.used {
+            opacity: 0.3;
+            transform: scale(0.9);
+            pointer-events: none;
+            background: #ccc;
+            border-color: #999;
+        }
+        .word-pill-answer {
+            background: var(--primary);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* --- SPEED CLICK STYLES --- */
+        .timer-bar-container {
+            width: 80%; margin: 10px auto; height: 10px; background: #ddd; border-radius: 5px; overflow: hidden;
+        }
+        .timer-bar {
+            height: 100%; background: var(--error); width: 100%; transition: width 0.1s linear;
+        }
+        .speed-word { font-size: 2.5rem; font-weight: bold; margin: 20px 0; color: var(--dark); }
+        .speed-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+
         /* --- MEMORY GAME --- */
-        .memory-grid {
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 6px;
-            max-width: 100%; margin: 0 auto;
-        }
-        .memory-card {
-            aspect-ratio: 1; background: var(--primary); border-radius: 8px;
-            cursor: pointer; position: relative; transform-style: preserve-3d;
-            transition: transform 0.4s;
-        }
+        .memory-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; max-width: 100%; margin: 0 auto; }
+        .memory-card { aspect-ratio: 1; background: var(--primary); border-radius: 8px; cursor: pointer; position: relative; transform-style: preserve-3d; transition: transform 0.4s; }
         .memory-card.flipped { transform: rotateY(180deg); background: white; }
-        .memory-card-content, .memory-card-front {
-            position: absolute; width: 100%; height: 100%;
-            display: flex; align-items: center; justify-content: center;
-            backface-visibility: hidden; font-weight: bold;
-        }
+        .memory-card-content, .memory-card-front { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; backface-visibility: hidden; font-weight: bold; }
         .memory-card-content { transform: rotateY(180deg); font-size: 0.9rem; color: #333; padding: 2px; line-height: 1.1; }
         .memory-card-front { font-size: 1.5rem; color: rgba(255,255,255,0.5); }
 
@@ -235,19 +270,22 @@
     
     <div id="screen-menu" class="game-screen active">
         <h1>🎓 הכנה למבחן באנגלית - ד'</h1>
-        <h2>Unit 1 - At School</h2>
+        <h2>כל המילים + משפטים</h2>
         <div class="menu-grid">
             <button class="btn" onclick="startGame('listening')"><i>👂</i>הבנת הנשמע</button>
             <button class="btn" onclick="startGame('vocab')"><i>✍️</i>כתיבת מילים</button>
-            <button class="btn" onclick="startGame('sentences')"><i>🧩</i>משפטים</button>
+            <button class="btn" onclick="startGame('sentences')"><i>🧩</i>השלמת משפטים</button>
             <button class="btn" onclick="startGame('reading')"><i>📖</i>קריאה</button>
-            <button class="btn" style="background-color: #9b59b6; grid-column: span 2;" onclick="startSnakeGame()"><i>🐍</i> סנייק מילים (גדול)</button>
-            <button class="btn" style="background-color: #e67e22; grid-column: span 2;" onclick="startMemoryGame()"><i>🃏</i> משחק הזיכרון</button>
+            
+            <button class="btn btn-green" onclick="startSentenceBuilder()"><i>🏗️</i> מפעל המשפטים</button>
+            <button class="btn btn-red" onclick="startSpeedGame()"><i>⚡</i> קליק מהיר</button>
+
+            <button class="btn btn-purple" style="grid-column: span 2;" onclick="startSnakeGame()"><i>🐍</i> סנייק מילים</button>
+            <button class="btn btn-orange" style="grid-column: span 2;" onclick="startMemoryGame()"><i>🃏</i> משחק הזיכרון</button>
         </div>
         
         <div style="margin-top: 15px; display: flex; justify-content: center; gap: 10px;">
             <button class="btn btn-secondary" onclick="showLeaderboard()">🏆 שיאים</button>
-            <button class="btn btn-info" onclick="showVersions()">📋 גרסה 9</button>
         </div>
     </div>
 
@@ -258,18 +296,34 @@
         <button class="btn btn-secondary" style="margin-top:10px" onclick="showMenu()">יציאה</button>
     </div>
 
+    <div id="screen-builder" class="game-screen">
+        <h2>🏗️ סדרי את המשפט</h2>
+        <div id="builder-image" style="font-size: 4rem; margin: 10px;"></div>
+        <p style="margin:0; color:#666; font-size:0.9rem;">לחצי על המילים לפי הסדר:</p>
+        
+        <div id="builder-answer-zone" class="sentence-area"></div>
+        <div id="builder-word-bank" class="word-bank"></div>
+        
+        <div id="builder-feedback" class="feedback"></div>
+        <button id="builder-check-btn" class="btn" style="margin-top:15px; display:none;" onclick="checkBuilderAnswer()">בדיקה</button>
+        <button class="btn btn-secondary" style="margin-top:20px" onclick="showMenu()">יציאה</button>
+    </div>
+
+    <div id="screen-speed" class="game-screen">
+        <h2>⚡ קליק מהיר</h2>
+        <div class="timer-bar-container"><div id="speed-timer" class="timer-bar"></div></div>
+        <div id="speed-word-display" class="speed-word"></div>
+        <div id="speed-options" class="speed-grid"></div>
+        <div id="speed-feedback" class="feedback"></div>
+        <button class="btn btn-secondary" style="margin-top:20px" onclick="stopSpeedGame()">יציאה</button>
+    </div>
+
     <div id="screen-snake" class="game-screen">
         <h2 style="margin:2px 0;">🐍 סנייק</h2>
         <div id="snake-word-target"></div>
-        
         <div id="snake-container">
             <canvas id="snake-canvas" width="390" height="390"></canvas>
-            
-            <div id="snake-pause-overlay" class="snake-overlay">
-                <h2>⏸️ מושהה</h2>
-                <p>לחצי כדי להמשיך</p>
-            </div>
-
+            <div id="snake-pause-overlay" class="snake-overlay"><h2>⏸️ מושהה</h2><p>לחצי כדי להמשיך</p></div>
             <div id="snake-crash-overlay" class="snake-overlay">
                 <h2>💥 נפסלת!</h2>
                 <div style="display:flex; gap:10px;">
@@ -278,7 +332,6 @@
                 </div>
             </div>
         </div>
-
         <div class="snake-controls">
             <button class="d-pad-btn btn-up" ontouchstart="setSnakeDir('UP', event)" onmousedown="setSnakeDir('UP', event)">⬆️</button>
             <button class="d-pad-btn btn-left" ontouchstart="setSnakeDir('LEFT', event)" onmousedown="setSnakeDir('LEFT', event)">⬅️</button>
@@ -286,7 +339,6 @@
             <button class="d-pad-btn btn-right" ontouchstart="setSnakeDir('RIGHT', event)" onmousedown="setSnakeDir('RIGHT', event)">➡️</button>
             <button class="d-pad-btn btn-down" ontouchstart="setSnakeDir('DOWN', event)" onmousedown="setSnakeDir('DOWN', event)">⬇️</button>
         </div>
-        
         <button class="btn btn-secondary" style="margin-top:8px; padding: 5px 15px; font-size:0.9rem;" onclick="stopSnakeGame()">יציאה</button>
     </div>
 
@@ -302,21 +354,6 @@
         <button class="btn btn-secondary" onclick="showMenu()">חזרה</button>
     </div>
 
-    <div id="screen-versions" class="game-screen">
-        <h1>📋 עדכונים</h1>
-        <div class="version-list" style="text-align:right;">
-             <div class="version-item" style="background:#fff; padding:10px; border-radius:5px;">
-                <strong>גרסה 9 (תיקון מסך)</strong>
-                <ul style="padding-right:20px; margin:5px 0;">
-                    <li>הקטנת הכפתורים כדי שייכנסו במסך (S22).</li>
-                    <li>המשחק מתאים את הגובה שלו למסך באופן אוטומטי.</li>
-                    <li>סידור צפוף יותר של הפקדים.</li>
-                </ul>
-            </div>
-        </div>
-        <button class="btn btn-secondary" onclick="showMenu()">חזרה</button>
-    </div>
-
 </div>
 
 <div id="victory-overlay" onclick="closeVictory()">
@@ -326,7 +363,7 @@
 </div>
 
 <script>
-    // --- Data ---
+    // --- Expanded Data (Includes all words from teacher's list) ---
     const vocabulary = [
         { word: "school", icon: "🏫", hebrew: "בית ספר" },
         { word: "teacher", icon: "👩‍🏫", hebrew: "מורה" },
@@ -351,7 +388,30 @@
         { word: "brother", icon: "👦", hebrew: "אח" },
         { word: "sister", icon: "👧", hebrew: "אחות" },
         { word: "english", icon: "🔤", hebrew: "אנגלית" },
-        { word: "new", icon: "✨", hebrew: "חדש" }
+        { word: "new", icon: "✨", hebrew: "חדש" },
+        { word: "grade", icon: "💯", hebrew: "כיתה/ציון" },
+        { word: "town", icon: "🏙️", hebrew: "עיר" },
+        { word: "fly", icon: "🦋", hebrew: "לעוף" },
+        { word: "lesson", icon: "👨‍🏫", hebrew: "שיעור" },
+        { word: "nice", icon: "👍", hebrew: "נחמד" },
+        { word: "talk", icon: "🗣️", hebrew: "לדבר" },
+        { word: "want", icon: "🙏", hebrew: "לרצות" },
+        { word: "board", icon: "📋", hebrew: "לוח" },
+        { word: "chair", icon: "🪑", hebrew: "כיסא" },
+        { word: "need", icon: "🤲", hebrew: "צריך" },
+        { word: "paper", icon: "📄", hebrew: "נייר" },
+        { word: "thanks", icon: "💝", hebrew: "תודה" },
+        { word: "address", icon: "🏠📍", hebrew: "כתובת" },
+        { word: "food", icon: "🍔", hebrew: "אוכל" },
+        { word: "me", icon: "🙋‍♂️", hebrew: "אותי/אני" },
+        { word: "meet", icon: "🤝", hebrew: "לפגוש" },
+        { word: "phone number", icon: "📱", hebrew: "מספר טלפון" },
+        { word: "please", icon: "🥺", hebrew: "בבקשה" },
+        { word: "see", icon: "👀", hebrew: "לראות" },
+        { word: "class", icon: "👩‍🏫", hebrew: "כיתה" },
+        { word: "day", icon: "☀️", hebrew: "יום" },
+        { word: "learn", icon: "🧠", hebrew: "ללמוד" },
+        { word: "week", icon: "📅", hebrew: "שבוע" }
     ];
 
     const sentences = [
@@ -362,7 +422,9 @@
         { text: "This is my _____, Dan.", options: ["brother", "board"], answer: "brother" },
         { text: "Please _____ your name.", options: ["write", "happy"], answer: "write" },
         { text: "I live in a big _____.", options: ["house", "chair"], answer: "house" },
-        { text: "The _____ is singing.", options: ["bird", "book"], answer: "bird" }
+        { text: "The _____ is singing.", options: ["bird", "book"], answer: "bird" },
+        { text: "We _____ math on Sunday.", options: ["learn", "fly"], answer: "learn" },
+        { text: "Nice to _____ you.", options: ["meet", "eat"], answer: "meet" }
     ];
 
     const readingText = `
@@ -381,32 +443,42 @@
         { q: "What does she have at home?", options: ["A bird", "A new computer", "A dog"], answer: "A new computer" }
     ];
 
+    // New Data for Sentence Builder
+    const builderSentences = [
+        { correct: "The bird is flying", parts: ["flying", "The", "is", "bird"], icon: "🐦" },
+        { correct: "I have a new computer", parts: ["computer", "have", "I", "a", "new"], icon: "💻" },
+        { correct: "My teacher is nice", parts: ["nice", "is", "teacher", "My"], icon: "👩‍🏫" },
+        { correct: "We learn English at school", parts: ["school", "We", "at", "English", "learn"], icon: "🏫" },
+        { correct: "The book is on the table", parts: ["table", "book", "on", "The", "is", "the"], icon: "📖" },
+        { correct: "I want to eat lunch", parts: ["lunch", "want", "eat", "to", "I"], icon: "🥪" }
+    ];
+
     let score = 0;
     let currentMode = '';
     let currentQuestionIndex = 0;
     let currentData = [];
     let currentQuestionHints = 0;
 
-    // Audio
+    // Audio Setup
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     let audioCtx;
     function initAudio() { if (!audioCtx) audioCtx = new AudioContext(); }
     
     function playFailSound() {
         initAudio();
-        const o = audioCtx.createOscillator();
-        const g = audioCtx.createGain();
-        o.type = 'sine'; 
-        o.frequency.setValueAtTime(200, audioCtx.currentTime);
+        const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+        o.type = 'sine'; o.frequency.setValueAtTime(200, audioCtx.currentTime);
         o.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.5); 
-        g.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-        o.connect(g);
-        g.connect(audioCtx.destination);
-        o.start();
-        o.stop(audioCtx.currentTime + 0.5);
+        g.gain.setValueAtTime(0.3, audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+        o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + 0.5);
     }
-
+    function playCorrectSound() {
+        initAudio();
+        const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+        o.type = 'sine'; o.frequency.setValueAtTime(600, audioCtx.currentTime);
+        g.gain.setValueAtTime(0.1, audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+        o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + 0.3);
+    }
     function playFanfare() {
         initAudio();
         [523, 523, 523, 659, 523, 783].forEach((f, i) => {
@@ -432,20 +504,18 @@
     function switchScreen(id) {
         document.querySelectorAll('.game-screen').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
+        // Stop specific game loops
         if (id !== 'screen-snake') snakeGame.running = false;
+        if (id !== 'screen-speed') clearInterval(speedGameTimer);
     }
 
     function updateScoreDisplay() { document.getElementById('currentScore').innerText = score; }
     function showMenu() { switchScreen('screen-menu'); }
-    function showVersions() { switchScreen('screen-versions'); }
 
     // --- Standard Games ---
     function startGame(mode) {
-        currentMode = mode;
-        score = 0;
-        currentQuestionIndex = 0;
-        updateScoreDisplay();
-        switchScreen('screen-game');
+        currentMode = mode; score = 0; currentQuestionIndex = 0;
+        updateScoreDisplay(); switchScreen('screen-game');
         
         const titles = {
             listening: "הקשיבי ולחצי על התמונה הנכונה",
@@ -461,6 +531,8 @@
     function restartCurrentGame() {
         if (currentMode === 'snake') startSnakeGame();
         else if (currentMode === 'memory') startMemoryGame();
+        else if (currentMode === 'builder') startSentenceBuilder();
+        else if (currentMode === 'speed') startSpeedGame();
         else startGame(currentMode);
     }
 
@@ -474,23 +546,17 @@
         const container = document.getElementById('game-content');
         const feedback = document.getElementById('feedback');
         const nextBtn = document.createElement('button');
-        nextBtn.className = 'btn';
-        nextBtn.innerText = 'הבא';
-        nextBtn.id = 'next-btn';
-        nextBtn.style.display = 'none';
-        nextBtn.style.marginTop = '10px';
+        nextBtn.className = 'btn'; nextBtn.innerText = 'הבא'; nextBtn.id = 'next-btn';
+        nextBtn.style.display = 'none'; nextBtn.style.marginTop = '10px';
         nextBtn.onclick = nextQuestion;
         
-        container.innerHTML = '';
-        feedback.innerText = '';
-        feedback.className = 'feedback';
+        container.innerHTML = ''; feedback.innerText = ''; feedback.className = 'feedback';
         currentQuestionHints = 0;
 
         if (currentQuestionIndex >= currentData.length) { endGame(); return; }
 
         const item = currentData[currentQuestionIndex];
 
-        // Listening
         if (currentMode === 'listening') {
             let options = [item];
             while(options.length < 3) {
@@ -500,15 +566,12 @@
             options.sort(() => 0.5 - Math.random());
             
             const btnSpeak = document.createElement('button');
-            btnSpeak.className = 'btn btn-secondary';
-            btnSpeak.innerText = '🔊 השמיעי מילה';
+            btnSpeak.className = 'btn btn-secondary'; btnSpeak.innerText = '🔊 השמיעי מילה';
             btnSpeak.onclick = () => speak(item.word);
             setTimeout(() => speak(item.word), 500);
 
             const optionsDiv = document.createElement('div');
-            optionsDiv.className = 'word-options';
             optionsDiv.style.display = 'flex'; optionsDiv.style.justifyContent = 'center'; optionsDiv.style.gap = '15px'; optionsDiv.style.marginTop = '20px';
-            
             options.forEach(opt => {
                 const b = document.createElement('div');
                 b.style.fontSize = '3rem'; b.style.cursor = 'pointer'; b.style.padding = '10px'; b.style.border = '2px solid #eee'; b.style.borderRadius = '10px';
@@ -516,36 +579,24 @@
                 b.onclick = () => checkAnswer(opt.word, item.word);
                 optionsDiv.appendChild(b);
             });
-            container.appendChild(btnSpeak);
-            container.appendChild(optionsDiv);
+            container.appendChild(btnSpeak); container.appendChild(optionsDiv);
         }
 
-        // Vocabulary
         if (currentMode === 'vocab') {
-            const icon = document.createElement('div');
-            icon.style.fontSize = '4rem';
-            icon.innerText = item.icon;
-            
-            const hint = document.createElement('div');
-            hint.innerText = item.hebrew;
+            const icon = document.createElement('div'); icon.style.fontSize = '4rem'; icon.innerText = item.icon;
+            const hint = document.createElement('div'); hint.innerText = item.hebrew;
             hint.style.fontSize = "1.2rem"; hint.style.marginBottom = "10px";
 
             const inputWrapper = document.createElement('div');
-            inputWrapper.style.display = 'flex';
-            inputWrapper.style.justifyContent = 'center';
-            inputWrapper.style.alignItems = 'center';
-            inputWrapper.style.flexDirection = 'column';
-            inputWrapper.style.gap = '10px';
+            inputWrapper.style.display = 'flex'; inputWrapper.style.justifyContent = 'center'; inputWrapper.style.flexDirection = 'column'; inputWrapper.style.gap = '10px'; inputWrapper.style.alignItems = 'center';
 
             const input = document.createElement('input');
-            input.type = 'text'; input.className = 'input-box';
-            input.autocomplete = "off";
+            input.type = 'text'; input.className = 'input-box'; input.autocomplete = "off";
             input.onkeypress = (e) => { if(e.key === 'Enter') checkAnswer(input.value, item.word); };
 
             const hintBtn = document.createElement('button');
             const maxHints = Math.floor(item.word.length / 2);
-            hintBtn.className = 'btn btn-hint';
-            hintBtn.innerText = `💡 רמז (0/${maxHints})`;
+            hintBtn.className = 'btn btn-hint'; hintBtn.innerText = `💡 רמז (0/${maxHints})`;
             if (maxHints === 0) hintBtn.disabled = true;
 
             hintBtn.onclick = () => {
@@ -553,61 +604,39 @@
                 currentQuestionHints++;
                 hintBtn.innerText = `💡 רמז (${currentQuestionHints}/${maxHints})`;
                 if (currentQuestionHints >= maxHints) hintBtn.disabled = true;
-                let currentVal = input.value.toLowerCase();
                 let target = item.word.toLowerCase();
-                for(let i=0; i<target.length; i++) {
-                    if (currentVal[i] !== target[i]) {
-                        input.value = target.substring(0, i+1);
-                        break;
-                    }
-                }
+                input.value = target.substring(0, currentQuestionHints * 2); // More generous hint
                 input.focus();
             };
 
             const checkBtn = document.createElement('button');
-            checkBtn.className = 'btn';
-            checkBtn.style.marginTop = '10px';
-            checkBtn.innerText = 'בדיקה';
+            checkBtn.className = 'btn'; checkBtn.style.marginTop = '10px'; checkBtn.innerText = 'בדיקה';
             checkBtn.onclick = () => checkAnswer(input.value, item.word);
 
-            container.appendChild(icon);
-            container.appendChild(hint);
-            inputWrapper.appendChild(input);
-            inputWrapper.appendChild(hintBtn);
-            container.appendChild(inputWrapper);
-            container.appendChild(checkBtn);
+            container.appendChild(icon); container.appendChild(hint); inputWrapper.appendChild(input); inputWrapper.appendChild(hintBtn); container.appendChild(inputWrapper); container.appendChild(checkBtn);
             setTimeout(() => input.focus(), 100);
         }
 
-        // Sentences & Reading
         if (currentMode === 'sentences' || currentMode === 'reading') {
             if (currentMode === 'reading') {
                 const textDiv = document.createElement('div');
-                textDiv.className = 'reading-text';
                 textDiv.style.textAlign = 'left'; textDiv.style.background = 'white'; textDiv.style.padding = '10px'; textDiv.style.borderLeft = '4px solid var(--primary)';
                 textDiv.innerText = readingText;
                 container.appendChild(textDiv);
             }
-            
             const qDiv = document.createElement('div');
-            qDiv.style.fontSize = "1.2rem";
-            qDiv.style.marginBottom = "20px";
-            qDiv.style.direction = "ltr";
+            qDiv.style.fontSize = "1.2rem"; qDiv.style.marginBottom = "20px"; qDiv.style.direction = "ltr";
             qDiv.innerHTML = currentMode === 'sentences' ? item.text : `<h3>${item.q}</h3>`;
 
             const optionsDiv = document.createElement('div');
             optionsDiv.style.display = 'flex'; optionsDiv.style.gap = '10px'; optionsDiv.style.justifyContent = 'center';
             item.options.forEach(opt => {
-                const b = document.createElement('button');
-                b.className = 'btn btn-secondary';
-                b.innerText = opt;
+                const b = document.createElement('button'); b.className = 'btn btn-secondary'; b.innerText = opt;
                 b.onclick = () => checkAnswer(opt, item.answer);
                 optionsDiv.appendChild(b);
             });
-            container.appendChild(qDiv);
-            container.appendChild(optionsDiv);
+            container.appendChild(qDiv); container.appendChild(optionsDiv);
         }
-        
         container.appendChild(nextBtn);
     }
 
@@ -617,71 +646,207 @@
         
         if (userAnswer.trim().toLowerCase() === correctAnswer.trim().toLowerCase()) {
             let points = 10;
-            if (currentMode === 'vocab' && currentQuestionHints > 0) {
-                const wordLength = correctAnswer.length;
-                const deduction = (currentQuestionHints / wordLength) * 10;
-                points = Math.round(10 - deduction);
-                feedback.innerText = `נכון! (${points} נק')`;
-            } else {
-                feedback.innerText = "Excellent! כל הכבוד! (10 נק')";
-            }
-
-            feedback.className = "feedback correct";
-            score += points;
-            speak("Good job!");
+            if (currentMode === 'vocab' && currentQuestionHints > 0) points = 5;
+            feedback.innerText = `נכון! (${points} נק')`; feedback.className = "feedback correct";
+            score += points; speak("Good job!");
         } else {
-            feedback.innerText = `התשובה: ${correctAnswer}`;
-            feedback.className = "feedback wrong";
+            feedback.innerText = `התשובה: ${correctAnswer}`; feedback.className = "feedback wrong";
             speak("Try again");
         }
         updateScoreDisplay();
         document.getElementById('next-btn').style.display = 'inline-block';
     }
 
-    function nextQuestion() {
-        currentQuestionIndex++;
-        renderQuestion();
+    function nextQuestion() { currentQuestionIndex++; renderQuestion(); }
+
+    // --- NEW: SENTENCE BUILDER GAME ---
+    let builderState = { current: null, userWords: [] };
+    
+    function startSentenceBuilder() {
+        currentMode = 'builder'; score = 0; currentQuestionIndex = 0;
+        updateScoreDisplay(); switchScreen('screen-builder');
+        currentData = [...builderSentences].sort(() => 0.5 - Math.random());
+        loadBuilderLevel();
     }
 
-    // --- SNAKE GAME (UPDATED SIZE) ---
+    function loadBuilderLevel() {
+        if (currentQuestionIndex >= currentData.length) { endGame(); return; }
+        
+        const item = currentData[currentQuestionIndex];
+        builderState = { current: item, userWords: [] };
+        
+        document.getElementById('builder-image').innerText = item.icon;
+        document.getElementById('builder-feedback').innerText = '';
+        document.getElementById('builder-check-btn').style.display = 'none';
+        
+        const zone = document.getElementById('builder-answer-zone');
+        zone.innerHTML = '<span style="color:#aaa; align-self:center;">לחצי על המילים...</span>';
+        
+        const bank = document.getElementById('builder-word-bank');
+        bank.innerHTML = '';
+        
+        // Shuffle words
+        let words = [...item.parts].sort(() => 0.5 - Math.random());
+        words.forEach((w, i) => {
+            const btn = document.createElement('div');
+            btn.className = 'word-pill';
+            btn.innerText = w;
+            btn.id = `word-btn-${i}`;
+            btn.onclick = () => addWordToZone(w, btn);
+            bank.appendChild(btn);
+        });
+    }
+
+    function addWordToZone(word, btnEl) {
+        if (btnEl.classList.contains('used')) return;
+        
+        const zone = document.getElementById('builder-answer-zone');
+        if (builderState.userWords.length === 0) zone.innerHTML = ''; // Clear placeholder
+        
+        builderState.userWords.push({ text: word, sourceBtn: btnEl });
+        btnEl.classList.add('used');
+        playCorrectSound(); // Small tick sound
+
+        const pill = document.createElement('div');
+        pill.className = 'word-pill-answer';
+        pill.innerText = word;
+        // Allow removing word
+        pill.onclick = () => removeWordFromZone(pill, btnEl);
+        zone.appendChild(pill);
+
+        if (builderState.userWords.length === builderState.current.parts.length) {
+            document.getElementById('builder-check-btn').style.display = 'inline-block';
+        }
+    }
+
+    function removeWordFromZone(pillEl, sourceBtn) {
+        pillEl.remove();
+        sourceBtn.classList.remove('used');
+        builderState.userWords = builderState.userWords.filter(w => w.sourceBtn !== sourceBtn);
+        document.getElementById('builder-check-btn').style.display = 'none';
+    }
+
+    function checkBuilderAnswer() {
+        const sentence = builderState.userWords.map(w => w.text).join(' ');
+        const feedback = document.getElementById('builder-feedback');
+        
+        if (sentence === builderState.current.correct) {
+            score += 15; updateScoreDisplay();
+            feedback.className = 'feedback correct';
+            feedback.innerText = "Excellent!";
+            speak(sentence);
+            setTimeout(() => {
+                currentQuestionIndex++;
+                loadBuilderLevel();
+            }, 2000);
+        } else {
+            feedback.className = 'feedback wrong';
+            feedback.innerText = "נסה שוב...";
+            playFailSound();
+            // Reset
+            setTimeout(() => {
+                document.getElementById('builder-answer-zone').innerHTML = '';
+                document.getElementById('builder-word-bank').childNodes.forEach(n => n.classList.remove('used'));
+                builderState.userWords = [];
+                document.getElementById('builder-check-btn').style.display = 'none';
+            }, 1000);
+        }
+    }
+
+    // --- NEW: SPEED CLICK GAME ---
+    let speedGameTimer;
+    let speedTimeLeft;
+    
+    function startSpeedGame() {
+        currentMode = 'speed'; score = 0; 
+        updateScoreDisplay(); switchScreen('screen-speed');
+        nextSpeedRound();
+    }
+
+    function stopSpeedGame() {
+        clearInterval(speedGameTimer);
+        showMenu();
+    }
+
+    function nextSpeedRound() {
+        const item = vocabulary[Math.floor(Math.random() * vocabulary.length)];
+        document.getElementById('speed-word-display').innerText = item.hebrew;
+        document.getElementById('speed-feedback').innerText = "";
+        
+        // Options
+        let opts = [item];
+        while(opts.length < 4) {
+            let r = vocabulary[Math.floor(Math.random() * vocabulary.length)];
+            if (!opts.includes(r)) opts.push(r);
+        }
+        opts.sort(() => 0.5 - Math.random());
+
+        const grid = document.getElementById('speed-options');
+        grid.innerHTML = '';
+        opts.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'btn';
+            btn.style.fontSize = '1.2rem';
+            btn.innerText = opt.word;
+            btn.onclick = () => checkSpeedAnswer(opt.word, item.word);
+            grid.appendChild(btn);
+        });
+
+        // Timer
+        speedTimeLeft = 100;
+        document.getElementById('speed-timer').style.width = '100%';
+        if (speedGameTimer) clearInterval(speedGameTimer);
+        speedGameTimer = setInterval(() => {
+            speedTimeLeft -= 1; // Speed
+            document.getElementById('speed-timer').style.width = speedTimeLeft + '%';
+            if (speedTimeLeft <= 0) {
+                checkSpeedAnswer("TIMEOUT", item.word);
+            }
+        }, 50); // Runs every 50ms (approx 5 sec total)
+    }
+
+    function checkSpeedAnswer(ans, correct) {
+        clearInterval(speedGameTimer);
+        const fb = document.getElementById('speed-feedback');
+        if (ans === correct) {
+            score += 5; updateScoreDisplay();
+            fb.className = 'feedback correct'; fb.innerText = "Good!";
+            playCorrectSound();
+            setTimeout(nextSpeedRound, 800);
+        } else {
+            fb.className = 'feedback wrong'; fb.innerText = correct;
+            playFailSound();
+            score = Math.max(0, score - 2); updateScoreDisplay();
+            setTimeout(nextSpeedRound, 1500);
+        }
+    }
+
+
+    // --- SNAKE GAME (Kept same) ---
     const snakeGame = {
-        canvas: null, ctx: null, 
-        grid: 30, // גודל משבצת הוגדל מ-20 ל-30 (50% יותר)
+        canvas: null, ctx: null, grid: 30, 
         running: false, paused: false, crashed: false,
-        snake: [], items: [],
-        dx: 0, dy: 0,
+        snake: [], items: [], dx: 0, dy: 0,
         wordData: null, targetWord: "", currentLetterIndex: 0,
         loopId: null, speed: 220 
     };
 
     function startSnakeGame() {
-        currentMode = 'snake';
-        score = 0;
-        updateScoreDisplay();
-        switchScreen('screen-snake');
-        
+        currentMode = 'snake'; score = 0; updateScoreDisplay(); switchScreen('screen-snake');
         snakeGame.canvas = document.getElementById('snake-canvas');
         snakeGame.ctx = snakeGame.canvas.getContext('2d');
-        // הגדרה מחדש של הגריד ליתר ביטחון
-        snakeGame.grid = 30; 
-        snakeGame.running = true;
-        snakeGame.paused = false;
-        snakeGame.crashed = false;
+        snakeGame.running = true; snakeGame.paused = false; snakeGame.crashed = false;
         document.getElementById('snake-crash-overlay').style.display = 'none';
         document.getElementById('snake-pause-overlay').style.display = 'none';
-
         nextSnakeLevel();
         document.addEventListener('keydown', handleSnakeKey);
-        
         if (snakeGame.loopId) clearInterval(snakeGame.loopId);
         snakeGame.loopId = setInterval(gameLoop, snakeGame.speed);
     }
 
     function stopSnakeGame() {
-        snakeGame.running = false;
-        clearInterval(snakeGame.loopId);
-        document.removeEventListener('keydown', handleSnakeKey);
-        endGame();
+        snakeGame.running = false; clearInterval(snakeGame.loopId);
+        document.removeEventListener('keydown', handleSnakeKey); endGame();
     }
     
     function freezeSnakeGame() {
@@ -694,12 +859,9 @@
         snakeGame.wordData = vocabulary[Math.floor(Math.random() * vocabulary.length)];
         snakeGame.targetWord = snakeGame.wordData.word.toUpperCase();
         snakeGame.currentLetterIndex = 0;
-        
-        // מיקום התחלתי מותאם לגריד החדש
         snakeGame.snake = [{x: 150, y: 150}, {x: 120, y: 150}, {x: 90, y: 150}];
         snakeGame.dx = snakeGame.grid; snakeGame.dy = 0;
-        spawnSnakeItems();
-        updateSnakeUI();
+        spawnSnakeItems(); updateSnakeUI();
     }
 
     function updateSnakeUI() {
@@ -722,24 +884,12 @@
     function spawnSnakeItems() {
         snakeGame.items = [];
         const correctChar = snakeGame.targetWord[snakeGame.currentLetterIndex];
-        // חישוב גבולות לפי גודל הקנבס החדש (390 / 30 = 13 תאים)
-        const maxCells = snakeGame.canvas.width / snakeGame.grid; // 13
-        
-        snakeGame.items.push({ 
-            x: getRandomInt(0, maxCells)*snakeGame.grid, 
-            y: getRandomInt(0, maxCells)*snakeGame.grid, 
-            char: correctChar, type: 'correct' 
-        });
-        
+        const maxCells = snakeGame.canvas.width / snakeGame.grid; 
+        snakeGame.items.push({ x: getRandomInt(0, maxCells)*snakeGame.grid, y: getRandomInt(0, maxCells)*snakeGame.grid, char: correctChar, type: 'correct' });
         const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         let wrongChar;
         do { wrongChar = alphabet[Math.floor(Math.random() * alphabet.length)]; } while(wrongChar === correctChar);
-        
-        snakeGame.items.push({ 
-            x: getRandomInt(0, maxCells)*snakeGame.grid, 
-            y: getRandomInt(0, maxCells)*snakeGame.grid, 
-            char: wrongChar, type: 'wrong' 
-        });
+        snakeGame.items.push({ x: getRandomInt(0, maxCells)*snakeGame.grid, y: getRandomInt(0, maxCells)*snakeGame.grid, char: wrongChar, type: 'wrong' });
     }
 
     function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min)) + min; }
@@ -756,12 +906,10 @@
             document.getElementById('snake-pause-overlay').style.display = 'none';
             return;
         }
-
         const goingUp = snakeGame.dy === -snakeGame.grid;
         const goingDown = snakeGame.dy === snakeGame.grid;
         const goingRight = snakeGame.dx === snakeGame.grid;
         const goingLeft = snakeGame.dx === -snakeGame.grid;
-
         if (e.keyCode === 37 && !goingRight) { snakeGame.dx = -snakeGame.grid; snakeGame.dy = 0; }
         if (e.keyCode === 38 && !goingDown) { snakeGame.dx = 0; snakeGame.dy = -snakeGame.grid; }
         if (e.keyCode === 39 && !goingLeft) { snakeGame.dx = snakeGame.grid; snakeGame.dy = 0; }
@@ -769,41 +917,27 @@
     }
 
     function setSnakeDir(dir, e) {
-        if(e) e.preventDefault(); // מניעת זום כפול במובייל
+        if(e) e.preventDefault();
         if (snakeGame.paused || snakeGame.crashed) return;
         const keyMap = { 'LEFT': 37, 'UP': 38, 'RIGHT': 39, 'DOWN': 40 };
-        const eventSim = { keyCode: keyMap[dir], preventDefault: ()=>{} };
-        handleSnakeKey(eventSim);
+        handleSnakeKey({ keyCode: keyMap[dir], preventDefault: ()=>{} });
     }
 
     function gameLoop() {
         if (!snakeGame.running || snakeGame.paused || snakeGame.crashed) return;
-
         const head = { x: snakeGame.snake[0].x + snakeGame.dx, y: snakeGame.snake[0].y + snakeGame.dy };
-        
-        if (head.x < 0 || head.x >= snakeGame.canvas.width || head.y < 0 || head.y >= snakeGame.canvas.height) {
-            freezeSnakeGame(); return;
-        }
-        for (let i = 0; i < snakeGame.snake.length; i++) {
-            if (head.x === snakeGame.snake[i].x && head.y === snakeGame.snake[i].y) {
-                freezeSnakeGame(); return;
-            }
-        }
-
+        if (head.x < 0 || head.x >= snakeGame.canvas.width || head.y < 0 || head.y >= snakeGame.canvas.height) { freezeSnakeGame(); return; }
+        for (let i = 0; i < snakeGame.snake.length; i++) { if (head.x === snakeGame.snake[i].x && head.y === snakeGame.snake[i].y) { freezeSnakeGame(); return; } }
         snakeGame.snake.unshift(head);
-
         let ate = false;
         for (let i = 0; i < snakeGame.items.length; i++) {
             let item = snakeGame.items[i];
             if (head.x === item.x && head.y === item.y) {
                 if (item.type === 'correct') {
                     score += 5; updateScoreDisplay();
-                    snakeGame.currentLetterIndex++;
-                    ate = true;
-                    if (snakeGame.currentLetterIndex >= snakeGame.targetWord.length) {
-                        score += 20; updateScoreDisplay(); speak(snakeGame.wordData.word);
-                        nextSnakeLevel(); return;
-                    } else { spawnSnakeItems(); updateSnakeUI(); }
+                    snakeGame.currentLetterIndex++; ate = true;
+                    if (snakeGame.currentLetterIndex >= snakeGame.targetWord.length) { score += 20; updateScoreDisplay(); speak(snakeGame.wordData.word); nextSnakeLevel(); return; } 
+                    else { spawnSnakeItems(); updateSnakeUI(); }
                 } else {
                     score = Math.max(0, score - 2); updateScoreDisplay();
                     snakeGame.items.splice(i, 1); snakeGame.snake.pop(); 
@@ -812,52 +946,23 @@
             }
         }
         if (!ate) snakeGame.snake.pop();
-
-        // ציור
-        const ctx = snakeGame.ctx;
-        const g = snakeGame.grid; // 30
-        
+        const ctx = snakeGame.ctx; const g = snakeGame.grid; 
         ctx.fillStyle = '#2c3e50'; ctx.fillRect(0, 0, snakeGame.canvas.width, snakeGame.canvas.height);
-
-        // ציור פריטים מותאם לגודל החדש (24px פונט, ממורכז ב-30px)
         ctx.font = "bold 22px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
         snakeGame.items.forEach(item => {
             ctx.fillStyle = item.type === 'correct' ? '#2ecc71' : '#e74c3c';
-            ctx.beginPath(); 
-            // מרכז העיגול הוא X + חצי גריד (15)
-            ctx.arc(item.x + g/2, item.y + g/2, g/2 - 2, 0, 2 * Math.PI); 
-            ctx.fill();
-            ctx.fillStyle = 'white'; 
-            ctx.fillText(item.char, item.x + g/2, item.y + g/2 + 1);
+            ctx.beginPath(); ctx.arc(item.x + g/2, item.y + g/2, g/2 - 2, 0, 2 * Math.PI); ctx.fill();
+            ctx.fillStyle = 'white'; ctx.fillText(item.char, item.x + g/2, item.y + g/2 + 1);
         });
-
-        // ציור הנחש
         snakeGame.snake.forEach((part, index) => {
             if (index === 0) {
-                ctx.fillStyle = '#3498db';
-                // ראש הנחש קצת קטן מהגריד כדי שיהיה רווח
-                ctx.fillRect(part.x + 1, part.y + 1, g - 2, g - 2);
-                
-                // עיניים מותאמות לגודל 30
+                ctx.fillStyle = '#3498db'; ctx.fillRect(part.x + 1, part.y + 1, g - 2, g - 2);
                 ctx.fillStyle = 'white';
-                let ex1, ey1, ex2, ey2;
-                // חישוב יחסי: ב-20 זה היה 4 ו-12. ב-30 זה יהיה 6 ו-18 (בערך)
-                const s = 6; const l = 20; 
-                
-                if (snakeGame.dx > 0) { ex1=l; ey1=s; ex2=l; ey2=30-s; } 
-                else if (snakeGame.dx < 0) { ex1=s; ey1=s; ex2=s; ey2=30-s; }
-                else if (snakeGame.dy < 0) { ex1=s; ey1=s; ex2=30-s; ey2=s; }
-                else { ex1=s; ey1=l; ex2=30-s; ey2=l; }
-                
-                ctx.beginPath(); ctx.arc(part.x+ex1, part.y+ey1, 4, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(part.x+ex2, part.y+ey2, 4, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = 'black';
-                ctx.beginPath(); ctx.arc(part.x+ex1, part.y+ey1, 1.5, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(part.x+ex2, part.y+ey2, 1.5, 0, Math.PI*2); ctx.fill();
-            } else {
-                ctx.fillStyle = '#5dade2';
-                ctx.fillRect(part.x + 1, part.y + 1, g - 2, g - 2);
-            }
+                let ex1, ey1, ex2, ey2; const s = 6; const l = 20; 
+                if (snakeGame.dx > 0) { ex1=l; ey1=s; ex2=l; ey2=30-s; } else if (snakeGame.dx < 0) { ex1=s; ey1=s; ex2=s; ey2=30-s; } else if (snakeGame.dy < 0) { ex1=s; ey1=s; ex2=30-s; ey2=s; } else { ex1=s; ey1=l; ex2=30-s; ey2=l; }
+                ctx.beginPath(); ctx.arc(part.x+ex1, part.y+ey1, 4, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(part.x+ex2, part.y+ey2, 4, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(part.x+ex1, part.y+ey1, 1.5, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(part.x+ex2, part.y+ey2, 1.5, 0, Math.PI*2); ctx.fill();
+            } else { ctx.fillStyle = '#5dade2'; ctx.fillRect(part.x + 1, part.y + 1, g - 2, g - 2); }
         });
     }
 
@@ -885,14 +990,12 @@
             board.appendChild(cardEl);
         });
     }
-
     function flipCard(index, el, card) {
         if (el.classList.contains('flipped') || memoryState.flipped.length >= 2) return;
         el.classList.add('flipped');
         memoryState.flipped.push({ index, id: card.id });
         if (memoryState.flipped.length === 2) checkMemoryMatch();
     }
-
     function checkMemoryMatch() {
         const [c1, c2] = memoryState.flipped;
         const els = document.getElementById('memory-board').children;
@@ -913,20 +1016,13 @@
     function endGame() {
         const isNewRecord = checkHighScore(score);
         switchScreen('screen-game');
-        
-        const gameContent = document.getElementById('game-content');
-        gameContent.innerHTML = `
-            <h2>סיימת!</h2>
-            <div style="font-size:3rem">🏆</div>
-            <h3>ניקוד: ${score}</h3>
+        document.getElementById('game-content').innerHTML = `
+            <h2>סיימת!</h2><div style="font-size:3rem">🏆</div><h3>ניקוד: ${score}</h3>
             <input type="text" id="playerName" class="input-box" placeholder="שמך..." style="width:180px">
-            
-
             <div style="display: flex; justify-content: center; gap: 10px; margin-top: 15px;">
                 <button class="btn btn-secondary" onclick="saveToLeaderboard()">💾 שמירה</button>
                 <button class="btn" onclick="restartCurrentGame()">🔄 שוב</button>
-            </div>
-        `;
+            </div>`;
         document.getElementById('next-btn').style.display = 'none';
         if (isNewRecord) celebrateNewRecord();
     }
@@ -938,13 +1034,8 @@
         if (modeScores.length === 0) return true;
         return s > Math.max(...modeScores.map(x => x.score));
     }
-
-    function celebrateNewRecord() {
-        document.getElementById('victory-overlay').style.display = 'flex';
-        initAudio(); playFanfare(); startFireworks();
-    }
+    function celebrateNewRecord() { document.getElementById('victory-overlay').style.display = 'flex'; initAudio(); playFanfare(); startFireworks(); }
     function closeVictory() { document.getElementById('victory-overlay').style.display = 'none'; stopFireworks(); }
-
     function saveToLeaderboard() {
         const name = document.getElementById('playerName').value || "Anonymous";
         let scores = JSON.parse(localStorage.getItem('englishGameScores')) || [];
@@ -953,47 +1044,25 @@
         localStorage.setItem('englishGameScores', JSON.stringify(scores));
         showLeaderboard();
     }
-
     function showLeaderboard() {
         switchScreen('screen-leaderboard');
-        const list = document.getElementById('scores-list');
-        list.innerHTML = '';
+        const list = document.getElementById('scores-list'); list.innerHTML = '';
         let scores = JSON.parse(localStorage.getItem('englishGameScores')) || [];
         if (!scores.length) { list.innerHTML = '<li>אין תוצאות...</li>'; return; }
         scores.slice(0, 10).forEach((s, i) => {
-            const icons = { listening: '👂', vocab: '✍️', snake: '🐍', memory: '🃏', sentences: '🧩', reading: '📖' };
-            list.innerHTML += `<li style="padding:8px; border-bottom:1px solid #ddd; display:flex; justify-content:space-between;">
-                <span>#${i+1} <strong>${s.name}</strong></span>
-                <span>${s.score} ${icons[s.mode] || ''}</span>
-            </li>`;
+            const icons = { listening: '👂', vocab: '✍️', snake: '🐍', memory: '🃏', sentences: '🧩', reading: '📖', builder: '🏗️', speed: '⚡' };
+            list.innerHTML += `<li style="padding:8px; border-bottom:1px solid #ddd; display:flex; justify-content:space-between;"><span>#${i+1} <strong>${s.name}</strong></span><span>${s.score} ${icons[s.mode] || ''}</span></li>`;
         });
     }
 
     let fwLoop; const fwC = document.getElementById('fireworks-canvas'); const fwCtx = fwC.getContext('2d');
-    let parts = [];
-    window.addEventListener('resize', () => { fwC.width = window.innerWidth; fwC.height = window.innerHeight; });
-    
-    function startFireworks() {
-        fwC.width = window.innerWidth; fwC.height = window.innerHeight;
-        parts = []; loopFW();
-    }
+    let parts = []; window.addEventListener('resize', () => { fwC.width = window.innerWidth; fwC.height = window.innerHeight; });
+    function startFireworks() { fwC.width = window.innerWidth; fwC.height = window.innerHeight; parts = []; loopFW(); }
     function loopFW() {
-        fwCtx.globalCompositeOperation = 'destination-out';
-        fwCtx.fillStyle = 'rgba(0,0,0,0.1)'; fwCtx.fillRect(0,0,fwC.width, fwC.height);
+        fwCtx.globalCompositeOperation = 'destination-out'; fwCtx.fillStyle = 'rgba(0,0,0,0.1)'; fwCtx.fillRect(0,0,fwC.width, fwC.height);
         fwCtx.globalCompositeOperation = 'lighter';
-        parts.forEach((p, i) => {
-            p.x += p.vx; p.y += p.vy; p.vy += 0.1; p.a -= 0.02;
-            fwCtx.fillStyle = p.c; fwCtx.globalAlpha = p.a;
-            fwCtx.beginPath(); fwCtx.arc(p.x, p.y, 3, 0, 6.28); fwCtx.fill();
-            if (p.a <= 0) parts.splice(i, 1);
-        });
-        if (Math.random() < 0.05) {
-            for(let i=0; i<30; i++) parts.push({
-                x: Math.random()*fwC.width, y: Math.random()*fwC.height/2,
-                vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10,
-                a: 1, c: `hsl(${Math.random()*360}, 100%, 50%)`
-            });
-        }
+        parts.forEach((p, i) => { p.x += p.vx; p.y += p.vy; p.vy += 0.1; p.a -= 0.02; fwCtx.fillStyle = p.c; fwCtx.globalAlpha = p.a; fwCtx.beginPath(); fwCtx.arc(p.x, p.y, 3, 0, 6.28); fwCtx.fill(); if (p.a <= 0) parts.splice(i, 1); });
+        if (Math.random() < 0.05) { for(let i=0; i<30; i++) parts.push({ x: Math.random()*fwC.width, y: Math.random()*fwC.height/2, vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10, a: 1, c: `hsl(${Math.random()*360}, 100%, 50%)` }); }
         fwLoop = requestAnimationFrame(loopFW);
     }
     function stopFireworks() { cancelAnimationFrame(fwLoop); fwCtx.clearRect(0,0,fwC.width, fwC.height); }
