@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>הכנה למבחן באנגלית - ד'</title>
+    <title>משחקים לימודיים ברובוסט</title>
     <style>
-        /* --- עיצוב בסיסי --- */
+        /* --- 1. עיצוב כללי --- */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f4f8;
@@ -13,91 +13,28 @@
             padding: 10px;
             text-align: center;
             color: #333;
-            direction: rtl;
+            user-select: none; /* מניעת סימון טקסט */
         }
 
-        /* --- כותרת וניקוד --- */
-        #header-area {
+        /* --- 2. כותרת, ניקוד וגרף --- */
+        #header-section {
             background-color: white;
             border-radius: 15px;
             padding: 15px;
-            margin: 0 auto 20px auto;
-            max-width: 600px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            margin: 0 auto 15px auto;
+            max-width: 650px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             position: relative;
+            border-top: 5px solid #5c7cfa;
         }
 
-        h1 { color: #5c6bc0; margin: 0; font-size: 1.5rem; }
-        h3 { margin: 5px 0 0 0; color: #666; font-size: 1rem; font-weight: normal; }
+        h1 { margin: 0; font-size: 1.6rem; color: #444; }
+        h3 { margin: 5px 0 0 0; font-size: 1rem; color: #777; font-weight: normal; }
 
-        .score-tag {
+        /* תגית ניקוד צהובה */
+        .score-badge {
             position: absolute; left: 15px; top: 15px;
             background-color: #f1c40f; color: white;
-            padding: 5px 12px; border-radius: 20px;
-            font-weight: bold; font-size: 0.9rem;
-        }
-
-        .settings-btn {
-            position: absolute; right: 15px; top: 15px;
-            background: none; border: none; font-size: 1.5rem;
-            cursor: pointer; opacity: 0.7;
-        }
-
-        /* --- מחוון התקדמות (הגרף) --- */
-        .progress-container {
-            margin-top: 15px;
-            background-color: #e0e0e0;
-            border-radius: 10px;
-            height: 20px;
-            width: 100%;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .progress-bar {
-            background-color: #4CAF50; /* ירוק */
-            height: 100%;
-            width: 0%; /* מתעדכן ב-JS */
-            transition: width 0.5s ease-in-out;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-
-        /* --- תפריט ראשי --- */
-        #main-menu-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            max-width: 600px;
-            margin: 0 auto;
-            padding-bottom: 50px;
-        }
-
-        .menu-btn {
-            border: none; border-radius: 10px; padding: 15px;
-            color: white; font-size: 1rem; font-weight: bold;
-            cursor: pointer; box-shadow: 0 4px 0 rgba(0,0,0,0.2);
-            transition: transform 0.1s;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            min-height: 60px;
-        }
-        .menu-btn:active { transform: translateY(4px); box-shadow: none; }
-        .menu-btn span { font-size: 1.4rem; margin-bottom: 5px; }
-
-        /* צבעים */
-        .c-blue { background-color: #5d8cd6; }
-        .c-red { background-color: #c94b38; }
-        .c-green { background-color: #6ab063; }
-        .c-orange { background-color: #d38428; }
-        .c-dark { background-color: #3e4a59; }
-        .c-purple { background-color: #8e5ea2; }
-        .c-teal { background-color: #62a3b7; }
-        .c-gold { background-color: #dcb028; }
-
-        .wide-btn { grid-column: 1 / -1; }
-        .bottom-row { grid-column: 1 / -1; display: flex; gap
+            padding: 6px 14px; border-radius: 20px;
+            font-weight: bold; font-size: 0.95rem;
+            box-shadow: 0
