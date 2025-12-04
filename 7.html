@@ -3,330 +3,295 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>משחק למידה חכם</title>
+    <title>הכנה למבחן באנגלית - תפריט ראשי</title>
     <style>
         :root {
-            --primary: #4a90e2;
-            --secondary: #f5a623;
-            --success: #7ed321;
-            --bg: #f0f4f8;
-            --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --bg-color: #f0f4f8;
+            --blue: #5c9ce6;
+            --red: #c94e40;
+            --green: #6ab065;
+            --orange: #d98e2e;
+            --purple: #8e65b0;
+            --dark-blue: #4a5568;
+            --teal: #5aaeb6;
+            --yellow: #e6b83b;
+            --text-color: #333;
         }
 
         body {
-            font-family: var(--font);
-            background-color: var(--bg);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
             margin: 0;
-            text-align: center;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        .container {
-            background: white;
-            padding: 2rem;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            width: 90%;
-            max-width: 500px;
+        /* כותרות וניקוד */
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 800px;
             position: relative;
         }
 
-        h1 { color: var(--primary); margin-bottom: 20px; }
-        h2 { color: #333; }
+        h1 {
+            color: #4a90e2;
+            margin: 5px 0;
+            font-size: 1.8rem;
+        }
 
-        .btn {
-            background-color: var(--primary);
+        h3 {
+            color: #666;
+            margin: 0;
+            font-weight: normal;
+        }
+
+        .score-badge {
+            background-color: var(--orange);
             color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 1.1rem;
-            border-radius: 50px;
-            cursor: pointer;
-            margin: 10px;
-            transition: transform 0.1s;
-            box-shadow: 0 4px 0 #357abd;
-        }
-
-        .btn:active { transform: translateY(4px); box-shadow: none; }
-        
-        .btn-secondary { background-color: var(--secondary); box-shadow: 0 4px 0 #d08b1b; }
-        .btn-danger { background-color: #e74c3c; box-shadow: 0 4px 0 #c0392b; }
-
-        .game-area, .settings-area, .end-area { display: none; }
-        
-        /* Utility utility class to show sections */
-        .active { display: block; }
-
-        .card {
-            font-size: 2.5rem;
-            margin: 20px 0;
-            padding: 20px;
-            border: 2px dashed var(--primary);
-            border-radius: 10px;
-            background: #eef6ff;
-        }
-
-        .options-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            background-color: #ddd;
-            height: 10px;
-            border-radius: 5px;
-            margin-top: 20px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background-color: var(--success);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
-        .icon-btn {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
             position: absolute;
-            top: 15px;
-            left: 15px;
-            background: none;
-            border: none;
+            top: 0;
+            right: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* כפתור הגדרות (חדש) */
+        .settings-btn-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
             font-size: 1.5rem;
             cursor: pointer;
-            color: #777;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
         }
+        .settings-btn-top:hover { transform: rotate(45deg); }
+
+        /* גריד הכפתורים */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* שתי עמודות */
+            gap: 15px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .game-btn {
+            border: none;
+            border-radius: 12px;
+            padding: 15px;
+            color: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.15);
+            min-height: 80px;
+            text-decoration: none; /* למקרה שזה תגית a */
+        }
+
+        .game-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .game-btn span.icon { font-size: 1.5rem; margin-bottom: 5px; }
+
+        /* צבעים לכפתורים */
+        .btn-blue { background-color: var(--blue); }
+        .btn-red { background-color: var(--red); }
+        .btn-green { background-color: var(--green); }
+        .btn-orange { background-color: var(--orange); }
+        .btn-purple { background-color: var(--purple); }
+        .btn-dark { background-color: var(--dark-blue); }
+        .btn-teal { background-color: var(--teal); }
+        .btn-yellow { background-color: var(--yellow); }
+
+        /* כפתורים רחבים (תופסים את כל הרוחב) */
+        .full-width { grid-column: span 2; }
+
+        /* אזור תחתון */
+        .bottom-bar {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 15px;
+            width: 100%;
+            max-width: 800px;
+            margin-top: 15px;
+        }
+
+        /* --- עיצוב חלונית הגדרות (MODAL) --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 1000;
+            display: none; /* מוסתר כברירת מחדל */
+            justify-content: center; align-items: center;
+            backdrop-filter: blur(3px);
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: popIn 0.3s ease;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-btn {
+            display: block; width: 100%; margin: 10px 0; padding: 12px;
+            border-radius: 8px; border: 1px solid #ddd;
+            background: #f9f9f9; cursor: pointer; font-size: 1rem;
+        }
+        .modal-btn:hover { background: #eee; }
+        .btn-close { background: #333; color: white; border: none; margin-top: 20px; }
+        .btn-reset-all { background: #ffebee; color: #d32f2f; border: 1px solid #ffcdd2; font-weight: bold; }
+
     </style>
 </head>
 <body>
 
-<div class="container">
-    
-    <div id="main-menu" class="active">
-        <h1>משחק המילים החכם</h1>
-        <p>בוא נראה כמה מילים תצליח ללמוד!</p>
-        <button class="btn" onclick="startGame()">התחל לשחק</button>
-        <button class="btn btn-secondary" onclick="showSettings()">הגדרות</button>
-        <div id="status-text" style="margin-top:15px; color:#666; font-size: 0.9rem;"></div>
+    <header>
+        <div class="score-badge">ניקוד: <span id="total-score">0</span></div>
+        <button class="settings-btn-top" onclick="openSettings()">⚙️</button>
+        <h1>הכנה למבחן באנגלית - ד' 🎓</h1>
+        <h3>כל המילים + משפטים</h3>
+    </header>
+
+    <div class="menu-grid">
+        <button class="game-btn btn-blue" onclick="navigateTo('write_words.html')">
+            <span class="icon">✍️</span> כתיבת מילים
+        </button>
+        <button class="game-btn btn-blue" onclick="navigateTo('listening.html')">
+            <span class="icon">👂</span> הבנת הנשמע
+        </button>
+
+        <button class="game-btn btn-blue" onclick="navigateTo('reading.html')">
+            <span class="icon">📖</span> קריאה
+        </button>
+        <button class="game-btn btn-blue" onclick="navigateTo('complete_sentences.html')">
+            <span class="icon">🧩</span> השלמת משפטים
+        </button>
+
+        <button class="game-btn btn-red full-width" onclick="navigateTo('quick_click.html')">
+            <span class="icon">⚡</span> קליק מהיר
+        </button>
+
+        <button class="game-btn btn-green full-width" onclick="navigateTo('sentence_factory.html')">
+            <span class="icon">🏭</span> מפעל המשפטים
+        </button>
+
+        <button class="game-btn btn-orange" onclick="navigateTo('true_false.html')">
+            <span class="icon">✅</span> אמת או שקר
+        </button>
+        <button class="game-btn btn-dark" onclick="navigateTo('bubble_pop.html')">
+            <span class="icon">🫧</span> פיצוץ בועות
+        </button>
+
+        <button class="game-btn btn-purple full-width" onclick="navigateTo('snake.html')">
+            <span class="icon">🐍</span> סנייק מילים
+        </button>
+
+        <button class="game-btn btn-orange full-width" onclick="navigateTo('memory.html')">
+            <span class="icon">🃏</span> משחק הזיכרון
+        </button>
     </div>
 
-    <div id="settings-screen" class="settings-area">
-        <h2>הגדרות</h2>
-        <p>כאן תוכל לאפס את ההתקדמות שלך ולהתחיל מחדש.</p>
-        <button class="btn btn-danger" onclick="resetProgress()">אפס התקדמות (החזר את כל המילים)</button>
-        <br><br>
-        <button class="btn btn-secondary" onclick="showMainMenu()">חזור לתפריט</button>
+    <div class="bottom-bar">
+        <button class="game-btn btn-teal">
+            <span class="icon">📜</span> עדכונים
+        </button>
+        <button class="game-btn btn-yellow">
+            <span class="icon">🏆</span> שיאים
+        </button>
     </div>
 
-    <div id="game-screen" class="game-area">
-        <button class="icon-btn" onclick="showMainMenu()">🏠</button>
-        <h2 id="question-text">איך אומרים...</h2>
-        <div class="card" id="current-word">Word</div>
-        <div class="options-grid" id="options-container">
-            </div>
-        <div class="progress-bar">
-            <div class="progress-fill" id="prog-fill"></div>
+    <div id="settingsModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>הגדרות למידה</h2>
+            <p>איפוס התקדמות יחזיר את כל המילים למשחק.</p>
+            
+            <button class="modal-btn" onclick="learningManager.resetGame('memory_game')">🔄 אפס משחק הזיכרון</button>
+            <button class="modal-btn" onclick="learningManager.resetGame('snake_game')">🔄 אפס סנייק</button>
+            <button class="modal-btn" onclick="learningManager.resetGame('quiz_game')">🔄 אפס מבחן אמריקאי</button>
+            
+            <hr style="border:0; border-top:1px solid #eee; margin:15px 0;">
+            
+            <button class="modal-btn btn-reset-all" onclick="learningManager.resetAll()">⚠️ אפס את הכל (כל המשחקים)</button>
+            <button class="modal-btn btn-close" onclick="closeSettings()">סגור</button>
         </div>
-        <p style="font-size: 0.8rem; color: #888;">מילים שנותרו: <span id="words-left-count">0</span></p>
     </div>
 
-    <div id="end-screen" class="end-area">
-        <h1>כל הכבוד! 🏆</h1>
-        <p>סיימת את כל המילים במאגר!</p>
-        <p>אתה מוכן למבחן.</p>
-        <button class="btn btn-secondary" onclick="showSettings()">אפס משחק כדי לתרגל שוב</button>
-    </div>
-
-</div>
-
-<script>
-    // 1. מאגר המילים (קבוע)
-    const wordDatabase = [
-        { id: 1, hebrew: "כלב", english: "Dog" },
-        { id: 2, hebrew: "חתול", english: "Cat" },
-        { id: 3, hebrew: "בית", english: "House" },
-        { id: 4, hebrew: "תפוח", english: "Apple" },
-        { id: 5, hebrew: "שמש", english: "Sun" },
-        { id: 6, hebrew: "ספר", english: "Book" },
-        { id: 7, hebrew: "עט", english: "Pen" },
-        { id: 8, hebrew: "מחשב", english: "Computer" }
-    ];
-
-    // משתנים גלובליים
-    let activeWords = []; // מילים שעדיין צריך ללמוד
-    let currentWordObj = null;
-
-    // בעת טעינת העמוד
-    window.onload = function() {
-        updateStatusText();
-    };
-
-    // --- פונקציות ניהול נתונים (Data Management) ---
-
-    // בדיקה אילו מילים המשתמש כבר יודע
-    function getKnownWords() {
-        const known = localStorage.getItem('knownWordsIds');
-        return known ? JSON.parse(known) : [];
-    }
-
-    // סימון מילה כידועה ושמירה
-    function markWordAsKnown(id) {
-        let known = getKnownWords();
-        if (!known.includes(id)) {
-            known.push(id);
-            localStorage.setItem('knownWordsIds', JSON.stringify(known));
-        }
-    }
-
-    // איפוס כל הנתונים
-    function resetProgress() {
-        if(confirm("האם אתה בטוח שברצונך למחוק את ההתקדמות ולהחזיר את כל המילים?")) {
-            localStorage.removeItem('knownWordsIds');
-            alert("ההתקדמות אופסה בהצלחה!");
-            showMainMenu();
-            updateStatusText();
-        }
-    }
-
-    // --- לוגיקת משחק ---
-
-    function startGame() {
-        // סינון: קח את כל המילים, וצור רשימה חדשה רק של מילים שה-ID שלהן לא נמצא ב"ידועות"
-        const knownIds = getKnownWords();
-        activeWords = wordDatabase.filter(word => !knownIds.includes(word.id));
-
-        if (activeWords.length === 0) {
-            showScreen('end-screen');
-        } else {
-            showScreen('game-screen');
-            loadNextQuestion();
-        }
-    }
-
-    function loadNextQuestion() {
-        if (activeWords.length === 0) {
-            showScreen('end-screen');
-            return;
-        }
-
-        // עדכון תצוגה
-        document.getElementById('words-left-count').innerText = activeWords.length;
-        updateProgressBar();
-
-        // בחירת מילה אקראית מהנותרות
-        const randomIndex = Math.floor(Math.random() * activeWords.length);
-        currentWordObj = activeWords[randomIndex];
-
-        // הצגת המילה בעברית
-        document.getElementById('current-word').innerText = currentWordObj.hebrew;
-
-        // יצירת תשובות (1 נכונה + 3 מסיחים)
-        generateOptions(currentWordObj);
-    }
-
-    function generateOptions(correctWord) {
-        const container = document.getElementById('options-container');
-        container.innerHTML = ''; // ניקוי כפתורים קודמים
-
-        // יצירת מערך תשובות הכולל את התשובה הנכונה
-        let options = [correctWord];
-        
-        // הוספת מסיחים (תשובות לא נכונות)
-        while (options.length < 4) {
-            const random = wordDatabase[Math.floor(Math.random() * wordDatabase.length)];
-            // וודא שלא בחרנו את אותה מילה פעמיים
-            if (!options.includes(random)) {
-                options.push(random);
+    <script>
+        // === מנהל הלמידה (Learning Manager) ===
+        // אובייקט זה מנהל את הזיכרון של הדפדפן
+        const learningManager = {
+            // איפוס משחק בודד
+            resetGame: function(gameId) {
+                if(confirm("האם אתה בטוח שברצונך לאפס את ההתקדמות במשחק זה?")) {
+                    localStorage.removeItem('known_' + gameId);
+                    alert("ההתקדמות אופסה בהצלחה!");
+                }
+            },
+            // איפוס הכל
+            resetAll: function() {
+                if(confirm("זהירות: פעולה זו תמחק את כל ההתקדמות בכל המשחקים. להמשיך?")) {
+                    localStorage.clear();
+                    alert("כל המשחקים אופסו והתחילו מחדש.");
+                    document.getElementById('total-score').innerText = '0';
+                }
             }
+        };
+
+        // === פונקציות ממשק ===
+
+        // ניווט לדפי המשחקים
+        function navigateTo(pageUrl) {
+            // כאן המערכת תעבור לדף המשחק.
+            // שים לב: עליך לוודא שקובצי ה-html של המשחקים (כמו snake.html) נמצאים באותה תיקייה.
+            window.location.href = pageUrl;
         }
 
-        // ערבוב התשובות
-        options.sort(() => Math.random() - 0.5);
-
-        // יצירת כפתורים ב-DOM
-        options.forEach(opt => {
-            const btn = document.createElement('button');
-            btn.className = 'btn';
-            btn.innerText = opt.english;
-            btn.onclick = () => handleAnswer(opt.id, btn);
-            container.appendChild(btn);
-        });
-    }
-
-    function handleAnswer(selectedId, btnElement) {
-        if (selectedId === currentWordObj.id) {
-            // == תשובה נכונה ==
-            btnElement.style.backgroundColor = 'var(--success)';
-            
-            // 1. שמירה בזיכרון הדפדפן שהמילה ידועה
-            markWordAsKnown(currentWordObj.id);
-            
-            // 2. הסרה מהרשימה הפעילה הנוכחית בזיכרון המשחק
-            activeWords = activeWords.filter(w => w.id !== currentWordObj.id);
-
-            // המתנה קצרה ומעבר למילה הבאה
-            setTimeout(() => {
-                loadNextQuestion();
-            }, 800);
-
-        } else {
-            // == תשובה שגויה ==
-            btnElement.style.backgroundColor = '#e74c3c';
-            btnElement.innerText = "נסה שוב";
-            // במקרה של טעות - המילה לא נמחקת ותופיע שוב בהמשך
+        // פתיחת וסגירת הגדרות
+        function openSettings() {
+            document.getElementById('settingsModal').style.display = 'flex';
         }
-    }
 
-    // --- ניהול מסכים ---
-
-    function showScreen(screenId) {
-        // הסתרת הכל
-        document.getElementById('main-menu').classList.remove('active');
-        document.getElementById('settings-screen').classList.remove('active');
-        document.getElementById('game-screen').classList.remove('active');
-        document.getElementById('end-screen').classList.remove('active');
-
-        // הצגת המסך הרצוי
-        document.getElementById(screenId).classList.add('active');
-    }
-
-    function showMainMenu() {
-        showScreen('main-menu');
-        updateStatusText();
-    }
-
-    function showSettings() {
-        showScreen('settings-screen');
-    }
-
-    function updateStatusText() {
-        const knownCount = getKnownWords().length;
-        const total = wordDatabase.length;
-        const remaining = total - knownCount;
-        
-        const statusDiv = document.getElementById('status-text');
-        if (remaining === 0) {
-            statusDiv.innerHTML = "🏆 סיימת את כל המילים! אפס בהגדרות כדי להתחיל מחדש.";
-        } else {
-            statusDiv.innerHTML = `התקדמות: למדת ${knownCount} מתוך ${total} מילים.`;
+        function closeSettings() {
+            document.getElementById('settingsModal').style.display = 'none';
         }
-    }
 
-    function updateProgressBar() {
-        const total = wordDatabase.length;
-        // כמות הידועות ב-Storage + מה שהצלחנו בסשן הזה (חישוב מהיר)
-        // לצורך הפשטות נחשב לפי אורך המערך הפעיל
-        const knownCount = total - activeWords.length; 
-        const percentage = (knownCount / total) * 100;
-        document.getElementById('prog-fill').style.width = percentage + "%";
-    }
-
-</script>
-
+        // טעינת ניקוד (דוגמה)
+        window.onload = function() {
+            // כאן אפשר להוסיף לוגיקה לטעינת הניקוד הכללי אם שמרת אותו
+            // כרגע זה רק דוגמה:
+            const savedScore = localStorage.getItem('totalScore') || 0;
+            document.getElementById('total-score').innerText = savedScore;
+        };
+    </script>
 </body>
 </html>
