@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jet 2 - הכנה למבחן (גרסה 12 - תיקוני כיוון ושפה)</title>
+    <title>Jet 2 - הכנה למבחן (גרסה 13 - פיצוץ חכם)</title>
     <style>
         :root {
             --primary: #4a90e2;
@@ -130,14 +130,16 @@
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);
             animation: float 3s infinite ease-in-out;
-            transition: transform 0.2s;
+            transition: transform 0.2s, background-color 0.2s;
         }
         .bubble:active { transform: scale(0.9); }
-        .bubble.popped { animation: pop 0.3s forwards; pointer-events: none; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        @keyframes pop { to { transform: scale(1.5); opacity: 0; } }
+        .bubble.popped { animation: pop 0.4s forwards; pointer-events: none; }
+        @keyframes pop { 
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.5; }
+            100% { transform: scale(0); opacity: 0; } 
+        }
         
-        /* תיקון קריטי: כיוון אנגלית */
         .spelling-slots { 
             display: flex; 
             justify-content: center; 
@@ -313,18 +315,18 @@
         <h1>📜 לוג גרסאות</h1>
         <div class="version-list">
              <div class="version-item">
-                <strong>גרסה 12 (תיקונים)</strong>
+                <strong>גרסה 13 (פיצוץ בועות)</strong>
                 <ul>
-                    <li><strong>פיצוץ בועות:</strong> סודר כיוון המילוי (משמאל לימין) לאנגלית תקינה.</li>
-                    <li><strong>אמת או שקר:</strong> הוסרה העברית. כעת מציג תמונה ומילה באנגלית בלבד.</li>
+                    <li>לחיצה על אות לא נכונה = האות מתפוצצת!</li>
+                    <li>מוריד נקודה אחת מהניקוד.</li>
+                    <li>אם פוצצתם בטעות אות שצריך למילה, היא תחזור תוך שנייה (כדי לא להיתקע).</li>
                 </ul>
             </div>
              <div class="version-item">
-                <strong>גרסה 11</strong>
+                <strong>גרסה 12</strong>
                 <ul>
-                    <li>החזרת דף העדכונים לבקשת הקהל.</li>
-                    <li><strong>משחק חדש:</strong> פיצוץ בועות (איות).</li>
-                    <li><strong>משחק חדש:</strong> אמת או שקר.</li>
+                    <li>סידור כיוון המילוי בבועות (אנגלית משמאל לימין).</li>
+                    <li>אמת או שקר: אנגלית בלבד.</li>
                 </ul>
             </div>
         </div>
@@ -681,7 +683,9 @@
     function popBubble(char, el) {
         if (el.classList.contains('popped')) return;
         const expected = bubbleState.target[bubbleState.currentIdx];
+
         if (char === expected) {
+            // Correct letter
             el.classList.add('popped');
             const slots = document.getElementById('bubble-slots').children;
             slots[bubbleState.currentIdx].innerText = char;
@@ -696,9 +700,23 @@
                 setTimeout(() => { currentQuestionIndex++; nextBubbleRound(); }, 1500);
             }
         } else {
+            // Wrong letter
             playFailSound();
-            el.style.backgroundColor = '#e74c3c';
-            setTimeout(() => el.style.backgroundColor = '', 500);
+            score = Math.max(0, score - 1); // Penalty
+            updateScoreDisplay();
+            
+            el.classList.add('popped'); // Disappear visually
+
+            // IMPORTANT: Check if this letter is needed later in the word
+            // If it is, bring it back so the user isn't stuck.
+            const neededLater = bubbleState.target.substring(bubbleState.currentIdx).includes(char);
+            
+            if (neededLater) {
+                // Respawn after 1 second
+                setTimeout(() => {
+                    el.classList.remove('popped');
+                }, 1000);
+            }
         }
     }
 
@@ -724,13 +742,11 @@
         if (isTrue) {
             displayedWord = item.word;
         } else {
-            // Find a random other word
             let other;
             do { other = vocabulary[Math.floor(Math.random() * vocabulary.length)]; } while(other.word === item.word);
             displayedWord = other.word;
         }
         
-        // Show Text in English only
         display.innerHTML += `<div class="tf-text">${displayedWord}</div>`;
     }
     
