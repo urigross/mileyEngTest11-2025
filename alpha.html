@@ -2,388 +2,383 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>הכנה למבחן באנגליתתתתתתת'</title>
+    <title>משחקים לימודיים לילדים</title>
     <style>
-        /* --- עיצוב בסיסי --- */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f4f8;
-            margin: 0;
-            padding: 10px;
-            text-align: center;
-            color: #333;
-            direction: rtl;
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background-color: #f0f8ff; margin: 0; padding: 20px; }
+        h1 { color: #333; }
+        
+        /* תפריט ראשי וכפתורים */
+        .menu-btn { padding: 15px 30px; font-size: 1.2rem; margin: 10px; cursor: pointer; border: none; border-radius: 10px; background-color: #4CAF50; color: white; transition: 0.3s; }
+        .menu-btn:hover { background-color: #45a049; transform: scale(1.05); }
+        .settings-btn { background-color: #607d8b; }
 
-        /* --- כותרת וניקוד --- */
-        #header-area {
-            background-color: white;
-            border-radius: 15px;
-            padding: 15px;
-            margin: 0 auto 20px auto;
-            max-width: 600px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            position: relative;
-        }
+        /* אזורי המשחק וההגדרות */
+        .game-container, #settings-screen { display: none; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 600px; margin: 20px auto; }
+        .active { display: block; }
 
-        h1 { color: #5c6bc0; margin: 0; font-size: 1.5rem; }
-        h3 { margin: 5px 0 0 0; color: #666; font-size: 1rem; font-weight: normal; }
+        /* עיצוב אמת או שקר */
+        #tf-image-container img { max-width: 150px; height: auto; margin: 20px; border: 3px solid #ddd; border-radius: 10px; }
+        .tf-btn { width: 100px; height: 50px; margin: 10px; font-size: 1.2rem; cursor: pointer; }
+        .btn-true { background-color: #4CAF50; color: white; }
+        .btn-false { background-color: #f44336; color: white; }
 
-        .score-tag {
-            position: absolute; left: 15px; top: 15px;
-            background-color: #f1c40f; color: white;
-            padding: 5px 12px; border-radius: 20px;
-            font-weight: bold; font-size: 0.9rem;
-        }
+        /* עיצוב סנייק */
+        #game-board { width: 400px; height: 400px; background-color: #333; margin: 20px auto; position: relative; border: 5px solid #555; }
+        .snake-part { width: 20px; height: 20px; background-color: lime; position: absolute; }
+        .food-item { width: 20px; height: 20px; background-color: red; position: absolute; border-radius: 50%; }
+        .word-label { position: absolute; color: white; font-size: 12px; white-space: nowrap; top: -15px; left: -10px; }
 
-        .settings-btn {
-            position: absolute; right: 15px; top: 15px;
-            background: none; border: none; font-size: 1.5rem;
-            cursor: pointer; opacity: 0.7;
-        }
-
-        /* --- מחוון התקדמות (הגרף) --- */
-        .progress-container {
-            margin-top: 15px;
-            background-color: #e0e0e0;
-            border-radius: 10px;
-            height: 20px;
-            width: 100%;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .progress-bar {
-            background-color: #4CAF50; /* ירוק */
-            height: 100%;
-            width: 0%; /* מתעדכן ב-JS */
-            transition: width 0.5s ease-in-out;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-
-        /* --- תפריט ראשי --- */
-        #main-menu-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            max-width: 600px;
-            margin: 0 auto;
-            padding-bottom: 50px;
-        }
-
-        .menu-btn {
-            border: none; border-radius: 10px; padding: 15px;
-            color: white; font-size: 1rem; font-weight: bold;
-            cursor: pointer; box-shadow: 0 4px 0 rgba(0,0,0,0.2);
-            transition: transform 0.1s;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            min-height: 60px;
-        }
-        .menu-btn:active { transform: translateY(4px); box-shadow: none; }
-        .menu-btn span { font-size: 1.4rem; margin-bottom: 5px; }
-
-        /* צבעים */
-        .c-blue { background-color: #5d8cd6; }
-        .c-red { background-color: #c94b38; }
-        .c-green { background-color: #6ab063; }
-        .c-orange { background-color: #d38428; }
-        .c-dark { background-color: #3e4a59; }
-        .c-purple { background-color: #8e5ea2; }
-        .c-teal { background-color: #62a3b7; }
-        .c-gold { background-color: #dcb028; }
-
-        .wide-btn { grid-column: 1 / -1; }
-        .bottom-row { grid-column: 1 / -1; display: flex; gap: 10px; }
-        .btn-updates { flex: 4; } .btn-records { flex: 1; }
-
-        /* --- מסכים --- */
-        .game-screen {
-            display: none; background: white; padding: 20px;
-            border-radius: 15px; max-width: 600px; margin: 20px auto;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        }
-
-        .back-btn {
-            width: 100%; background-color: #eceff1; color: #333;
-            border: none; padding: 12px; margin-top: 20px;
-            border-radius: 8px; font-weight: bold; cursor: pointer;
-        }
-
-        /* --- משחקים --- */
-        #tf-img img { max-width: 100%; height: auto; max-height: 250px; border-radius: 10px; border: 3px solid #eee; margin: 15px 0; }
-        .tf-opts { display: flex; gap: 15px; }
-        .tf-opt { flex: 1; padding: 20px; border: none; border-radius: 10px; color: white; font-size: 1.2rem; cursor: pointer; }
-        .yes { background-color: #4CAF50; } .no { background-color: #f44336; }
-
-        #snake-wrap { width: 300px; height: 300px; background-color: #333; margin: 10px auto; position: relative; border-radius: 8px; border: 4px solid #555; }
-        .s-part { width: 20px; height: 20px; background-color: lime; position: absolute; border-radius: 3px; }
-        .s-food { width: 20px; height: 20px; background-color: red; position: absolute; border-radius: 50%; }
-
-        .mem-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
-        .mem-card { background-color: #d38428; height: 85px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; }
-        .mem-card img { max-width: 80%; max-height: 80%; }
-        .mem-card.flipped { background-color: white; border: 2px solid #d38428; }
-
-        /* הגדרות */
-        .switch { position: relative; display: inline-block; width: 50px; height: 28px; vertical-align: middle; margin-left: 10px; }
+        /* עיצוב הגדרות (Settings) */
+        .settings-group { margin-bottom: 20px; text-align: right; padding: 10px; border-bottom: 1px solid #eee; }
+        .switch { position: relative; display: inline-block; width: 60px; height: 34px; vertical-align: middle; margin-right: 10px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: #2196F3; }
-        input:checked + .slider:before { transform: translateX(22px); position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; border-radius: 50%; transition: .4s; }
+        input:checked + .slider:before { transform: translateX(26px); }
+        
+        #reset-progress-btn { background-color: #f44336; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; opacity: 1; }
+        #reset-progress-btn:disabled { background-color: #ccc; cursor: not-allowed; opacity: 0.6; }
+        .explanation { font-size: 0.9rem; color: #666; margin-top: 5px; }
     </style>
 </head>
 <body>
 
-    <div id="header-area">
-        <div class="score-tag">ניקוד: <span id="score-val">0</span></div>
-        <button class="settings-btn" onclick="openSettings()">⚙️</button>
-        <h1>הכנה למבחן באנגלית - ד'</h1>
-        <h3>כל המילים + משפטים</h3>
+    <div id="main-menu" class="active">
+        <h1>משחקים לימודיים</h1>
+        <button class="menu-btn" onclick="showGame('snake')">סנייק מילים 🐍</button>
+        <button class="menu-btn" onclick="showGame('truefalse')">אמת או שקר ✅❌</button>
+        <br>
+        <button class="menu-btn settings-btn" onclick="showSettings()">הגדרות ⚙️</button>
+    </div>
+
+    <div id="settings-screen">
+        <h2>הגדרות מערכת</h2>
         
-        <div class="progress-container">
-            <div id="progress-fill" class="progress-bar">0%</div>
-        </div>
-    </div>
-
-    <div id="main-menu-grid">
-        <button class="menu-btn c-blue" onclick="alert('בפיתוח')"><span>✍️</span> כתיבת מילים</button>
-        <button class="menu-btn c-blue" onclick="alert('בפיתוח')"><span>👂</span> הבנת הנשמע</button>
-        <button class="menu-btn c-blue" onclick="alert('בפיתוח')"><span>📖</span> קריאה</button>
-        <button class="menu-btn c-blue" onclick="alert('בפיתוח')"><span>🧩</span> השלמת משפטים</button>
-        <button class="menu-btn c-red" onclick="alert('בפיתוח')"><span>⚡</span> קליק מהיר</button>
-        <button class="menu-btn c-green" onclick="alert('בפיתוח')"><span>🏗️</span> מפעל המשפטים</button>
-        <button class="menu-btn c-orange" onclick="startGame('truefalse')"><span>✅</span> אמת או שקר</button>
-        <button class="menu-btn c-dark" onclick="alert('בפיתוח')"><span>🫧</span> פיצוץ בועות</button>
-        <button class="menu-btn c-purple wide-btn" onclick="startGame('snake')"><span>🐍</span> סנייק מילים</button>
-        <button class="menu-btn c-orange wide-btn" onclick="startGame('memory')"><span>🃏</span> משחק הזיכרון</button>
-        <div class="bottom-row">
-            <button class="menu-btn c-teal btn-updates" onclick="alert('אין עדכונים')"><span>📜</span> עדכונים</button>
-            <button class="menu-btn c-gold btn-records" onclick="alert('טבלה ריקה')"><span>🏆</span> שיאים</button>
-        </div>
-    </div>
-
-    <div id="screen-settings" class="game-screen">
-        <h2>הגדרות</h2>
-        <div style="text-align: right; padding: 15px; border-bottom: 1px solid #eee;">
+        <div class="settings-group">
             <label class="switch">
-                <input type="checkbox" id="chk-prog" onchange="saveProg()">
+                <input type="checkbox" id="progressive-toggle" onchange="toggleProgressiveMode()">
                 <span class="slider"></span>
             </label>
             <strong>למידה פרוגרסיבית</strong>
-            <p style="font-size:0.9rem; color:#666; margin:5px 0;">מילים שידעת לא יופיעו שוב.</p>
+            <p class="explanation">כאשר מופעל: מילים שהילד ענה עליהן נכון לא יופיעו שוב במשחקים הבאים.</p>
         </div>
-        <button class="back-btn" style="color:red;" onclick="resetProg()">איפוס התקדמות</button>
-        <button class="back-btn" onclick="goHome()">חזור לתפריט</button>
+
+        <div class="settings-group">
+            <button id="reset-progress-btn" onclick="resetProgress()" disabled>איפוס התקדמות להתחלה ↺</button>
+            <p class="explanation">מוחק את המילים שנשמרו בזיכרון ומחזיר את כולן למשחק (פעיל רק במצב פרוגרסיבי).</p>
+        </div>
+
+        <button class="menu-btn settings-btn" onclick="showMainMenu()">חזור לתפריט</button>
     </div>
 
-    <div id="screen-tf" class="game-screen">
-        <h2>אמת או שקר?</h2>
-        <h1 id="tf-word" style="font-size: 2.5rem; color:#d38428; margin:10px;">Word</h1>
-        <div id="tf-img"></div>
-        <div class="tf-opts">
-            <button class="tf-opt yes" onclick="guessTF(true)">אמת</button>
-            <button class="tf-opt no" onclick="guessTF(false)">שקר</button>
-        </div>
-        <button class="back-btn" onclick="goHome()">יציאה</button>
-    </div>
-
-    <div id="screen-snake" class="game-screen">
+    <div id="snake-game" class="game-container">
         <h2>סנייק מילים</h2>
-        <p>אכול את: <span id="snake-target" style="font-weight:bold; color:#8e5ea2; font-size:1.3rem;"></span></p>
-        <div id="snake-wrap"></div>
-        <button class="back-btn" onclick="goHome()">יציאה</button>
+        <p>אכול את המילה: <span id="target-word-snake" style="font-weight:bold; color:blue;"></span></p>
+        <div id="game-board"></div>
+        <button class="menu-btn" onclick="endGame()">יציאה</button>
     </div>
 
-    <div id="screen-mem" class="game-screen">
-        <h2>משחק הזיכרון</h2>
-        <div id="mem-board" class="mem-grid"></div>
-        <button class="back-btn" onclick="goHome()">יציאה</button>
+    <div id="tf-game" class="game-container">
+        <h2>אמת או שקר?</h2>
+        <h3 id="tf-word">מילה</h3>
+        <div id="tf-image-container"></div>
+        <br>
+        <button class="tf-btn btn-true" onclick="checkTF(true)">אמת</button>
+        <button class="tf-btn btn-false" onclick="checkTF(false)">שקר</button>
+        <br>
+        <button class="menu-btn" onclick="endGame()">יציאה</button>
     </div>
 
-    <audio id="snd-eat" src="https://www.soundjay.com/human/sounds/eating-chip-1.mp3"></audio>
+    <audio id="chew-sound" src="https://www.soundjay.com/human/sounds/eating-chip-1.mp3"></audio>
 
 <script>
-    // --- נתונים ---
-    const words = [
-        { id: 1, en: "House", img: "https://cdn-icons-png.flaticon.com/512/619/619032.png" },
-        { id: 2, en: "Dog", img: "https://cdn-icons-png.flaticon.com/512/616/616408.png" },
-        { id: 3, en: "Cat", img: "https://cdn-icons-png.flaticon.com/512/616/616430.png" },
-        { id: 4, en: "Sun", img: "https://cdn-icons-png.flaticon.com/512/869/869869.png" },
-        { id: 5, en: "Tree", img: "https://cdn-icons-png.flaticon.com/512/490/490091.png" },
-        { id: 6, en: "Ball", img: "https://cdn-icons-png.flaticon.com/512/326/326031.png" },
-        { id: 7, en: "Car", img: "https://cdn-icons-png.flaticon.com/512/741/741407.png" }
+    // --- מאגר הנתונים ---
+    // כאן תוכל להוסיף תמונות אמיתיות במקום ה-placeholder
+    const allWords = [
+        { id: 1, word: "בית", image: "https://via.placeholder.com/150?text=House" },
+        { id: 2, word: "לב", image: "https://via.placeholder.com/150?text=Heart" },
+        { id: 3, word: "כלב", image: "https://via.placeholder.com/150?text=Dog" },
+        { id: 4, word: "חתול", image: "https://via.placeholder.com/150?text=Cat" },
+        { id: 5, word: "שמש", image: "https://via.placeholder.com/150?text=Sun" }
     ];
 
-    let learned = [];
-    let progressive = false;
-    let score = 0;
+    // --- משתני מערכת ---
+    let activeWords = []; // המילים למשחק הנוכחי
+    let knownWords = JSON.parse(localStorage.getItem('knownWords')) || []; // טעינה מזיכרון
+    let isProgressive = localStorage.getItem('isProgressive') === 'true'; // טעינת הגדרה
 
-    // אתחול
-    try {
-        learned = JSON.parse(localStorage.getItem('learned') || "[]");
-        progressive = localStorage.getItem('progressive') === 'true';
-        document.getElementById('chk-prog').checked = progressive;
-        updateGraph(); // עדכון ראשוני של הגרף
-    } catch(e) {}
+    // אתחול כפתורים בהתחלה
+    updateSettingsUI();
 
-    // --- עדכון הגרף ---
-    function updateGraph() {
-        const total = words.length;
-        const known = learned.length;
-        const percent = Math.round((known / total) * 100);
+    // --- פונקציות עזר (Logic) ---
+
+    // 1. פונקציית ערבוב (Fisher-Yates Shuffle) - מבטיח סדר רנדומלי
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    // 2. הכנת המילים למשחק (סינון וערבוב)
+    function prepareGameWords() {
+        let pool = allWords;
+
+        // אם מצב פרוגרסיבי פעיל, מסננים מילים ידועות
+        if (isProgressive) {
+            pool = allWords.filter(w => !knownWords.includes(w.id));
+            if (pool.length === 0) {
+                alert("כל הכבוד! סיימת את כל המילים במאגר! מאפס התקדמות לצורך תרגול.");
+                resetProgress();
+                pool = allWords;
+            }
+        }
+
+        // שכפול המערך כדי לא להרוס את המקורי, ואז ערבוב
+        activeWords = shuffleArray([...pool]);
+    }
+
+    // 3. סימון מילה כ"ידועה"
+    function markWordAsKnown(wordId) {
+        if (isProgressive) {
+            if (!knownWords.includes(wordId)) {
+                knownWords.push(wordId);
+                localStorage.setItem('knownWords', JSON.stringify(knownWords));
+            }
+        }
+    }
+
+    // --- ניהול מסכים והגדרות ---
+
+    function showMainMenu() {
+        hideAll();
+        document.getElementById('main-menu').classList.add('active');
+    }
+
+    function showSettings() {
+        hideAll();
+        document.getElementById('settings-screen').classList.add('active');
+        updateSettingsUI();
+    }
+
+    function hideAll() {
+        document.querySelectorAll('.active').forEach(el => el.classList.remove('active'));
+        stopSnake(); // עצירת משחקים ברקע אם רצים
+    }
+
+    function endGame() {
+        showMainMenu();
+    }
+
+    // לוגיקת כפתור ההגדרות
+    function toggleProgressiveMode() {
+        const toggle = document.getElementById('progressive-toggle');
+        isProgressive = toggle.checked;
+        localStorage.setItem('isProgressive', isProgressive);
+        updateSettingsUI();
+    }
+
+    function updateSettingsUI() {
+        document.getElementById('progressive-toggle').checked = isProgressive;
+        document.getElementById('reset-progress-btn').disabled = !isProgressive;
+    }
+
+    function resetProgress() {
+        if (confirm("האם אתה בטוח שברצונך לאפס את ההתקדמות? כל המילים יופיעו מחדש.")) {
+            knownWords = [];
+            localStorage.setItem('knownWords', JSON.stringify(knownWords));
+            alert("ההתקדמות אופסה בהצלחה!");
+        }
+    }
+
+
+    // --- משחק: אמת או שקר ---
+    let currentTFWord;
+    let isCorrectTF;
+
+    function showGame(type) {
+        hideAll();
+        prepareGameWords(); // כאן מתבצע הערבוב והסינון!
+
+        if (type === 'truefalse') {
+            document.getElementById('tf-game').classList.add('active');
+            nextTFRound();
+        } else if (type === 'snake') {
+            document.getElementById('snake-game').classList.add('active');
+            initSnakeGame();
+        }
+    }
+
+    function nextTFRound() {
+        if (activeWords.length === 0) {
+            alert("סיימת את המשחק!");
+            endGame();
+            return;
+        }
+
+        // לוקחים את המילה הראשונה מהרשימה המעורבבת
+        currentTFWord = activeWords[0]; // לא מוציאים אותה עדיין (pop) כדי שאם טעה נחזיר
         
-        const bar = document.getElementById('progress-fill');
-        bar.style.width = percent + '%';
-        bar.innerText = percent + '%';
+        // הגרלה: האם להציג תשובה נכונה או שגויה?
+        isCorrectTF = Math.random() < 0.5;
         
-        if(percent === 100) {
-            bar.style.backgroundColor = '#FFD700'; // זהב בסיום
-            bar.innerText = '100% 🏆';
+        let displayImage;
+        if (isCorrectTF) {
+            displayImage = currentTFWord.image;
+        } else {
+            // בוחרים תמונה אקראית אחרת
+            const otherWords = allWords.filter(w => w.id !== currentTFWord.id);
+            const randomWrong = otherWords[Math.floor(Math.random() * otherWords.length)];
+            displayImage = randomWrong.image;
         }
-    }
 
-    // --- ניווט ---
-    function goHome() {
-        document.querySelectorAll('.game-screen').forEach(el => el.style.display = 'none');
-        document.getElementById('main-menu-grid').style.display = 'grid';
-        document.getElementById('header-area').style.display = 'block';
-        stopSnake();
-    }
-
-    function openSettings() {
-        document.getElementById('main-menu-grid').style.display = 'none';
-        document.getElementById('screen-settings').style.display = 'block';
-        document.getElementById('header-area').style.display = 'none';
-    }
-
-    function startGame(game) {
-        document.getElementById('main-menu-grid').style.display = 'none';
-        document.getElementById('header-area').style.display = 'none';
+        document.getElementById('tf-word').innerText = currentTFWord.word;
         
-        if (game === 'truefalse') {
-            document.getElementById('screen-tf').style.display = 'block';
-            playTF();
-        } else if (game === 'snake') {
-            document.getElementById('screen-snake').style.display = 'block';
-            playSnake();
-        } else if (game === 'memory') {
-            document.getElementById('screen-mem').style.display = 'block';
-            playMemory();
+        // --- תיקון הבאג: ניקוי תמונות קודמות ---
+        const imgContainer = document.getElementById('tf-image-container');
+        imgContainer.innerHTML = ''; // מנקה הכל
+        
+        const img = document.createElement('img');
+        img.src = displayImage;
+        imgContainer.appendChild(img);
+    }
+
+    function checkTF(answer) {
+        if (answer === isCorrectTF) {
+            // תשובה נכונה
+            alert("נכון מאוד!");
+            markWordAsKnown(currentTFWord.id);
+            // הסרת המילה מהרשימה הנוכחית כדי שלא תחזור במשחק הזה
+            activeWords.shift();
+        } else {
+            // תשובה שגויה
+            alert("לא נכון, נסה שוב!");
+            // במקרה של טעות, המערכת הפרוגרסיבית לא מסמנת את המילה כידועה
+            // ואנחנו משאירים אותה ברשימה (או מערבבים אותה לסוף)
+            activeWords.push(activeWords.shift()); // מעביר לסוף
         }
+        nextTFRound();
     }
 
-    // --- לוגיקה ---
-    function getWords(num) {
-        let pool = words;
-        if (progressive) pool = words.filter(w => !learned.includes(w.id));
-        if (pool.length < num) {
-            let needed = num - pool.length;
-            let extras = words.filter(w => !pool.includes(w)).sort(()=>0.5-Math.random()).slice(0, needed);
-            pool = pool.concat(extras);
+
+    // --- משחק: סנייק ---
+    let snake, direction, food, gameInterval;
+    const boardSize = 400;
+    const box = 20;
+
+    function initSnakeGame() {
+        if (activeWords.length === 0) {
+            alert("אין מילים זמינות למשחק!");
+            endGame();
+            return;
         }
-        return pool.sort(() => 0.5 - Math.random());
+        
+        snake = [{x: 200, y: 200}];
+        direction = "RIGHT";
+        spawnFood();
+        
+        document.addEventListener('keydown', changeDirection);
+        if (gameInterval) clearInterval(gameInterval);
+        gameInterval = setInterval(drawSnake, 150);
     }
 
-    function addScore(id) {
-        score += 10;
-        document.getElementById('score-val').innerText = score;
-        if (!learned.includes(id)) {
-            learned.push(id);
-            localStorage.setItem('learned', JSON.stringify(learned));
-            updateGraph(); // עדכון גרף כשלומדים מילה חדשה
-        }
+    function stopSnake() {
+        if (gameInterval) clearInterval(gameInterval);
+        document.removeEventListener('keydown', changeDirection);
     }
 
-    // --- הגדרות ---
-    function saveProg() {
-        progressive = document.getElementById('chk-prog').checked;
-        localStorage.setItem('progressive', progressive);
-    }
-    function resetProg() {
-        if(confirm("לאפס?")) {
-            learned = [];
-            localStorage.setItem('learned', "[]");
-            updateGraph();
-            alert("אופס!");
-        }
-    }
-
-    // --- משחקים ---
-    let tfObj, tfIsTrue;
-    function playTF() {
-        let list = getWords(2);
-        tfObj = list[0];
-        tfIsTrue = Math.random() > 0.5;
-        let imgToShow = tfIsTrue ? tfObj.img : list[1].img;
-        document.getElementById('tf-word').innerText = tfObj.en;
-        document.getElementById('tf-img').innerHTML = `<img src="${imgToShow}">`;
-    }
-    function guessTF(ans) {
-        if (ans === tfIsTrue) { addScore(tfObj.id); playTF(); } 
-        else { alert("טעות!"); playTF(); }
-    }
-
-    let snake=[], dir='R', food={}, snkInt=null;
-    function playSnake() {
-        snake = [{x:140, y:140}]; dir='R'; placeFood();
-        document.getElementById('snake-wrap').innerHTML = '';
-        document.onkeydown = (e) => {
-            if(e.key=='ArrowLeft'&&dir!='R')dir='L'; if(e.key=='ArrowUp'&&dir!='D')dir='U';
-            if(e.key=='ArrowRight'&&dir!='L')dir='R'; if(e.key=='ArrowDown'&&dir!='U')dir='D';
+    function spawnFood() {
+        // בוחרים מילה מהרשימה
+        const targetWordObj = activeWords[Math.floor(Math.random() * activeWords.length)];
+        document.getElementById('target-word-snake').innerText = targetWordObj.word;
+        
+        food = {
+            x: Math.floor(Math.random() * (boardSize/box)) * box,
+            y: Math.floor(Math.random() * (boardSize/box)) * box,
+            wordObj: targetWordObj
         };
-        document.getElementById('snake-wrap').onclick = (e) => {
-             let x = e.clientX - e.target.getBoundingClientRect().left;
-             if(x > snake[0].x) dir='R'; else dir='L';
-        };
-        if(snkInt) clearInterval(snkInt);
-        snkInt = setInterval(moveSnake, 200);
-    }
-    function stopSnake() { if(snkInt) clearInterval(snkInt); }
-    function placeFood() {
-        let w = getWords(1)[0];
-        food = {x:Math.floor(Math.random()*15)*20, y:Math.floor(Math.random()*15)*20, obj:w};
-        document.getElementById('snake-target').innerText = w.en;
-    }
-    function moveSnake() {
-        let h = { ...snake[0] };
-        if(dir=='L') h.x-=20; if(dir=='U') h.y-=20; if(dir=='R') h.x+=20; if(dir=='D') h.y+=20;
-        if (h.x == food.x && h.y == food.y) {
-            addScore(food.obj.id); document.getElementById('snd-eat').play().catch(e=>{}); placeFood();
-        } else { snake.pop(); }
-        if (h.x<0 || h.x>=300 || h.y<0 || h.y>=300) snake=[{x:140,y:140}]; else snake.unshift(h);
-        let html = `<div class="s-food" style="left:${food.x}px; top:${food.y}px"></div>`;
-        snake.forEach(p => html += `<div class="s-part" style="left:${p.x}px; top:${p.y}px"></div>`);
-        document.getElementById('snake-wrap').innerHTML = html;
     }
 
-    let m1=null, m2=null, mLock=false;
-    function playMemory() {
-        let board = document.getElementById('mem-board'); board.innerHTML = '';
-        let list = getWords(6);
-        let deck = [];
-        list.forEach(w => { deck.push({id:w.id, c:w.en}); deck.push({id:w.id, c:`<img src="${w.img}">`}); });
-        deck.sort(()=>0.5-Math.random());
-        deck.forEach(c => {
-            let d = document.createElement('div'); d.className = 'mem-card';
-            d.innerHTML = `<div style="display:none">${c.c}</div>`;
-            d.onclick = () => {
-                if(mLock || d.classList.contains('flipped')) return;
-                d.classList.add('flipped'); d.firstChild.style.display = 'block';
-                if(!m1) { m1={el:d, id:c.id}; return; }
-                m2={el:d, id:c.id}; mLock=true;
-                if(m1.id === m2.id) { addScore(m1.id); m1=null; m2=null; mLock=false; }
-                else { setTimeout(() => { m1.el.classList.remove('flipped'); m1.el.firstChild.style.display='none'; m2.el.classList.remove('flipped'); m2.el.firstChild.style.display='none'; m1=null; m2=null; mLock=false; }, 1000); }
-            };
-            board.appendChild(d);
-        });
+    function changeDirection(event) {
+        const key = event.keyCode;
+        if (key == 37 && direction != "RIGHT") direction = "LEFT";
+        else if (key == 38 && direction != "DOWN") direction = "UP";
+        else if (key == 39 && direction != "LEFT") direction = "RIGHT";
+        else if (key == 40 && direction != "UP") direction = "DOWN";
+    }
+
+    function drawSnake() {
+        const board = document.getElementById('game-board');
+        board.innerHTML = ''; // ניקוי לוח
+
+        // ציור אוכל
+        const foodDiv = document.createElement('div');
+        foodDiv.className = 'food-item';
+        foodDiv.style.left = food.x + 'px';
+        foodDiv.style.top = food.y + 'px';
+        board.appendChild(foodDiv);
+
+        // תנועת ראש
+        let snakeX = snake[0].x;
+        let snakeY = snake[0].y;
+
+        if (direction == "LEFT") snakeX -= box;
+        if (direction == "UP") snakeY -= box;
+        if (direction == "RIGHT") snakeX += box;
+        if (direction == "DOWN") snakeY += box;
+
+        // בדיקת אכילה
+        if (snakeX == food.x && snakeY == food.y) {
+            // --- הפעלת סאונד ---
+            const audio = document.getElementById("chew-sound");
+            audio.currentTime = 0; // איפוס להתחלה אם מנגן
+            audio.play().catch(e => console.log("Sound error (autoplay policy):", e));
+            
+            // סימון הצלחה
+            markWordAsKnown(food.wordObj.id);
+            
+            // הסרת המילה שנאכלה מהרשימה הנוכחית במשחק הזה
+            activeWords = activeWords.filter(w => w.id !== food.wordObj.id);
+            if(activeWords.length === 0) {
+                 alert("ניצחת! אכלת את כל המילים.");
+                 endGame();
+                 return;
+            }
+
+            spawnFood();
+        } else {
+            snake.pop(); // מחיקת זנב
+        }
+
+        // גבולות והתנגשות עצמית
+        if (snakeX < 0 || snakeX >= boardSize || snakeY < 0 || snakeY >= boardSize || collision(snakeX, snakeY, snake)) {
+            alert("נפסלת! נסה שוב.");
+            initSnakeGame();
+            return;
+        }
+
+        const newHead = {x: snakeX, y: snakeY};
+        snake.unshift(newHead);
+
+        // ציור נחש
+        for (let i = 0; i < snake.length; i++) {
+            const part = document.createElement('div');
+            part.className = 'snake-part';
+            part.style.left = snake[i].x + 'px';
+            part.style.top = snake[i].y + 'px';
+            board.appendChild(part);
+        }
+    }
+
+    function collision(x, y, array) {
+        for (let i = 0; i < array.length; i++) {
+            if (x == array[i].x && y == array[i].y) return true;
+        }
+        return false;
     }
 </script>
+
 </body>
 </html>
