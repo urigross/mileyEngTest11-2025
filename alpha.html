@@ -3,38 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>הכנה למבחן באנגלית - בדיקה'</title>
+    <title>הכנה למבחן בטון - ד'</title>
     <style>
+        /* --- עיצוב בסיסי --- */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             text-align: center;
-            background-color: #f0f4f8; /* צבע רקע בהיר כמו בתמונה */
+            background-color: #f4f7f6;
             margin: 0;
             padding: 10px;
             color: #333;
-            user-select: none;
+            user-select: none; /* מניעת סימון טקסט */
         }
 
         /* --- כותרת עליונה --- */
-        .header {
+        .header-container {
             background-color: white;
             border-radius: 15px;
-            padding: 10px 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 15px;
+            margin: 10px auto 20px auto;
+            max-width: 650px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             position: relative;
-            display: inline-block;
-            width: 90%;
-            max-width: 600px;
         }
 
-        .header h1 {
-            color: #5c7cfa; /* כחול כותרת */
+        .header-container h1 {
+            color: #5c6bc0; /* כחול */
             margin: 0;
-            font-size: 1.4rem;
+            font-size: 1.5rem;
         }
 
-        .header p {
+        .header-container h3 {
             margin: 5px 0 0 0;
-            color: #666;
-            font-weight
+            color: #777;
+            font-size: 1rem;
+            font-weight: normal;
+        }
+
+        .score-badge {
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            background-color: #f1c40f; /* צהוב */
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* --- רשת הכפתורים (בדיוק כמו בתמונה) --- */
+        #
