@@ -2,8 +2,8 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jet 2 - משחק הכנה למבחן (גרסה 8 - מותאם מובייל)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Jet 2 - משחק הכנה למבחן (גרסה 9 - מותאם S22+)</title>
     <style>
         :root {
             --primary: #4a90e2;
@@ -19,12 +19,14 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg);
             margin: 0;
-            padding: 5px; /* פחות שוליים למובייל */
+            padding: 5px;
             text-align: center;
             direction: rtl;
             overflow-x: hidden;
+            /* Prevent scrolling/bouncing on mobile */
+            overflow-y: auto; 
             user-select: none;
-            -webkit-tap-highlight-color: transparent; /* ביטול הבהוב בלחיצה */
+            -webkit-tap-highlight-color: transparent;
         }
 
         .container {
@@ -34,12 +36,15 @@
             border-radius: 20px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             padding: 10px;
-            min-height: 85vh; /* ניצול גובה מסך */
+            min-height: 90vh;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        h1 { color: var(--primary); margin: 10px 0; font-size: 1.4rem; }
-        h2 { color: #555; font-size: 1rem; margin-top: 0; }
+        h1 { color: var(--primary); margin: 5px 0; font-size: 1.3rem; }
+        h2 { color: #555; font-size: 1rem; margin-top: 0; margin-bottom: 5px;}
 
         .score-board {
             position: absolute;
@@ -62,9 +67,11 @@
 
         .menu-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 2 עמודות במובייל */
+            grid-template-columns: repeat(2, 1fr);
             gap: 10px;
             padding: 5px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .btn {
@@ -103,9 +110,10 @@
         #snake-container {
             position: relative;
             width: 100%;
-            /* המיכל מתאים את עצמו */
             display: flex;
             justify-content: center;
+            /* Critical update: Restrict canvas height on mobile so buttons fit */
+            max-height: 45vh; 
         }
         
         #snake-canvas {
@@ -113,10 +121,12 @@
             border-radius: 10px;
             box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
             display: block;
-            /* שינוי קריטי: הקנבס יתפוס את המקסימום האפשרי אך ישמור על פרופורציה */
             max-width: 100%; 
+            /* Let the canvas shrink vertically if needed */
             height: auto;
-            touch-action: none; /* מניעת גלילה בזמן משחק */
+            max-height: 100%; 
+            aspect-ratio: 1 / 1;
+            touch-action: none;
         }
         
         .snake-overlay {
@@ -132,32 +142,32 @@
             z-index: 5;
         }
 
-        /* --- TIGHTER CONTROLS --- */
+        /* --- UPDATED CONTROLS (SMALLER) --- */
         .snake-controls {
             display: grid;
-            /* הקטנו את גודל התא כדי שהכפתורים ייגעו זה בזה */
-            grid-template-columns: repeat(3, 80px); 
-            grid-template-rows: repeat(3, 75px);    
-            gap: 0px; /* ביטול רווחים לחלוטין */
+            /* Smaller grid cells: 60px instead of 80px */
+            grid-template-columns: repeat(3, 65px); 
+            grid-template-rows: repeat(3, 60px);    
+            gap: 2px;
             justify-content: center;
-            margin-top: 10px;
+            margin-top: 5px; /* Less margin */
             direction: ltr;
             touch-action: manipulation;
         }
         
         .d-pad-btn {
-            width: 76px; height: 70px; /* כפתורים גדולים */
-            border-radius: 15px; /* פחות עגול כדי שייראה כמו פאד */
+            width: 60px; height: 55px; /* Smaller buttons */
+            border-radius: 12px;
             background: #e0e0e0; 
             border: 1px solid #ccc;
-            font-size: 2rem;
+            font-size: 1.5rem; /* Smaller icons */
             cursor: pointer;
             box-shadow: 0 3px #999;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #444;
-            margin: 2px;
+            margin: 0;
             -webkit-user-select: none;
         }
         
@@ -167,22 +177,21 @@
             box-shadow: inset 0 2px 5px rgba(0,0,0,0.2); 
         }
 
-        .btn-up { grid-column: 2; grid-row: 1; border-radius: 15px 15px 5px 5px; }
-        .btn-left { grid-column: 1; grid-row: 2; border-radius: 15px 5px 5px 15px; }
-        .btn-right { grid-column: 3; grid-row: 2; border-radius: 5px 15px 15px 5px; }
-        .btn-down { grid-column: 2; grid-row: 3; border-radius: 5px 5px 15px 15px; }
+        .btn-up { grid-column: 2; grid-row: 1; border-radius: 12px 12px 4px 4px; }
+        .btn-left { grid-column: 1; grid-row: 2; border-radius: 12px 4px 4px 12px; }
+        .btn-right { grid-column: 3; grid-row: 2; border-radius: 4px 12px 12px 4px; }
+        .btn-down { grid-column: 2; grid-row: 3; border-radius: 4px 4px 12px 12px; }
 
-        /* אלמנט מרכזי ריק ליופי */
         .d-pad-center { 
             grid-column: 2; grid-row: 2; 
             background: #d0d0d0; 
-            border-radius: 5px;
+            border-radius: 4px;
         }
 
         #snake-word-target {
-            font-size: 1.4rem; letter-spacing: 2px; color: var(--primary);
-            font-weight: bold; direction: ltr; margin-bottom: 5px;
-            word-wrap: break-word; min-height: 30px;
+            font-size: 1.2rem; letter-spacing: 2px; color: var(--primary);
+            font-weight: bold; direction: ltr; margin-bottom: 2px;
+            word-wrap: break-word; min-height: 25px;
         }
 
         /* --- MEMORY GAME --- */
@@ -238,7 +247,7 @@
         
         <div style="margin-top: 15px; display: flex; justify-content: center; gap: 10px;">
             <button class="btn btn-secondary" onclick="showLeaderboard()">🏆 שיאים</button>
-            <button class="btn btn-info" onclick="showVersions()">📋 גרסה 8</button>
+            <button class="btn btn-info" onclick="showVersions()">📋 גרסה 9</button>
         </div>
     </div>
 
@@ -250,7 +259,7 @@
     </div>
 
     <div id="screen-snake" class="game-screen">
-        <h2 style="margin:5px 0;">🐍 סנייק</h2>
+        <h2 style="margin:2px 0;">🐍 סנייק</h2>
         <div id="snake-word-target"></div>
         
         <div id="snake-container">
@@ -278,7 +287,7 @@
             <button class="d-pad-btn btn-down" ontouchstart="setSnakeDir('DOWN', event)" onmousedown="setSnakeDir('DOWN', event)">⬇️</button>
         </div>
         
-        <button class="btn btn-secondary" style="margin-top:10px; padding: 5px 15px; font-size:0.9rem;" onclick="stopSnakeGame()">יציאה</button>
+        <button class="btn btn-secondary" style="margin-top:8px; padding: 5px 15px; font-size:0.9rem;" onclick="stopSnakeGame()">יציאה</button>
     </div>
 
     <div id="screen-memory" class="game-screen">
@@ -297,11 +306,11 @@
         <h1>📋 עדכונים</h1>
         <div class="version-list" style="text-align:right;">
              <div class="version-item" style="background:#fff; padding:10px; border-radius:5px;">
-                <strong>גרסה 8 (מובייל)</strong>
+                <strong>גרסה 9 (תיקון מסך)</strong>
                 <ul style="padding-right:20px; margin:5px 0;">
-                    <li>הגדלת הנחש והאותיות ב-50% (ענק!)</li>
-                    <li>מסך משחק גבוה ומרובע יותר.</li>
-                    <li>כפתורי שליטה צמודים ונוחים לאצבעות.</li>
+                    <li>הקטנת הכפתורים כדי שייכנסו במסך (S22).</li>
+                    <li>המשחק מתאים את הגובה שלו למסך באופן אוטומטי.</li>
+                    <li>סידור צפוף יותר של הפקדים.</li>
                 </ul>
             </div>
         </div>
@@ -911,7 +920,8 @@
             <div style="font-size:3rem">🏆</div>
             <h3>ניקוד: ${score}</h3>
             <input type="text" id="playerName" class="input-box" placeholder="שמך..." style="width:180px">
-            <br>
+            
+
             <div style="display: flex; justify-content: center; gap: 10px; margin-top: 15px;">
                 <button class="btn btn-secondary" onclick="saveToLeaderboard()">💾 שמירה</button>
                 <button class="btn" onclick="restartCurrentGame()">🔄 שוב</button>
