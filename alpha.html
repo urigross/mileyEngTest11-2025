@@ -39,102 +39,94 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        h1 {
-            color: #5c6bc0;
-            margin: 0;
-            font-size: 1.5rem;
-        }
-        
-        h3 {
-            margin: 5px 0 20px 0;
-            color: #666;
-            font-weight: normal;
-            font-size: 1rem;
-        }
+        h1 { color: #5c6bc0; margin: 0; font-size: 1.5rem; }
+        h3 { margin: 5px 0 20px 0; color: #666; font-weight: normal; font-size: 1rem; }
 
-        /* --- גריד הכפתורים (כמו בתמונה המקורית) --- */
+        /* --- גריד הכפתורים --- */
         #main-menu {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* שתי עמודות */
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
             max-width: 800px;
             margin: 0 auto;
         }
 
         .menu-btn {
-            border: none;
-            border-radius: 10px;
-            padding: 15px;
-            font-size: 1rem;
-            color: white;
-            cursor: pointer;
+            border: none; border-radius: 10px; padding: 15px;
+            font-size: 1rem; color: white; cursor: pointer;
             box-shadow: 0 4px 0 rgba(0,0,0,0.2);
             transition: transform 0.1s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 80px;
-            font-weight: bold;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            min-height: 80px; font-weight: bold;
         }
 
         .menu-btn:active { transform: translateY(4px); box-shadow: none; }
         .menu-btn span { font-size: 1.5rem; margin-bottom: 5px; }
 
-        /* צבעים לפי התמונה המקורית */
-        .btn-blue { background-color: #5d8cd6; } /* כתיבה, קריאה, הבנת הנשמע */
-        .btn-red { background-color: #c94b38; } /* קליק מהיר */
-        .btn-green { background-color: #6ab063; } /* מפעל משפטים */
-        .btn-orange { background-color: #d38428; } /* אמת או שקר + זיכרון */
-        .btn-dark { background-color: #3e4a59; } /* פיצוץ בועות */
-        .btn-purple { background-color: #8e5ea2; } /* סנייק */
-        .btn-teal { background-color: #62a3b7; grid-column: 1 / -1; } /* עדכונים - רוחב מלא */
-        .btn-gold { background-color: #dcb028; } /* שיאים */
+        /* צבעים */
+        .btn-blue { background-color: #5d8cd6; }
+        .btn-red { background-color: #c94b38; }
+        .btn-green { background-color: #6ab063; }
+        .btn-orange { background-color: #d38428; }
+        .btn-dark { background-color: #3e4a59; }
+        .btn-purple { background-color: #8e5ea2; }
+        .btn-teal { background-color: #62a3b7; grid-column: 1 / -1; }
+        .btn-gold { background-color: #dcb028; }
         
-        /* כפתור הגדרות (חדש, הוספתי שיהיה נגיש) */
         .settings-btn-small {
-            position: absolute;
-            right: 0;
-            top: 0;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #777;
+            position: absolute; right: 0; top: 0;
+            background: none; border: none; font-size: 1.5rem;
+            cursor: pointer; color: #777;
         }
 
-        /* --- אזורי המשחק וההגדרות (מוסתרים) --- */
+        /* --- אזורי המשחק וההגדרות --- */
         .game-container, #settings-screen {
-            display: none;
-            background: white;
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            max-width: 600px;
-            margin: 20px auto;
-            width: 100%;
+            display: none; background: white; padding: 20px;
+            border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            max-width: 600px; margin: 20px auto; width: 100%;
         }
         
         .active { display: block; }
         .back-btn { background-color: #eee; color: #333; width: 100%; margin-top: 20px; }
 
-        /* --- עיצוב המשחקים הפעילים (סנייק, אמת/שקר, זיכרון) --- */
-        /* הועתק מהקוד הקודם כדי שהמשחקים יעבדו */
-        #tf-image-container img { max-width: 100%; max-height: 200px; border-radius: 10px; margin: 10px 0; }
+        /* --- עיצובים ספציפיים למשחקים --- */
+        #tf-image-container img, #writing-image-container img, #reading-image-container img, #listening-options img {
+            max-width: 100%; max-height: 200px; border-radius: 10px; margin: 10px 0; border:2px solid #eee;
+        }
+
+        /* אמת או שקר */
         .tf-buttons { display: flex; gap: 15px; }
         .tf-btn { flex: 1; padding: 15px; border-radius: 10px; border: none; color: white; font-size: 1.2rem; cursor: pointer; }
         .btn-true { background-color: #4CAF50; }
         .btn-false { background-color: #f44336; }
 
+        /* סנייק */
         #snake-board { width: 300px; height: 300px; background-color: #333; margin: 10px auto; position: relative; border-radius: 5px; }
         .snake-part { width: 20px; height: 20px; background-color: lime; position: absolute; border-radius: 3px; }
         .food-item { width: 20px; height: 20px; background-color: red; position: absolute; border-radius: 50%; }
 
+        /* זיכרון */
         .memory-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
         .memory-card { background-color: #2196F3; height: 80px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; }
         .memory-card.flipped { background-color: white; color: #333; border: 2px solid #2196F3; }
         .memory-card.matched { background-color: #8BC34A; border-color: #8BC34A; opacity: 0.5; pointer-events: none; }
         .memory-card img { max-width: 90%; max-height: 90%; }
+
+        /* כתיבה */
+        #writing-input { font-size: 1.5rem; padding: 10px; border-radius: 10px; border: 2px solid #ccc; text-align: center; width: 80%; direction: ltr; margin-bottom: 10px; }
+        
+        /* השלמת משפטים */
+        .sentence-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .sentence-btn { background-color: #5d8cd6; color: white; border: none; padding: 15px; border-radius: 10px; font-size: 1.2rem; cursor: pointer; }
+
+        /* קריאה והבנת הנשמע */
+        .image-grid-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .option-card { border: 2px solid #ddd; border-radius: 10px; padding: 5px; cursor: pointer; transition: 0.2s; }
+        .option-card:hover { border-color: #2196F3; background-color: #f0f8ff; }
+        .option-card img { max-width: 100%; height: 100px; object-fit: contain; }
+        
+        .play-sound-btn { background-color: #8e5ea2; color: white; border: none; border-radius: 50%; width: 60px; height: 60px; font-size: 30px; cursor: pointer; margin-bottom: 20px; }
 
         /* הגדרות */
         .switch { position: relative; display: inline-block; width: 50px; height: 28px; vertical-align: middle; margin-left: 10px; }
@@ -155,28 +147,28 @@
     </div>
 
     <div id="main-menu" class="active">
-        <button class="menu-btn btn-blue" onclick="alert('משחק זה בבנייה (נא להדביק קוד מקורי)')">
+        <button class="menu-btn btn-blue" onclick="showGame('listening')">
             <span>👂</span> הבנת הנשמע
         </button>
-        <button class="menu-btn btn-blue" onclick="alert('משחק זה בבנייה (נא להדביק קוד מקורי)')">
+        <button class="menu-btn btn-blue" onclick="showGame('writing')">
             <span>✍️</span> כתיבת מילים
         </button>
 
-        <button class="menu-btn btn-blue" onclick="alert('משחק זה בבנייה (נא להדביק קוד מקורי)')">
+        <button class="menu-btn btn-blue" onclick="showGame('sentences')">
             <span>🧩</span> השלמת משפטים
         </button>
-        <button class="menu-btn btn-blue" onclick="alert('משחק זה בבנייה (נא להדביק קוד מקורי)')">
+        <button class="menu-btn btn-blue" onclick="showGame('reading')">
             <span>📖</span> קריאה
         </button>
 
-        <button class="menu-btn btn-green" onclick="alert('משחק זה בבנייה (נא להדביק קוד מקורי)')">
+        <button class="menu-btn btn-green" onclick="alert('משחק זה עדיין בבנייה (מפעל)')">
             <span>🏗️</span> מפעל המשפטים
         </button>
-        <button class="menu-btn btn-red" onclick="alert('משחק זה בבנייה (נא להדביק קוד מקורי)')">
+        <button class="menu-btn btn-red" onclick="alert('משחק זה עדיין בבנייה (קליק)')">
             <span>⚡</span> קליק מהיר
         </button>
 
-        <button class="menu-btn btn-dark" onclick="alert('משחק זה בבנייה (נא להדביק קוד מקורי)')">
+        <button class="menu-btn btn-dark" onclick="alert('משחק זה עדיין בבנייה (בועות)')">
             <span>🫧</span> פיצוץ בועות
         </button>
         <button class="menu-btn btn-orange" onclick="showGame('truefalse')">
@@ -241,24 +233,69 @@
         <button class="menu-btn back-btn" onclick="endGame()">יציאה לתפריט</button>
     </div>
 
+    <div id="writing-game" class="game-container">
+        <h2>כתיבת מילים</h2>
+        <p>כתוב את המילה באנגלית:</p>
+        <div id="writing-image-container"></div>
+        <input type="text" id="writing-input" placeholder="Type here..." autocomplete="off">
+        <button class="menu-btn btn-blue" style="width:100%; margin-top:10px;" onclick="checkWriting()">בדיקה</button>
+        <button class="menu-btn back-btn" onclick="endGame()">יציאה לתפריט</button>
+    </div>
+
+    <div id="sentences-game" class="game-container">
+        <h2>השלמת משפטים</h2>
+        <h3 id="sentence-text" style="direction: ltr; font-size: 1.3rem; margin: 20px;">The dog is ___ the table.</h3>
+        <div id="sentence-options" class="sentence-options"></div>
+        <button class="menu-btn back-btn" onclick="endGame()">יציאה לתפריט</button>
+    </div>
+
+    <div id="reading-game" class="game-container">
+        <h2>קריאה והתאמה</h2>
+        <p>בחר את התמונה המתאימה למילה:</p>
+        <h1 id="reading-word" style="font-size: 2.5rem; color: #5d8cd6; font-family: sans-serif;">Cat</h1>
+        <div id="reading-options" class="image-grid-options"></div>
+        <button class="menu-btn back-btn" onclick="endGame()">יציאה לתפריט</button>
+    </div>
+
+    <div id="listening-game" class="game-container">
+        <h2>הבנת הנשמע</h2>
+        <p>לחץ על הרמקול ובחר את התמונה:</p>
+        <button class="play-sound-btn" onclick="playCurrentWord()">🔊</button>
+        <div id="listening-options" class="image-grid-options"></div>
+        <button class="menu-btn back-btn" onclick="endGame()">יציאה לתפריט</button>
+    </div>
+
     <audio id="chew-sound" src="https://www.soundjay.com/human/sounds/eating-chip-1.mp3"></audio>
 
 <script>
-    // --- מאגר נתונים ---
+    // --- מאגר נתונים מילים ---
     const allWords = [
-        { id: 1, word: "בית", image: "https://cdn-icons-png.flaticon.com/512/619/619032.png" },
-        { id: 2, word: "לב", image: "https://cdn-icons-png.flaticon.com/512/833/833472.png" },
-        { id: 3, word: "כלב", image: "https://cdn-icons-png.flaticon.com/512/616/616408.png" },
-        { id: 4, word: "חתול", image: "https://cdn-icons-png.flaticon.com/512/616/616430.png" },
-        { id: 5, word: "שמש", image: "https://cdn-icons-png.flaticon.com/512/869/869869.png" },
-        { id: 6, word: "עץ", image: "https://cdn-icons-png.flaticon.com/512/490/490091.png" },
-        { id: 7, word: "מכונית", image: "https://cdn-icons-png.flaticon.com/512/741/741407.png" },
-        { id: 8, word: "כדור", image: "https://cdn-icons-png.flaticon.com/512/326/326031.png" }
+        { id: 1, word: "House", image: "https://cdn-icons-png.flaticon.com/512/619/619032.png" },
+        { id: 2, word: "Heart", image: "https://cdn-icons-png.flaticon.com/512/833/833472.png" },
+        { id: 3, word: "Dog", image: "https://cdn-icons-png.flaticon.com/512/616/616408.png" },
+        { id: 4, word: "Cat", image: "https://cdn-icons-png.flaticon.com/512/616/616430.png" },
+        { id: 5, word: "Sun", image: "https://cdn-icons-png.flaticon.com/512/869/869869.png" },
+        { id: 6, word: "Tree", image: "https://cdn-icons-png.flaticon.com/512/490/490091.png" },
+        { id: 7, word: "Car", image: "https://cdn-icons-png.flaticon.com/512/741/741407.png" },
+        { id: 8, word: "Ball", image: "https://cdn-icons-png.flaticon.com/512/326/326031.png" },
+        { id: 9, word: "Book", image: "https://cdn-icons-png.flaticon.com/512/3330/3330314.png" },
+        { id: 10, word: "Apple", image: "https://cdn-icons-png.flaticon.com/512/415/415733.png" }
+    ];
+
+    // --- מאגר נתונים משפטים (חדש!) ---
+    const allSentences = [
+        { text: "The cat is ___ the table.", answer: "on", options: ["in", "on", "at"] },
+        { text: "I ___ an apple.", answer: "have", options: ["has", "have", "is"] },
+        { text: "She ___ to school.", answer: "goes", options: ["go", "goes", "going"] },
+        { text: "The dog is ___.", answer: "big", options: ["big", "run", "eat"] },
+        { text: "We ___ happy.", answer: "are", options: ["is", "am", "are"] }
     ];
 
     let activeWords = [];
+    let activeSentences = [];
     let knownWords = JSON.parse(localStorage.getItem('knownWords')) || [];
     let isProgressive = localStorage.getItem('isProgressive') === 'true';
+    let currentScore = 0;
 
     // אתחול
     updateSettingsUI();
@@ -267,13 +304,13 @@
     function showMainMenu() {
         document.querySelectorAll('.active').forEach(el => el.classList.remove('active'));
         document.getElementById('main-menu').classList.add('active');
-        document.querySelector('.header-container').style.display = 'block'; // מציג כותרת
+        document.querySelector('.header-container').style.display = 'block'; 
         stopSnake();
     }
 
     function showSettings() {
         document.querySelectorAll('.active').forEach(el => el.classList.remove('active'));
-        document.querySelector('.header-container').style.display = 'none'; // מסתיר כותרת ראשית
+        document.querySelector('.header-container').style.display = 'none';
         document.getElementById('settings-screen').classList.add('active');
         updateSettingsUI();
     }
@@ -296,15 +333,19 @@
         if(confirm("לאפס התקדמות?")) {
             knownWords = [];
             localStorage.setItem('knownWords', JSON.stringify(knownWords));
-            alert("אופס!");
+            alert("ההתקדמות אופסה!");
         }
+    }
+
+    function addScore(points) {
+        currentScore += points;
+        document.getElementById('total-score').innerText = currentScore;
     }
 
     function prepareGameWords(count = 1) {
         let pool = allWords;
         if(isProgressive) pool = allWords.filter(w => !knownWords.includes(w.id));
         
-        // השלמה אם חסר
         if (pool.length < count) {
             const needed = count - pool.length;
             const extra = allWords.filter(w => !pool.includes(w)).slice(0, needed);
@@ -324,7 +365,7 @@
 
     function showGame(type) {
         document.querySelectorAll('.active').forEach(el => el.classList.remove('active'));
-        document.querySelector('.header-container').style.display = 'none'; // מסתיר כותרת
+        document.querySelector('.header-container').style.display = 'none';
         
         if(type === 'snake') {
             prepareGameWords(1);
@@ -338,10 +379,26 @@
             prepareGameWords(6);
             document.getElementById('memory-game').classList.add('active');
             initMemoryGame();
+        } else if (type === 'writing') {
+            prepareGameWords(1);
+            document.getElementById('writing-game').classList.add('active');
+            nextWritingRound();
+        } else if (type === 'sentences') {
+            activeSentences = [...allSentences].sort(() => Math.random() - 0.5);
+            document.getElementById('sentences-game').classList.add('active');
+            nextSentenceRound();
+        } else if (type === 'reading') {
+            prepareGameWords(4);
+            document.getElementById('reading-game').classList.add('active');
+            nextReadingRound();
+        } else if (type === 'listening') {
+            prepareGameWords(4);
+            document.getElementById('listening-game').classList.add('active');
+            nextListeningRound();
         }
     }
 
-    // --- לוגיקת משחקים (מה שיש לנו) ---
+    // --- משחקים ---
     
     // 1. אמת שקר
     let currentTFWord, isCorrectTF;
@@ -359,6 +416,7 @@
         if(ans === isCorrectTF) {
             markWordAsKnown(currentTFWord.id);
             activeWords.shift();
+            addScore(10);
             alert("נכון!");
             nextTFRound();
         } else {
@@ -406,8 +464,6 @@
     function drawSnake() {
         const board = document.getElementById('snake-board');
         board.innerHTML = '';
-        
-        // ציור אוכל
         let f = document.createElement('div');
         f.className = 'food-item';
         f.style.left=food.x+'px'; f.style.top=food.y+'px';
@@ -423,6 +479,7 @@
             markWordAsKnown(food.obj.id);
             if(isProgressive) activeWords = activeWords.filter(w=>w.id!==food.obj.id);
             document.getElementById('chew-sound').play().catch(e=>{});
+            addScore(10);
             spawnSnakeFood();
         } else {
             snake.pop();
@@ -469,6 +526,7 @@
                 if(mFirst.dataset.id == mSecond.dataset.id) {
                     mFirst.classList.add('matched'); mSecond.classList.add('matched');
                     markWordAsKnown(parseInt(mFirst.dataset.id));
+                    addScore(20);
                     mFirst=null; mSecond=null; mLock=false;
                 } else {
                     setTimeout(()=>{
@@ -480,6 +538,136 @@
             board.appendChild(div);
         });
     }
+
+    // 4. כתיבת מילים
+    let currentWritingWord;
+    function nextWritingRound() {
+        if(activeWords.length === 0) prepareGameWords(1);
+        currentWritingWord = activeWords[0];
+        document.getElementById('writing-image-container').innerHTML = `<img src="${currentWritingWord.image}">`;
+        document.getElementById('writing-input').value = "";
+        document.getElementById('writing-input').focus();
+    }
+
+    function checkWriting() {
+        let inputVal = document.getElementById('writing-input').value.trim().toLowerCase();
+        if (inputVal === currentWritingWord.word.toLowerCase()) {
+            alert("נכון מאוד! כל הכבוד.");
+            markWordAsKnown(currentWritingWord.id);
+            activeWords.shift();
+            addScore(15);
+            nextWritingRound();
+        } else {
+            alert("לא בדיוק... נסה שוב. הרמז: " + currentWritingWord.word[0] + "...");
+        }
+    }
+
+    // 5. השלמת משפטים
+    let currentSentence;
+    function nextSentenceRound() {
+        if (activeSentences.length === 0) {
+            alert("סיימת את כל המשפטים!");
+            endGame();
+            return;
+        }
+        currentSentence = activeSentences[0];
+        document.getElementById('sentence-text').innerText = currentSentence.text;
+        
+        let optsDiv = document.getElementById('sentence-options');
+        optsDiv.innerHTML = '';
+        currentSentence.options.sort(() => Math.random() - 0.5).forEach(opt => {
+            let btn = document.createElement('button');
+            btn.className = 'sentence-btn';
+            btn.innerText = opt;
+            btn.onclick = () => checkSentence(opt);
+            optsDiv.appendChild(btn);
+        });
+    }
+
+    function checkSentence(ans) {
+        if (ans === currentSentence.answer) {
+            alert("Good job!");
+            activeSentences.shift();
+            addScore(10);
+            nextSentenceRound();
+        } else {
+            alert("Try again");
+        }
+    }
+
+    // 6. קריאה (Reading) - התאמת תמונה למילה
+    let currentReadingWord;
+    function nextReadingRound() {
+        if(activeWords.length < 4) prepareGameWords(4);
+        // המילה הראשונה היא המטרה
+        currentReadingWord = activeWords[0];
+        document.getElementById('reading-word').innerText = currentReadingWord.word;
+        
+        // לוקחים 4 מילים לערבוב (כולל המטרה)
+        let options = activeWords.slice(0, 4).sort(() => Math.random() - 0.5);
+        
+        let grid = document.getElementById('reading-options');
+        grid.innerHTML = '';
+        
+        options.forEach(w => {
+            let div = document.createElement('div');
+            div.className = 'option-card';
+            div.innerHTML = `<img src="${w.image}">`;
+            div.onclick = () => {
+                if (w.id === currentReadingWord.id) {
+                    alert("נכון!");
+                    markWordAsKnown(currentReadingWord.id);
+                    // מערבבים מחדש למשחק הבא
+                    activeWords = activeWords.sort(() => Math.random() - 0.5); 
+                    addScore(10);
+                    nextReadingRound();
+                } else {
+                    alert("לא נכון");
+                }
+            };
+            grid.appendChild(div);
+        });
+    }
+
+    // 7. הבנת הנשמע (Listening)
+    let currentListeningWord;
+    function nextListeningRound() {
+        if(activeWords.length < 4) prepareGameWords(4);
+        currentListeningWord = activeWords[0];
+        
+        let options = activeWords.slice(0, 4).sort(() => Math.random() - 0.5);
+        let grid = document.getElementById('listening-options');
+        grid.innerHTML = '';
+        
+        options.forEach(w => {
+            let div = document.createElement('div');
+            div.className = 'option-card';
+            div.innerHTML = `<img src="${w.image}">`;
+            div.onclick = () => {
+                if (w.id === currentListeningWord.id) {
+                    alert("נכון!");
+                    markWordAsKnown(currentListeningWord.id);
+                    activeWords = activeWords.sort(() => Math.random() - 0.5);
+                    addScore(10);
+                    nextListeningRound();
+                } else {
+                    alert("לא נכון");
+                }
+            };
+            grid.appendChild(div);
+        });
+        
+        // השמעה אוטומטית בהתחלה (אופציונלי)
+        setTimeout(playCurrentWord, 500);
+    }
+
+    function playCurrentWord() {
+        if (!currentListeningWord) return;
+        let utterance = new SpeechSynthesisUtterance(currentListeningWord.word);
+        utterance.lang = 'en-US';
+        speechSynthesis.speak(utterance);
+    }
+
 </script>
 </body>
 </html>
