@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>מערכת למידה - סנייק משופר</title>
+    <style>
+        :root {
+            --bg-color: #f0f4f8;
+            --primary: #4a90e2; 
+            --secondary: #f5a623;
+            --success: #7ed321;
+            --error: #d0021b;
+            --blue: #5c9ce6;
+            --red: #c94e40;
+            --green: #6ab065;
+            --orange: #d98e2e;
+            --purple: #8e65b0;
+            --dark-blue: #4a5568;
+            --teal: #5aaeb6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 10px;
+            text-align: center;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* --- תפריט --- */
+        .game-screen { display: none; width: 100%; max-width: 800px; margin: 0 auto; padding-bottom: 50px; }
+        .game-screen.active { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1 { color: var(--primary); margin: 5px 0; font-size: 1.8rem; }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .game-btn {
+            border: none; border-radius: 15px; padding: 15px;
+            color: white; font-size: 1.1rem; cursor: pointer;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 90px;
+        }
+        .game-btn:active { transform: translateY(4px); box-shadow: none; }
+        .game-btn span { font-size: 2rem; margin-bottom: 5px; display: block; }
+
+        .btn-blue { background: var(--blue); }
+        .btn-red { background: var(--red); }
+        .btn-green { background: var(--green); }
+        .btn-orange { background: var(--orange); }
+        .btn-purple { background: var(--purple); }
+        .btn-teal { background: var(--teal); }
+        .btn-dark { background: var(--dark-blue); }
+        .full-width { grid-column: span 2; }
+
+        .settings-btn {
+            position: absolute; top: 10px; left: 10px;
+            background: white; border: 1px solid #ccc; font-size: 1.5rem;
+            border-radius: 50%; width: 40px; height: 40px; cursor: pointer; z-index: 100;
+        }
+
+        .home-btn {
+            margin-top: 20px; background: #555; color: white; border: none;
+            padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 1rem;
+        }
+
+        /* תצוגת ניקוד צף במשחק */
+        .live-score {
+            position: absolute; top: 10px; right: 10px;
+            background: var(--secondary); color: white;
+            padding: 5px 15px; border-radius: 20px; font-weight: bold;
+            font-size: 1rem; z-index: 90;
+        }
+
+        /* --- אלמנטים למשחקים --- */
+        .feedback { font-size: 1.3rem; margin: 15px 0; font-weight: bold; min-height: 30px; }
+        .feedback.correct { color: var(--success); }
+        .feedback.wrong { color: var(--error); }
+
+        .bubble-container { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; min-height: 150px; }
+        .bubble {
+            width: 55px; height: 55px; border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #a2d9ff, #4a90e2);
+            color: white; font-weight: bold; font-size: 1.5rem;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            animation: float 3s infinite ease-in-out;
+        }
+        .bubble.popped { transform: scale(0); transition: 0.3s; opacity: 0; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        
+        .spelling-slots { display: flex; justify-content: center; gap: 5px; margin: 15px 0; direction: ltr; }
+        .slot { width: 30px; height: 40px; border-bottom: 3px solid #ccc; font-size: 1.5rem; font-weight: bold; }
+        .slot.filled { border-color: var(--success); color: var(--success); }
+
+        .tf-container { display: flex; gap: 15px; justify-content: center; width: 100%; margin-top: 20px; }
+        .tf-btn { width: 45%; height: 100px; font-size: 1.5rem; border-radius: 15px; border: none; color: white; cursor: pointer; }
+        .tf-true { background: var(--success); } .tf-false { background: var(--error); }
+
+        /* סנייק */
+        #snake-container { position: relative; width: 100%; display: flex; justify-content: center; margin-top: 10px; }
+        canvas { background: #2c3e50; border-radius: 10px; max-width: 100%; width: 600px; height: auto; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .snake-controls { display: grid; grid-template-columns: repeat(3, 60px); gap: 5px; justify-content: center; margin-top: 10px; direction: ltr; }
+        .d-pad-btn { width: 60px; height: 50px; background: #ddd; border: 1px solid #bbb; border-radius: 8px; font-size: 1.5rem; cursor: pointer; }
+        .btn-up { grid-column: 2; } .btn-left { grid-column: 1; } .btn-right { grid-column: 3; } .btn-down { grid-column: 2; }
+
+        /* מפעל משפטים */
+        .sentence-area { background: #eef; min-height: 60px; border-radius: 10px; padding: 10px; display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; border: 2px dashed #aac; margin-bottom: 10px; direction: ltr; }
+        .word-bank { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; direction: ltr; }
+        .word-pill { background: white; border: 2px solid var(--primary); color: var(--primary); padding: 5px 12px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        .word-pill.used { opacity: 0.3; pointer-events: none; background: #ccc; border-color: #999; }
+
+        .btn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 20px; font-size: 1rem; cursor: pointer; margin-top: 10px; }
+        .input-box { font-size: 1.2rem; padding: 8px; border-radius: 8px; border: 2px solid #ccc; width: 60%; text-align: center; }
+
+        /* מודאל */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 200; }
+        .modal-box { background: white; padding: 25px; border-radius: 15px; width: 300px; text-align: center; }
+        .modal-box button { width: 100%; margin: 5px 0; padding: 10px; cursor: pointer; }
+        
+        .win-msg { font-size: 1.5rem; color: var(--success); margin: 20px; animation: popIn 0.5s; }
+        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <button class="settings-btn" onclick="openSettings()">⚙️</button>
+
+    <div id="screen-menu" class="game-screen active">
+        <header>
+            <h1>🎓 הכנה למבחן באנגלית</h1>
+            <div style="background: var(--secondary); color:white; display:inline-block; padding:5px 15px; border-radius:20px;">
+                ניקוד: <span id="main-score">0</span>
+            </div>
+        </header>
+
+        <div class="menu-grid">
+            <button class="game-btn btn-blue" onclick="startGame('vocab')"><span>✍️</span> כתיבת מילים</button>
+            <button class="game-btn btn-blue" onclick="startGame('listening')"><span>👂</span> הבנת הנשמע</button>
+            <button class="game-btn btn-teal" onclick="startGame('reading')"><span>📖</span> קריאה</button>
+            <button class="game-btn btn-teal" onclick="startGame('sentences')"><span>🧩</span> השלמת משפטים</button>
+            <button class="game-btn btn-red full-width" onclick="startGame('speed')"><span>⚡</span> קליק מהיר</button>
+            <button class="game-btn btn-green full-width" onclick="startGame('builder')"><span>🏗️</span> מפעל המשפטים</button>
+            <button class="game-btn btn-orange" onclick="startGame('tf')"><span>✅</span> אמת או שקר</button>
+            <button class="game-btn btn-dark" onclick="startGame('bubble')"><span>🫧</span> פיצוץ בועות</button>
+            <button class="game-btn btn-purple full-width" onclick="startGame('snake')"><span>🐍</span> סנייק מילים</button>
+            <button class="game-btn btn-orange full-width" onclick="startGame('memory')"><span>🃏</span> משחק הזיכרון</button>
+        </div>
+    </div>
+
+    <div id="screen-game" class="game-screen">
+        <div class="live-score">ניקוד: <span class="live-score-val">0</span></div>
+        <h2 id="game-title"></h2>
+        <div id="game-area"></div>
+        <div id="feedback" class="feedback"></div>
+        <button class="home-btn" onclick="showMenu()">🏠 תפריט</button>
+    </div>
+
+    <div id="screen-snake" class="game-screen">
+        <div class="live-score">ניקוד: <span class="live-score-val">0</span></div>
+        <h2>🐍 סנייק מילים</h2>
+        <div id="snake-target" style="font-size:1.5rem; margin-bottom:5px; color: var(--primary); font-weight:bold;"></div>
+        <div id="snake-container"><canvas id="snake-canvas" width="600" height="600"></canvas></div>
+        <div class="snake-controls">
+            <button class="d-pad-btn btn-up" onclick="setSnakeDir('UP')">⬆️</button>
+            <button class="d-pad-btn btn-left" onclick="setSnakeDir('LEFT')">⬅️</button>
+            <button class="d-pad-btn btn-right" onclick="setSnakeDir('RIGHT')">➡️</button>
+            <button class="d-pad-btn btn-down" onclick="setSnakeDir('DOWN')">⬇️</button>
+        </div>
+        <button class="home-btn" onclick="stopSnake()">🏠 יציאה</button>
+    </div>
+
+</div>
+
+<div id="settingsModal" class="modal">
+    <div class="modal-box">
+        <h3>הגדרות</h3>
+        <p>כפתור זה יאפס את הניקוד ל-0 ויחזיר את כל המילים.</p>
+        <button onclick="learningManager.resetAll()" style="color:red; font-weight:bold;">🔄 אפס הכל (ניקוד + מילים)</button>
+        <button onclick="closeSettings()" style="background:#555; color:white;">סגור</button>
+    </div>
+</div>
+
+<script>
+    // === 1. מאגר נתונים ===
+    const vocabulary = [
+        { id: "school", word: "school", icon: "🏫", hebrew: "בית ספר" },
+        { id: "teacher", word: "teacher", icon: "👩‍🏫", hebrew: "מורה" },
+        { id: "pupil", word: "pupil", icon: "👧", hebrew: "תלמיד/ה" },
+        { id: "friend", word: "friend", icon: "👫", hebrew: "חבר/ה" },
+        { id: "family", word: "family", icon: "👨‍👩‍👧‍👦", hebrew: "משפחה" },
+        { id: "book", word: "book", icon: "📖", hebrew: "ספר" },
+        { id: "notebook", word: "notebook", icon: "📓", hebrew: "מחברת" },
+        { id: "pencil", word: "pencil", icon: "✏️", hebrew: "עיפרון" },
+        { id: "computer", word: "computer", icon: "💻", hebrew: "מחשב" },
+        { id: "lunch", word: "lunch", icon: "🥪", hebrew: "ארוחת צהריים" },
+        { id: "bird", word: "bird", icon: "🐦", hebrew: "ציפור" },
+        { id: "house", word: "house", icon: "🏠", hebrew: "בית" },
+        { id: "math", word: "math", icon: "➗", hebrew: "חשבון" },
+        { id: "art", word: "art", icon: "🎨", hebrew: "אומנות" },
+        { id: "happy", word: "happy", icon: "😊", hebrew: "שמח" },
+        { id: "write", word: "write", icon: "✍️", hebrew: "לכתוב" },
+        { id: "english", word: "english", icon: "🔤", hebrew: "אנגלית" }
+    ];
+
+    const sentencesData = [
+        { id: "s1", text: "The _____ is on the table.", options: ["book", "fly"], answer: "book" },
+        { id: "s2", text: "I like my _____. She is nice.", options: ["teacher", "day"], answer: "teacher" },
+        { id: "s3", text: "We learn _____ at school.", options: ["English", "lunch"], answer: "English" },
+        { id: "s4", text: "I have a sandwich for _____.", options: ["lunch", "pencil"], answer: "lunch" },
+        { id: "s5", text: "Please _____ your name.", options: ["write", "happy"], answer: "write" }
+    ];
+
+    const builderSentences = [
+        { id: "b1", correct: "The bird is flying", parts: ["flying", "The", "is", "bird"], icon: "🐦" },
+        { id: "b2", correct: "I have a new computer", parts: ["computer", "have", "I", "a", "new"], icon: "💻" },
+        { id: "b3", correct: "My teacher is nice", parts: ["nice", "is", "teacher", "My"], icon: "👩‍🏫" }
