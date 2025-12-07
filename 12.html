@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>מערכת למידה חכמה - גרסה מתוקנת</title>
+    <style>
+        :root {
+            --bg-color: #f0f4f8;
+            --primary: #4a90e2; 
+            --secondary: #f5a623;
+            --success: #7ed321;
+            --error: #d0021b;
+            --blue: #5c9ce6;
+            --red: #c94e40;
+            --green: #6ab065;
+            --orange: #d98e2e;
+            --purple: #8e65b0;
+            --dark-blue: #4a5568;
+            --teal: #5aaeb6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 10px;
+            text-align: center;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* --- תפריט --- */
+        .game-screen { display: none; width: 100%; max-width: 800px; margin: 0 auto; padding-bottom: 50px; }
+        .game-screen.active { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1 { color: var(--primary); margin: 5px 0; font-size: 1.8rem; }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .game-btn {
+            border: none; border-radius: 15px; padding: 15px;
+            color: white; font-size: 1.1rem; cursor: pointer;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 90px;
+        }
+        .game-btn:active { transform: translateY(4px); box-shadow: none; }
+        .game-btn span { font-size: 2rem; margin-bottom: 5px; display: block; }
+
+        .btn-blue { background: var(--blue); }
+        .btn-red { background: var(--red); }
+        .btn-green { background: var(--green); }
+        .btn-orange { background: var(--orange); }
+        .btn-purple { background: var(--purple); }
+        .btn-teal { background: var(--teal); }
+        .btn-dark { background: var(--dark-blue); }
+        .full-width { grid-column: span 2; }
+
+        .settings-btn {
+            position: absolute; top: 10px; left: 10px;
+            background: white; border: 1px solid #ccc; font-size: 1.5rem;
+            border-radius: 50%; width: 40px; height: 40px; cursor: pointer; z-index: 100;
+        }
+
+        .home-btn {
+            margin-top: 20px; background: #555; color: white; border: none;
+            padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 1rem;
+        }
+
+        /* תצוגת ניקוד צף במשחק */
+        .live-score {
+            position: absolute; top: 10px; right: 10px;
+            background: var(--secondary); color: white;
+            padding: 5px 15px; border-radius: 20px; font-weight: bold;
+            font-size: 1rem; z-index: 90;
+        }
+
+        /* --- אלמנטים למשחקים --- */
+        .feedback { font-size: 1.3rem; margin: 15px 0; font-weight: bold; min-height: 30px; }
+        .feedback.correct { color: var(--success); }
+        .feedback.wrong { color: var(--error); }
+
+        .bubble-container { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; min-height: 150px; }
+        .bubble {
+            width: 55px; height: 55px; border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #a2d9ff, #4a90e2);
+            color: white; font-weight: bold; font-size: 1.5rem;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            animation: float 3s infinite ease-in-out;
+        }
+        .bubble.popped { transform: scale(0); transition: 0.3s; opacity: 0; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        
+        .spelling-slots { display: flex; justify-content: center; gap: 5px; margin: 15px 0; direction: ltr; }
+        .slot { width: 30px; height: 40px; border-bottom: 3px solid #ccc; font-size: 1.5rem; font-weight: bold; }
+        .slot.filled { border-color: var(--success); color: var(--success); }
+
+        .tf-container { display: flex; gap: 15px; justify-content: center; width: 100%; margin-top: 20px; }
+        .tf-btn { width: 45%; height: 100px; font-size: 1.5rem; border-radius: 15px; border: none; color: white; cursor: pointer; }
+        .tf-true { background: var(--success); } .tf-false { background: var(--error); }
+
+        /* סנייק */
+        #snake-container { position: relative; width: 100%; display: flex; justify-content: center; margin-top: 10px; }
+        canvas { background: #2c3e50; border-radius: 10px; max-width: 100%; width: 600px; height: auto; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .snake-controls { display: grid; grid-template-columns: repeat(3, 60px); gap: 5px; justify-content: center; margin-top: 10px; direction: ltr; }
+        .d-pad-btn { width: 60px; height: 50px; background: #ddd; border: 1px solid #bbb; border-radius: 8px; font-size: 1.5rem; cursor: pointer; }
+        .btn-up { grid-column: 2; } .btn-left { grid-column: 1; } .btn-right { grid-column: 3; } .btn-down { grid-column: 2; }
+
+        /* מפעל משפטים */
+        .sentence-area { background: #eef; min-height: 60px; border-radius: 10px; padding: 10px; display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; border: 2px dashed #aac; margin-bottom: 10px; direction: ltr; }
+        .word-bank { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; direction: ltr; }
+        .word-pill { background: white; border: 2px solid var(--primary); color: var(--primary); padding: 5px 12px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        .word-pill.used { opacity: 0.3; pointer-events: none; background: #ccc; border-color: #999; }
+
+        .btn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 20px; font-size: 1rem; cursor: pointer; margin-top: 10px; }
+        .input-box { font-size: 1.2rem; padding: 8px; border-radius: 8px; border: 2px solid #ccc; width: 60%; text-align: center; }
+
+        /* מודאל */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 200; }
+        .modal-box { background: white; padding: 25px; border-radius: 15px; width: 300px; text-align: center; }
+        .modal-box button { width: 100%; margin: 5px 0; padding: 10px; cursor: pointer; }
+        
+        .win-msg { font-size: 1.5rem; color: var(--success); margin: 20px; animation: popIn 0.5s; }
+        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <button class="settings-btn" onclick="openSettings()">⚙️</button>
+
+    <div id="screen-menu" class="game-screen active">
+        <header>
+            <h1>🎓 הכנה למבחן באנגלית</h1>
+            <div style="background: var(--secondary); color:white; display:inline-block; padding:5px 15px; border-radius:20px;">
+                ניקוד: <span id="main-score">0</span>
+            </div>
+        </header>
+
+        <div class="menu-grid">
+            <button class="game-btn btn-blue" onclick="startGame('vocab')"><span>✍️</span> כתיבת מילים</button>
+            <button class="game-btn btn-blue" onclick="startGame('listening')"><span>👂</span> הבנת הנשמע</button>
+            <button class="game-btn btn-teal" onclick="startGame('reading')"><span>📖</span> קריאה</button>
+            <button class="game-btn btn-teal" onclick="startGame('sentences')"><span>🧩</span> השלמת משפטים</button>
+            <button class="game-btn btn-red full-width" onclick="startGame('speed')"><span>⚡</span> קליק מהיר</button>
+            <button class="game-btn btn-green full-width" onclick="startGame('builder')"><span>🏗️</span> מפעל המשפטים</button>
+            <button class="game-btn btn-orange" onclick="startGame('tf')"><span>✅</span> אמת או שקר</button>
+            <button class="game-btn btn-dark" onclick="startGame('bubble')"><span>🫧</span> פיצוץ בועות</button>
+            <button class="game-btn btn-purple full-width" onclick="startGame('snake')"><span>🐍</span> סנייק מילים</button>
+            <button class="game-btn btn-orange full-width" onclick="startGame('memory')"><span>🃏</span> משחק הזיכרון</button>
+        </div>
+    </div>
+
+    <div id="screen-game" class="game-screen">
+        <div class="live-score">ניקוד: <span class="live-score-val">0</span></div>
+        
+        <h2 id="game-title"></h2>
+        <div id="game-area"></div>
+        <div id="feedback" class="feedback"></div>
+        <button class="home-btn" onclick="showMenu()">🏠 תפריט</button>
+    </div>
+
+    <div id="screen-snake" class="game-screen">
+        <div class="live-score">ניקוד: <span class="live-score-val">0</span></div>
+        <h2>🐍 סנייק מילים</h2>
+        <div id="snake-target" style="font-size:1.5rem; margin-bottom:5px; color: var(--primary); font-weight:bold;"></div>
+        <div id="snake-container"><canvas id="snake-canvas" width="600" height="600"></canvas></div>
+        <div class="snake-controls">
+            <button class="d-pad-btn btn-up" onclick="setSnakeDir('UP')">⬆️</button>
+            <button class="d-pad-btn btn-left" onclick="setSnakeDir('LEFT')">⬅️</button>
+            <button class="d-pad-btn btn-right" onclick="setSnakeDir('RIGHT')">➡️</button>
+            <button class="d-pad-btn btn-down" onclick="setSnakeDir('DOWN')">⬇️</button>
+        </div>
+        <button class="home-btn" onclick="stopSnake()">🏠 יציאה</button>
+    </div>
+
+</div>
+
+<div id="settingsModal" class="modal">
+    <div class="modal-box">
+        <h3>הגדרות</h3>
+        <p>כפתור זה יאפס את הניקוד ל-0 ויחזיר את כל המילים.</p>
+        <button onclick="learningManager.resetAll()" style="color:red; font-weight:bold;">🔄 אפס הכל (ניקוד + מילים)</button>
+        <button onclick="closeSettings()" style="background:#555; color:white;">סגור</button>
+    </div>
+</div>
+
+<script>
+    // === 1. מאגר נתונים ===
+    const vocabulary = [
+        { id: "school", word: "school", icon: "🏫", hebrew: "בית ספר" },
+        { id: "teacher", word: "teacher", icon: "👩‍🏫", hebrew: "מורה" },
+        { id: "pupil", word: "pupil", icon: "👧", hebrew: "תלמיד/ה" },
+        { id: "friend", word: "friend", icon: "👫", hebrew: "חבר/ה" },
+        { id: "family", word: "family", icon: "👨‍👩‍👧‍👦", hebrew: "משפחה" },
+        { id: "book", word: "book", icon: "📖", hebrew: "ספר" },
+        { id: "notebook", word: "notebook", icon: "📓", hebrew: "מחברת" },
+        { id: "pencil", word: "pencil", icon: "✏️", hebrew: "עיפרון" },
+        { id: "computer", word: "computer", icon: "💻", hebrew: "מחשב" },
+        { id: "lunch", word: "lunch", icon: "🥪", hebrew: "ארוחת צהריים" },
+        { id: "bird", word: "bird", icon: "🐦", hebrew: "ציפור" },
+        { id: "house", word: "house", icon: "🏠", hebrew: "בית" },
+        { id: "math", word: "math", icon: "➗", hebrew: "חשבון" },
+        { id: "art", word: "art", icon: "🎨", hebrew: "אומנות" },
+        { id: "happy", word: "happy", icon: "😊", hebrew: "שמח" },
+        { id: "write", word: "write", icon: "✍️", hebrew: "לכתוב" },
+        { id: "english", word: "english", icon: "🔤", hebrew: "אנגלית" }
+    ];
+
+    const sentencesData = [
+        { id: "s1", text: "The _____ is on the table.", options: ["book", "fly"], answer: "book" },
+        { id: "s2", text: "I like my _____. She is nice.", options: ["teacher", "day"], answer: "teacher" },
+        { id: "s3", text: "We learn _____ at school.", options: ["English", "lunch"], answer: "English" },
+        { id: "s4", text: "I have a sandwich for _____.", options: ["lunch", "pencil"], answer: "lunch" },
+        { id: "s5", text: "Please _____ your name.", options: ["write", "happy"], answer: "write" }
+    ];
+
+    const builderSentences = [
+        { id: "b1", correct: "The bird is flying", parts: ["flying", "The", "is", "bird"], icon: "🐦" },
+        { id: "b2", correct: "I have a new computer", parts: ["computer", "have", "I", "a", "new"], icon: "💻" },
+        { id: "b3", correct: "My teacher is nice", parts: ["nice", "is", "teacher", "My"], icon: "👩‍🏫" }
+    ];
+
+    const readingText = `
+        Hi! My name is Gal. I am 9 years old.
+        I am a pupil in grade 4.
+        My teacher is Rina. She is very nice.
+        I have a new computer at home.
+    `;
+    const readingQuestions = [
+        { id: "r1", q: "What is the girl's name?", options: ["Rina", "Gal", "Tal"], answer: "Gal" },
+        { id: "r2", q: "What grade is she in?", options: ["Grade 3", "Grade 5", "Grade 4"], answer: "Grade 4" },
+        { id: "r3", q: "What does she have at home?", options: ["A bird", "A new computer", "A dog"], answer: "A new computer" }
+    ];
+
+    // === 2. מנהל למידה ===
+    const learningManager = {
+        getPlayableItems: function(gameId, sourceData) {
+            const known = JSON.parse(localStorage.getItem('known_' + gameId) || '[]');
+            let active = sourceData.filter(item => !known.includes(item.id));
+            if (active.length === 0) return [];
+            return active.sort(() => Math.random() - 0.5);
+        },
+        markKnown: function(gameId, itemId) {
+            let known = JSON.parse(localStorage.getItem('known_' + gameId) || '[]');
+            if (!known.includes(itemId)) {
+                known.push(itemId);
+                localStorage.setItem('known_' + gameId, JSON.stringify(known));
+            }
+        },
+        resetAll: function() {
+            if(confirm("פעולה זו תאפס את הניקוד ותחזיר את כל המילים. להמשיך?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+    };
+
+    // === 3. ניהול ניקוד ותצוגה ===
+    let score = parseInt(localStorage.getItem('totalScore') || '0');
+    updateAllScoreDisplays();
+    
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function updateAllScoreDisplays() {
+        // עדכון בכל המקומות שמופיע ניקוד
+        document.getElementById('main-score').innerText = score;
+        document.querySelectorAll('.live-score-val').forEach(el => el.innerText = score);
+        localStorage.setItem('totalScore', score);
+    }
+
+    function playSound(type) {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+        o.connect(g); g.connect(audioCtx.destination);
+        if (type === 'correct') {
+            o.type = 'sine'; o.frequency.setValueAtTime(600, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            o.start(); o.stop(audioCtx.currentTime + 0.3);
+        } else {
+            o.type = 'sawtooth'; o.frequency.setValueAtTime(150, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            o.start(); o.stop(audioCtx.currentTime + 0.3);
+        }
+    }
+
+    function speak(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = 'en-US';
+            window.speechSynthesis.speak(u);
+        }
+    }
+
+    function showMenu() {
+        document.querySelectorAll('.game-screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('screen-menu').classList.add('active');
+        updateAllScoreDisplays();
+    }
+    
+    function switchScreen(id) {
+        document.querySelectorAll('.game-screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        updateAllScoreDisplays();
+    }
+    
+    function openSettings() { document.getElementById('settingsModal').style.display = 'flex'; }
+    function closeSettings() { document.getElementById('settingsModal').style.display = 'none'; }
+
+    function showWinMessage(area, gameName) {
+        area.innerHTML = `
+            <div class="win-msg">
+                <h1>🏆 כל הכבוד!</h1>
+                <p>סיימת את כל המילים ב-${gameName}.</p>
+                <p>גש להגדרות כדי לאפס ולהתחיל מחדש.</p>
+                <button class="btn" onclick="showMenu()">חזור לתפריט</button>
+            </div>
+        `;
+    }
+
+    // === 4. לוגיקת משחקים ===
+    function startGame(mode) {
+        const area = document.getElementById('game-area');
+        const feedback = document.getElementById('feedback');
+        feedback.innerText = ''; area.innerHTML = '';
+        
+        if (mode === 'snake') { switchScreen('screen-snake'); startSnake(); return; }
+        switchScreen('screen-game');
+        
+        if (mode === 'vocab') initVocab(area);
+        else if (mode === 'listening') initListening(area);
+        else if (mode === 'reading') initReading(area);
+        else if (mode === 'sentences') initSentences(area);
+        else if (mode === 'speed') initSpeed(area);
+        else if (mode === 'builder') initBuilder(area);
+        else if (mode === 'tf') initTF(area);
+        else if (mode === 'bubble') initBubble(area);
+        else if (mode === 'memory') initMemory(area);
+    }
+
+    // --- כתיבת מילים ---
+    let hintIndex = 0;
+    function initVocab(area) {
+        document.getElementById('game-title').innerText = "כתיבת מילים";
+        let items = learningManager.getPlayableItems('vocab', vocabulary);
+        if(items.length === 0) { showWinMessage(area, "כתיבת מילים"); return; }
+        
+        let item = items[0];
+        hintIndex = 0;
+        
+        area.innerHTML = `
+            <div style="font-size:4rem">${item.icon}</div>
+            <div style="font-size:1.2rem; margin-bottom:10px">${item.hebrew}</div>
+            <input type="text" id="ans-input" class="input-box" autocomplete="off" placeholder="כתוב באנגלית...">
+            <div id="hint-text" style="color:#888; font-size:0.9rem; margin-top:5px; min-height:20px;"></div>
+            <br>
+            <button class="btn" onclick="checkVocab('${item.word}', '${item.id}')">בדיקה</button>
+            <button class="btn" style="background:#8e44ad" onclick="showHint('${item.word}')">💡 רמז</button>
+        `;
+    }
+    function showHint(word) {
+        hintIndex++;
+        const sub = word.substring(0, hintIndex);
+        document.getElementById('hint-text').innerText = "רמז: " + sub + "...";
+    }
+    function checkVocab(target, id) {
+        const val = document.getElementById('ans-input').value.trim().toLowerCase();
+        if (val === target.toLowerCase()) correct("vocab", id, () => startGame('vocab'));
+        else wrong(target);
+    }
+
+    // --- קליק מהיר ---
+    let speedTimer;
+    function initSpeed(area) {
+        document.getElementById('game-title').innerText = "קליק מהיר!";
+        let items = learningManager.getPlayableItems('speed', vocabulary);
+        if(items.length === 0) { showWinMessage(area, "קליק מהיר"); return; }
+
+        let item = items[0];
+        let options = [item];
+        while(options.length < 4) {
+            let r = vocabulary[Math.floor(Math.random() * vocabulary.length)];
+            if(!options.find(o => o.id === r.id)) options.push(r);
+        }
+        options.sort(() => 0.5 - Math.random());
+        
+        area.innerHTML = `
+            <div style="font-size:2.5rem; margin-bottom:20px; font-weight:bold;">${item.hebrew}</div>
+            <div id="speed-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
+            <div style="height:10px; background:#ddd; margin-top:20px; border-radius:5px;"><div id="timer-bar" style="height:100%; width:100%; background:red;"></div></div>
+        `;
+        
+        options.forEach(opt => {
+            let b = document.createElement('button'); b.className = 'btn'; b.innerText = opt.word;
+            b.onclick = () => {
+                clearInterval(speedTimer);
+                if(opt.id === item.id) correct("speed", item.id, () => startGame('speed'));
+                else wrong(item.word);
+            };
+            document.getElementById('speed-grid').appendChild(b);
+        });
+
+        let timeLeft = 100;
+        speedTimer = setInterval(() => {
+            timeLeft -= 1; 
+            document.getElementById('timer-bar').style.width = timeLeft + "%";
+            if(timeLeft <= 0) {
+                clearInterval(speedTimer);
+                wrong("נגמר הזמן!");
+            }
+        }, 80);
+    }
+
+    // --- מפעל המשפטים ---
+    function initBuilder(area) {
+        document.getElementById('game-title').innerText = "מפעל המשפטים";
+        let items = learningManager.getPlayableItems('builder', builderSentences);
+        if(items.length === 0) { showWinMessage(area, "מפעל המשפטים"); return; }
+
+        let item = items[0];
+        let words = [...item.parts].sort(() => 0.5 - Math.random());
+        
+        area.innerHTML = `
+            <div style="font-size:3rem">${item.icon}</div>
+            <div id="build-zone" class="sentence-area">Click words to build</div>
+            <div id="build-bank" class="word-bank"></div>
+            <button class="btn" style="margin-top:15px" onclick="checkBuilder('${item.correct}', '${item.id}')">בדיקה</button>
+        `;
+        
+        let bank = document.getElementById('build-bank');
+        let currentBuild = [];
+        
+        words.forEach(w => {
+            let pill = document.createElement('div'); pill.className = 'word-pill'; pill.innerText = w;
+            pill.onclick = () => {
+                if(pill.classList.contains('used')) return;
+                pill.classList.add('used');
+                currentBuild.push(w);
+                updateZone();
+            };
+            bank.appendChild(pill);
+        });
+
+        function updateZone() {
+            let z = document.getElementById('build-zone');
+            z.innerHTML = '';
+            currentBuild.forEach((w, idx) => {
+                let p = document.createElement('div'); p.className = 'word-pill'; p.innerText = w; p.style.background = '#eef';
+                p.onclick = () => {
+                    currentBuild.splice(idx, 1);
+                    Array.from(bank.children).find(b => b.innerText === w && b.classList.contains('used')).classList.remove('used');
+                    updateZone();
+                };
+                z.appendChild(p);
+            });
+        }
+        
+        window.checkBuilder = (target, id) => {
+            if(currentBuild.join(' ') === target) correct("builder", id, () => startGame('builder'));
+            else { 
+                wrong("לא מדויק..."); 
+                currentBuild = []; 
+                Array.from(bank.children).forEach(c => c.classList.remove('used'));
+                updateZone();
+            }
+        };
+    }
+
+    // --- סנייק ---
+    let snakeCtx, snakeLoop, snakeState;
+    const GRID_SIZE = 30; 
+    const CANVAS_SIZE = 600;
+
+    function startSnake() {
+        const canvas = document.getElementById('snake-canvas');
+        snakeCtx = canvas.getContext('2d');
+        
+        let items = learningManager.getPlayableItems('snake', vocabulary);
+        if(items.length === 0) { 
+            stopSnake(); 
+            alert("כל הכבוד! סיימת את כל המילים בסנייק.");
+            showMenu();
+            return; 
+        }
+
+        let item = items[0];
+        document.getElementById('snake-target').innerText = item.hebrew;
+        
+        snakeState = {
+            snake: [{x:150, y:150}, {x:120, y:150}, {x:90, y:150}],
+            dx: GRID_SIZE, dy: 0,
+            currentItem: item,
+            targetChar: item.word[0].toUpperCase(),
+            targetWord: item.word.toUpperCase(),
+            wordIdx: 0,
+            items: []
+        };
+        spawnSnakeItems();
+        if(snakeLoop) clearInterval(snakeLoop);
+        snakeLoop = setInterval(updateSnake, 300);
+    }
+    
+    function stopSnake() { clearInterval(snakeLoop); showMenu(); }
+    
+    function spawnSnakeItems() {
+        snakeState.items = [];
+        let goodChar = snakeState.targetWord[snakeState.wordIdx];
+        
+        snakeState.items.push({
+            x: Math.floor(Math.random() * (CANVAS_SIZE/GRID_SIZE)) * GRID_SIZE,
+            y: Math.floor(Math.random() * (CANVAS_SIZE/GRID_SIZE)) * GRID_SIZE,
+            val: goodChar,
+            type: 'good'
+        });
+
+        let badChar;
+        do { badChar = String.fromCharCode(65 + Math.floor(Math.random() * 26)); } while (badChar === goodChar);
+
+        snakeState.items.push({
+            x: Math.floor(Math.random() * (CANVAS_SIZE/GRID_SIZE)) * GRID_SIZE,
+            y: Math.floor(Math.random() * (CANVAS_SIZE/GRID_SIZE)) * GRID_SIZE,
+            val: badChar,
+            type: 'bad'
+        });
+    }
+
+    function updateSnake() {
+        let head = {x: snakeState.snake[0].x + snakeState.dx, y: snakeState.snake[0].y + snakeState.dy};
+        
+        if(head.x < 0 || head.x >= CANVAS_SIZE || head.y < 0 || head.y >= CANVAS_SIZE) { 
+            stopSnake(); alert("נתקעת בקיר!"); return; 
+        }
+        
+        snakeState.snake.unshift(head);
+        
+        let ate = false;
+        for (let i = 0; i < snakeState.items.length; i++) {
+            let item = snakeState.items[i];
+            if (head.x === item.x && head.y === item.y) {
+                if (item.type === 'good') {
+                    playSound('correct');
+                    snakeState.wordIdx++;
+                    ate = true;
+                    if(snakeState.wordIdx >= snakeState.targetWord.length) {
+                        score += 20; 
+                        updateAllScoreDisplays();
+                        learningManager.markKnown('snake', snakeState.currentItem.id);
+                        startSnake(); return;
+                    } else {
+                        spawnSnakeItems();
+                    }
+                } else {
+                    playSound('wrong');
+                    score = Math.max(0, score - 5);
+                    updateAllScoreDisplays();
+                    snakeState.snake.pop(); 
+                    spawnSnakeItems();
+                }
+                break;
+            }
+        }
+        
+        if(!ate) snakeState.snake.pop();
+        
+        snakeCtx.fillStyle = '#2c3e50'; snakeCtx.fillRect(0,0,CANVAS_SIZE,CANVAS_SIZE);
+        snakeCtx.font = "24px Arial"; snakeCtx.textAlign = "center"; snakeCtx.textBaseline = "middle";
+        
+        snakeState.items.forEach(item => {
+            snakeCtx.fillStyle = item.type === 'good' ? '#2ecc71' : '#e74c3c';
+            snakeCtx.beginPath(); snakeCtx.arc(item.x + GRID_SIZE/2, item.y + GRID_SIZE/2, GRID_SIZE/2 - 2, 0, Math.PI*2); snakeCtx.fill();
+            snakeCtx.fillStyle = 'white'; snakeCtx.fillText(item.val, item.x + GRID_SIZE/2, item.y + GRID_SIZE/2);
+        });
+
+        snakeState.snake.forEach((p, index) => {
+            if (index === 0) {
+                snakeCtx.fillStyle = '#3498db'; snakeCtx.fillRect(p.x, p.y, GRID_SIZE, GRID_SIZE);
+                snakeCtx.fillStyle = 'white';
+                let eyeOffset = 6;
+                snakeCtx.beginPath(); snakeCtx.arc(p.x + eyeOffset, p.y + eyeOffset, 4, 0, Math.PI*2); snakeCtx.fill();
+                snakeCtx.beginPath(); snakeCtx.arc(p.x + GRID_SIZE - eyeOffset, p.y + eyeOffset, 4, 0, Math.PI*2); snakeCtx.fill();
+                snakeCtx.fillStyle = 'black';
+                snakeCtx.beginPath(); snakeCtx.arc(p.x + eyeOffset, p.y + eyeOffset, 2, 0, Math.PI*2); snakeCtx.fill();
+                snakeCtx.beginPath(); snakeCtx.arc(p.x + GRID_SIZE - eyeOffset, p.y + eyeOffset, 2, 0, Math.PI*2); snakeCtx.fill();
+                snakeCtx.fillStyle = '#c0392b';
+                snakeCtx.beginPath(); snakeCtx.arc(p.x + GRID_SIZE/2, p.y + GRID_SIZE - 8, 4, 0, Math.PI, false); snakeCtx.fill();
+            } else {
+                snakeCtx.fillStyle = '#2980b9'; snakeCtx.fillRect(p.x + 2, p.y + 2, GRID_SIZE - 4, GRID_SIZE - 4);
+            }
+        });
+    }
+
+    function setSnakeDir(d) {
+        if(d==='UP' && snakeState.dy===0) { snakeState.dx=0; snakeState.dy=-GRID_SIZE; }
+        if(d==='DOWN' && snakeState.dy===0) { snakeState.dx=0; snakeState.dy=GRID_SIZE; }
+        if(d==='LEFT' && snakeState.dx===0) { snakeState.dx=-GRID_SIZE; snakeState.dy=0; }
+        if(d==='RIGHT' && snakeState.dx===0) { snakeState.dx=GRID_SIZE; snakeState.dy=0; }
+    }
+
+    // --- הבנת הנשמע ---
+    function initListening(area) {
+        document.getElementById('game-title').innerText = "הבנת הנשמע";
+        let items = learningManager.getPlayableItems('listening', vocabulary);
+        if(items.length === 0) { showWinMessage(area, "הבנת הנשמע"); return; }
+        let target = items[0];
+
+        let options = [target];
+        while(options.length < 3) {
+            let r = vocabulary[Math.floor(Math.random() * vocabulary.length)];
+            if(!options.find(o => o.id === r.id)) options.push(r);
+        }
+        options.sort(() => Math.random() - 0.5);
+
+        area.innerHTML = `<button class="btn" onclick="speak('${target.word}')">🔊 השמע מילה</button><div style="display:flex; gap:10px; justify-content:center; margin-top:20px;" id="list-opts"></div>`;
+        const optsDiv = document.getElementById('list-opts');
+        options.forEach(opt => {
+            let b = document.createElement('div');
+            b.style.fontSize = "3.5rem"; b.style.cursor = "pointer"; b.innerText = opt.icon; b.style.border = "1px solid #ccc"; b.style.padding="10px"; b.style.borderRadius="10px";
+            b.onclick = () => {
+                if(opt.id === target.id) { speak('Correct'); correct("listening", target.id, () => startGame('listening')); }
+                else { wrong(target.word); }
+            };
+            optsDiv.appendChild(b);
+        });
+        setTimeout(() => speak(target.word), 500);
+    }
+
+    // --- השלמת משפטים ---
+    function initSentences(area) {
+        document.getElementById('game-title').innerText = "השלמת משפטים";
+        let items = learningManager.getPlayableItems('sentences', sentencesData);
+        if(items.length === 0) { showWinMessage(area, "השלמת משפטים"); return; }
+        let q = items[0];
+
+        area.innerHTML = `<div style="font-size:1.5rem; direction:ltr; margin-bottom:20px;">${q.text}</div><div id="sent-opts"></div>`;
+        let shuffledOpts = [...q.options].sort(() => Math.random() - 0.5);
+        
+        shuffledOpts.forEach(opt => {
+            let b = document.createElement('button'); b.className = 'btn btn-teal'; b.innerText = opt; b.style.margin = "5px";
+            b.onclick = () => { if(opt === q.answer) correct("sentences", q.id, () => startGame('sentences')); else wrong("נסה שוב"); }
+            document.getElementById('sent-opts').appendChild(b);
+        });
+    }
+
+    // --- קריאה ---
+    function initReading(area) {
+        document.getElementById('game-title').innerText = "קריאה והבנה";
+        let items = learningManager.getPlayableItems('reading', readingQuestions);
+        if(items.length === 0) { showWinMessage(area, "קריאה"); return; }
+        let q = items[0];
+
+        area.innerHTML = `<div style="background:white; padding:15px; text-align:left; border-left:4px solid var(--primary); margin-bottom:15px; direction:ltr;">${readingText.replace(/\n/g, '<br>')}</div><div style="direction:ltr; font-weight:bold; font-size:1.1rem;">${q.q}</div><div id="read-opts" style="display:flex; gap:5px; justify-content:center; flex-wrap:wrap;"></div>`;
+        let shuffledOpts = [...q.options].sort(() => Math.random() - 0.5);
+        shuffledOpts.forEach(opt => {
+            let b = document.createElement('button'); b.className = 'btn btn-secondary'; b.innerText = opt;
+            b.onclick = () => { if(opt === q.answer) correct("reading", q.id, () => startGame('reading')); else wrong("Try again"); };
+            document.getElementById('read-opts').appendChild(b);
+        });
+    }
+
+    // --- פיצוץ בועות ---
+    let bubbleState = { target: '', idx: 0 };
+    function initBubble(area) {
+        document.getElementById('game-title').innerText = "פיצוץ בועות";
+        let items = learningManager.getPlayableItems('bubble', vocabulary);
+        if(items.length === 0) { showWinMessage(area, "פיצוץ בועות"); return; }
+        let item = items[0];
+
+        bubbleState = { target: item.word.toUpperCase(), idx: 0 };
+        area.innerHTML = `<div style="font-size:3rem">${item.icon}</div><div id="bubble-slots" class="spelling-slots"></div><div id="bubble-wrap" class="bubble-container"></div>`;
+        const slots = document.getElementById('bubble-slots');
+        for(let i=0; i<bubbleState.target.length; i++) { let s = document.createElement('div'); s.className = 'slot'; slots.appendChild(s); }
+        let letters = bubbleState.target.split('');
+        for(let i=0; i<4; i++) letters.push(String.fromCharCode(65+Math.floor(Math.random()*26)));
+        letters.sort(() => Math.random() - 0.5);
+        const wrap = document.getElementById('bubble-wrap');
+        letters.forEach(char => {
+            let b = document.createElement('div'); b.className = 'bubble'; b.innerText = char;
+            b.onclick = (e) => handleBubbleClick(char, e.target, item.id);
+            wrap.appendChild(b);
+        });
+    }
+    function handleBubbleClick(char, el, id) {
+        if(el.classList.contains('popped')) return;
+        let expected = bubbleState.target[bubbleState.idx];
+        el.classList.add('popped');
+        if(char === expected) {
+            playSound('correct'); let slot = document.querySelectorAll('.slot')[bubbleState.idx]; slot.innerText = char; slot.classList.add('filled'); bubbleState.idx++;
+            if(bubbleState.idx === bubbleState.target.length) correct("bubble", id, () => startGame('bubble'));
+        } else {
+            playSound('wrong'); score = Math.max(0, score-1); updateAllScoreDisplays(); setTimeout(() => el.classList.remove('popped'), 1000);
+        }
+    }
+
+    // --- אמת או שקר ---
+    function initTF(area) {
+        document.getElementById('game-title').innerText = "אמת או שקר";
+        let item = vocabulary[Math.floor(Math.random() * vocabulary.length)];
+        let isTrue = Math.random() > 0.5;
+        let displayedWord = isTrue ? item.word : vocabulary[Math.floor(Math.random() * vocabulary.length)].word;
+        area.innerHTML = `<div style="font-size:5rem">${item.icon}</div><div style="font-size:2rem; font-weight:bold; margin:10px;">${displayedWord}</div><div class="tf-container"><button class="tf-btn tf-true" onclick="checkTF(${isTrue}, true)">TRUE</button><button class="tf-btn tf-false" onclick="checkTF(${isTrue}, false)">FALSE</button></div>`;
+    }
+    function checkTF(truth, userChoice) { if(truth === userChoice) correct("none", null, () => startGame('tf')); else wrong("Wrong!"); }
+
+    // --- משחק הזיכרון ---
+    let memState = { flipped: [], matches: 0 };
+    function initMemory(area) {
+        document.getElementById('game-title').innerText = "משחק הזיכרון";
+        let playable = learningManager.getPlayableItems('memory', vocabulary);
+        let needed = 6;
+        let selected = [];
+        
+        if (playable.length >= needed) {
+            selected = playable.slice(0, needed);
+        } else {
+            selected = [...playable];
+            let remain = needed - selected.length;
+            let others = vocabulary.filter(v => !selected.includes(v)); 
+            others.sort(() => Math.random() - 0.5); 
+            selected = selected.concat(others.slice(0, remain));
+        }
+
+        let deck = [];
+        selected.forEach(i => { deck.push({id: i.id, val: i.icon, type: 'icon'}); deck.push({id: i.id, val: i.word, type: 'word'}); });
+        deck.sort(()=>0.5-Math.random());
+        area.innerHTML = '<div id="mem-grid" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;"></div>';
+        const grid = document.getElementById('mem-grid');
+        memState = { flipped: [], matches: 0 };
+        deck.forEach((card) => {
+            let c = document.createElement('div');
+            c.style.height="80px"; c.style.background="var(--primary)"; c.style.borderRadius="8px"; c.style.cursor="pointer"; c.style.display="flex"; c.style.alignItems="center"; c.style.justifyContent="center"; c.style.color="white"; c.style.fontSize="1.5rem";
+            c.innerText = "?";
+            c.onclick = () => flipCard(c, card);
+            grid.appendChild(c);
+        });
+    }
+    function flipCard(el, card) {
+        if(el.style.background === "white" || memState.flipped.length >= 2) return;
+        el.style.background = "white"; el.style.color = "#333"; el.style.border = "2px solid var(--primary)"; el.innerText = card.val;
+        memState.flipped.push({el, card});
+        if(memState.flipped.length === 2) {
+            let [c1, c2] = memState.flipped;
+            if(c1.card.id === c2.card.id) {
+                playSound('correct'); 
+                learningManager.markKnown('memory', c1.card.id);
+                memState.flipped = []; memState.matches++; 
+                if(memState.matches === 6) correct("none", null, () => startGame('memory'));
+            } else {
+                setTimeout(() => { [c1, c2].forEach(x => { x.el.style.background="var(--primary)"; x.el.innerText="?"; x.el.style.color="white"; }); memState.flipped = []; }, 1000);
+            }
+        }
+    }
+
+    // --- פונקציות ליבה ---
+    function correct(gameId, itemId, nextCb) {
+        playSound('correct');
+        document.getElementById('feedback').innerText = "כל הכבוד!";
+        document.getElementById('feedback').className = "feedback correct";
+        
+        score += 10;
+        updateAllScoreDisplays();
+        
+        // סימון הפריט כנלמד
+        if(itemId && gameId !== "none") {
+            learningManager.markKnown(gameId, itemId);
+        }
+        
+        setTimeout(nextCb, 1000);
+    }
+
+    function wrong(msg) {
+        playSound('wrong');
+        document.getElementById('feedback').innerText = msg || "טעות...";
+        document.getElementById('feedback').className = "feedback wrong";
+    }
+
+</script>
+</body>
+</html>
